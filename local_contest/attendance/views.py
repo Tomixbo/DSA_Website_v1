@@ -31,3 +31,10 @@ def validate_attendance(request):
             messages.error(request, "Le code est incorrect. Veuillez réessayer.")
 
     return render(request, 'attendance/attendance_form.html')
+
+@user_passes_test(lambda u: u.is_superuser)
+def attendance_list(request):
+    today = now().date()
+    # Récupérer la liste des présences pour la date du jour
+    attendance_records = UserAttendance.objects.filter(date=today)
+    return render(request, 'attendance/attendance_list.html', {'attendance_records': attendance_records})

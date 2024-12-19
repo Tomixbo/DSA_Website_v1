@@ -6,4 +6,6 @@ app_name = 'attendance'
 urlpatterns = [
     path('display_code/', views.display_code, name='display_code'),
     path('validate/', views.validate_attendance, name='validate_attendance'),
+        path('list/', views.attendance_list, name='attendance_list'), 
+
 ]

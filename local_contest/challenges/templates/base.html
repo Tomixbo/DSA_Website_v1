@@ -33,9 +33,16 @@
 </script>
 <body class="bg-light">
     <nav class="shadow navbar fixed-top navbar-expand navbar-dark px-3 py-0" style="background-color: #01686f;">
-        <div class="flex-grow-1">
+        <div class="flex-grow-1 d-flex align-items-center">
             <a class="navbar-brand" href="{% url 'challenge_list' %}"> ⟵ Hello DSA</a>
-            <a class="navbar-brand" href="{% url 'attendance:validate_attendance' %}"> | Attendance |</a>
+            {% if user.is_authenticated %}
+            <a class="navbar-brand" href="{% url 'attendance:validate_attendance' %}" style="font-size: 1rem;"> | ATTENDANCE |</a>
+            {% endif %}
+            {% if user.is_superuser %}
+                <a class="navbar-brand" href="{% url 'attendance:display_code' %}" style="font-size: 1rem;">| A.CODE |</a>
+                <a class="navbar-brand" href="{% url 'attendance:attendance_list' %}" style="font-size: 1rem;">| A.RECORDS |</a>
+            {% endif %}
+
         </div>
         <ul class="navbar-nav">
             {% comment %} <li class="nav-item">

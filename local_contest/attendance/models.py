@@ -9,9 +9,10 @@ class AttendanceCode(models.Model):
 
 class UserAttendance(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    date = models.DateField(auto_now_add=True)
+    date = models.DateField(auto_now_add=True)  # Stocke uniquement la date
+    time = models.TimeField(auto_now_add=True)  # Stocke uniquement l'heure
     code_used = models.CharField(max_length=10)
     presence_validated = models.BooleanField(default=True)
 
     class Meta:
-        unique_together = ('user', 'date')  # Un utilisateur ne peut valider sa présence qu'une fois par jour.
+        unique_together = ('user', 'date')  # Un utilisateur ne peut valider qu'une fois par jour
