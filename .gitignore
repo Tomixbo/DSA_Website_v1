@@ -161,3 +161,4 @@ cython_debug/
 
 local_contest/media/
 local_contest//staticfiles/
+static/
