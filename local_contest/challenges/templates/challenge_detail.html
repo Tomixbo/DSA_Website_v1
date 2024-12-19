@@ -2,6 +2,20 @@
 {% load static %}
 {% load django_template_maths %}
 {% load custom_filters %}
+{% block rank_and_score %}
+    <li class="nav-item">
+        <a id="user-rank" class="nav-link hover text-white" href="{% url 'ranking' %}">Your rank : {{ user.rank }}/{{ total_user }} <i class="bi-info-circle ms-1"></i></a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link disabled text-white" href="#">|</a>
+    </li>
+    <li class="nav-item">
+        <a id="user-score" class="nav-link disabled text-white" href="#">Your score : {{ user.score }}</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link disabled text-white" href="#">|</a>
+    </li>
+{% endblock rank_and_score %}
 {% block content %}
 <style>
     /* Styles pour les résultats VALID */
