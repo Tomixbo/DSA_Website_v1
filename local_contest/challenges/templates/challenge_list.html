@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% load static %}
+{% load django_template_maths %}
+{% block content %}
+
+    <div class="shadow container-fluid  p-3 px-4 text-white" style="background-color: #051934;">
+        <h2>Challenge List</h2>
+    </div>
+    
+    {% if messages %}
+        {% for message in messages %}
+            <br/>
+            <div class="container-fluid px-3">
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+             </div>
+            
+        {% endfor %}
+    {% endif %}
+    <div class="card m-3 p-3">
+        <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>Challenge name</th>
+                <th class="text-center">Category</th>
+                <th class="text-center">Difficulty</th>
+                <th class="col-2 text-center">Your progress</th>
+              </tr>
+            </thead>
+            <tbody>
+                {% for challenge in challenges %}
+                    {% if challenge.published %}
+                         <tr>
+                            <td><a href="{% url 'challenge_detail' challenge_slug=challenge.slug %}" class="list-group-item level-link">{{ challenge.name }}</a></td>
+                            <!-- <td>{{ challenge.name }}</td> -->
+                            <td class="text-center">{{ challenge.category }}</td>
+                            <td class="text-center">
+                                <figure class="notation-s my-1">
+                                    <span role="img" aria-labelledby="rating-6636663adb9b6" style="width: {{ challenge.difficulty|mul:20 }}%"></span>
+                                </figure>
+                            </td>
+                            <td class="text-center">{{ challenge.num_resolved_defined_files }}/{{ challenge.num_defined_files }}</td>
+                        </tr>
+                     {% endif %}
+                {% endfor %}
+            </tbody>
+          </table>
+        
+    </div>
+    
+
+    <script src="{% static 'js/jquery.min.js' %}"></script>
+    
+{% endblock content %}

@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+
+
+    <div class="shadow  container-fluid  p-3 px-4 text-white" style="background-color: #051934;">
+        <h2>Register</h2>
+    </div>
+    <div class="container">
+        
+        <br/>
+        {% if form.errors %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                There was an error with your form..
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endif%}
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                
+            {% endfor %}
+        {% endif %}
+        <div class="shadow p-4 mb-5 bg-light rounded">
+            <form action="{% url 'register' %}" method="post">
+                {% csrf_token %}
+                {{ form.as_p_no_errors|safe }}
+        
+                <button type="submit" class="btn btn-primary">Sign up</button>
+                <div class="fs-6 mt-3">Already have an account,  
+                    <a href="{% url 'login' %}">sign-in here</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+{% endblock content %}

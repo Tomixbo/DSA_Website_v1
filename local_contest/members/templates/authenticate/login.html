@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+    <div class="shadow container-fluid  p-3 px-4 text-white" style="background-color: #051934;">
+        <h2>Connexion</h2>
+    </div>
+    <div class="container">
+        <br/>
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                
+            {% endfor %}
+        {% endif %}
+        <div class="shadow p-4 mb-5 bg-light rounded">
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                <label for="exampleInputEmail1" class="form-label">Username</label>
+                <input type="text" class="form-control" name="username" aria-describedby="emailHelp">
+                </div>
+                <div class="mb-3">
+                <label for="exampleInputPassword1" class="form-label">Password</label>
+                <input type="password" class="form-control" name="password">
+                </div>
+        
+                <button type="submit" class="btn btn-primary">Sign in</button>
+                <div class="fs-6 mt-3">For new member, you can 
+                    <a href="{% url 'register' %}">register here</a>
+                </div>
+                <div class="fs-6 mt-3">You forgot your password, you can 
+                    <a href="{% url 'password_reset' %}">reset password here</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+{% endblock content %}

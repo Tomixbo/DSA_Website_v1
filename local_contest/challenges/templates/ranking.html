@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% load static %}
+{% load django_template_maths %}
+{% block content %}
+
+    <div class="shadow container-fluid  p-3 px-4 text-white" style="background-color: #051934;">
+        <h2>Ranking</h2>
+    </div>
+    
+    {% if messages %}
+        {% for message in messages %}
+            <br/>
+            <div class="container-fluid px-3">
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+             </div>
+            
+        {% endfor %}
+    {% endif %}
+    <div class="card m-3 p-3">
+        <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>Rank</th>
+                <th>Score</th>
+                <th>Username</th>
+                <th>Firstname</th>
+                <th>Lastname</th>
+                <th>Category</th>
+              </tr>
+            </thead>
+            <tbody>
+                {% for suser in users %}
+                    <tr class="{% if suser == user %}table-success{% endif %}">
+                        <td>{{ suser.rank }}{% if suser.rank == 1%}<i class="bi-trophy-fill ms-2 text-warning">
+                            {% elif suser.rank == 2%}<i class="bi-trophy ms-2 text-secondary">
+                            {% elif suser.rank == 3%}<i class="bi-trophy ms-2" style="color: #b06311;">{%endif%}</td>
+                        <td>{{ suser.score }}</td>
+                        <td>{{ suser.username }}</td>
+                        <td>{{ suser.first_name }}</td>
+                        <td>{{ suser.last_name }}</td>
+                        <td>{{ suser.category }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+          </table>
+        
+    </div>
+    
+
+    <script src="{% static 'js/jquery.min.js' %}"></script>
+    <script>
+
+    </script>
+{% endblock content %}

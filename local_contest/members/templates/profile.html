@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+
+
+    <div class="shadow  container-fluid  p-3 px-4 text-white" style="background-color: #051934;">
+        <h2>Your profile</h2>
+    </div>
+    <div class="container">
+        <br/>
+        {% if form.errors %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                There was an error with your form..
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endif%}
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                
+            {% endfor %}
+        {% endif %}
+
+        <div id="js-messages">
+            <!-- This div will be used by JavaScript to insert error messages -->
+        </div>
+
+        <div class="mb-3">
+            <label for="username" class="form-label">Username :</label>
+            <div class="row align-items-start">
+                <div class="col">
+                    <span id="username" class="form-control">{{ user.username }}</span>
+                </div>
+                <div class="col-auto offset-md">
+                    <button onclick="editField('username')" class="btn btn-outline-secondary"><i class="bi-pencil"></i></button>
+                </div>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="first_name" class="form-label">Firstname :</label>
+            <div class="row align-items-start">
+                <div class="col">
+                    <span id="first_name" class="form-control">{% if user.first_name %}{{ user.first_name }}{% else %}-{% endif %}</span>
+                </div>
+                <div class="col-auto offset-md">
+                    <button onclick="editField('first_name')" class="btn btn-outline-secondary"><i class="bi-pencil"></i></button>
+                </div>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="last_name" class="form-label">Lastname :</label>
+            <div class="row align-items-start">
+                <div class="col">
+                    <span id="last_name" class="form-control">{% if user.last_name %}{{ user.last_name }}{% else %}-{% endif %}</span>
+                </div>
+                <div class="col-auto offset-md">
+                    <button onclick="editField('last_name')" class="btn btn-outline-secondary"><i class="bi-pencil"></i></button>
+                </div>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="email" class="form-label">Email :</label>
+            <div class="row align-items-start">
+                <div class="col">
+                    <span id="email" class="form-control">{{ user.email }}</span>
+                </div>
+                <div class="col-auto offset-md">
+                    <button onclick="editField('email')" class="btn btn-outline-secondary"><i class="bi-pencil"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label for="graduation_field" class="form-label">Graduation Field :</label>
+            <div class="row align-items-start">
+                <div class="col">
+                    <span id="graduation_field" class="form-control">{{ user.graduation_field }}</span>
+                </div>
+                <div class="col-auto offset-md">
+                    <button onclick="editField('graduation_field')" class="btn btn-outline-secondary"><i class="bi-pencil"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label for="password" class="form-label">Security :</label>
+            <div class="fs-6">To change your password 
+                <a href="{% url 'change_password' %}">click here</a>
+            </div>
+        </div>
+        
+        
+
+
+
+    </div>
+    
+    <script src="{% static 'js/jquery.min.js' %}"></script>
+    <script>
+        // Function to get the CSRF token from the cookie
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                let cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    let cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        function editField(field) {
+            var span = $('#' + field);
+            var currentValue = span.text();
+            var editButton = $('button[onclick="editField(\'' + field + '\')"]');
+            
+            // If the field is graduation_field, replace the span with a select input
+            if (field === 'graduation_field') {
+                var saveButton = $('<button>').text('Save').attr('onclick', 'saveField(\'' + field + '\')');
+                saveButton.attr('class', 'btn btn-success');
+                // Create the select input
+                var select = $('<select>').attr('id', field + '_input').attr('class', 'form-control');
+                
+                // Add options for each available choice
+                {% for choice in graduation_choices %}
+                    var option = $('<option>').attr('value', '{{ choice.0 }}').text('{{ choice.1 }}');
+                    select.append(option);
+                {% endfor %}
+                
+                // Set the current value as selected
+                select.val(currentValue);
+                
+                // Replace the span with the select input
+                span.replaceWith(select);
+                editButton.replaceWith(saveButton);
+
+            } else {
+                // For other fields, show the span with the current value
+                var input = $('<input>').attr('type', 'text').attr('id', field + '_input').attr('class', 'form-control').attr('placeholder', currentValue).val(currentValue);
+                var saveButton = $('<button>').text('Save').attr('onclick', 'saveField(\'' + field + '\')');
+                saveButton.attr('class', 'btn btn-success');
+        
+                span.replaceWith(input);
+                editButton.replaceWith(saveButton);
+            }
+            
+        }
+
+        function validateEmail(email) {
+            var re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            return re.test(email);
+        }
+
+        function saveField(field) {
+            var input = $('#' + field + '_input');
+            var newValue = input.val();
+            var csrfToken = getCookie('csrftoken');
+            var editButton = $('<button>').html('<i class="bi-pencil"></i>').attr('onclick', 'editField(\'' + field + '\')');
+            var actualButton = $('button[onclick="saveField(\'' + field + '\')"]');
+            editButton.attr('class', 'btn btn-outline-secondary');
+            
+            // Check if the field is email and validate its format
+            if (field === 'email' && !validateEmail(newValue)) {
+                // Show the error message in the messages div
+                var errorMessageDiv = $('<div>').addClass('alert alert-warning alert-dismissible fade show').attr('role', 'alert');
+                var errorMessageContent = $('<span>').text('Please enter a valid email address.');
+                var closeButton = $('<button>').attr('type', 'button').addClass('btn-close').attr('data-bs-dismiss', 'alert').attr('aria-label', 'Close');
+                
+                errorMessageDiv.append(errorMessageContent).append(closeButton);
+                $('#js-messages').empty().append(errorMessageDiv);
+                
+                return;
+            }
+
+            // Hide the message div if the email is valid
+            $('#js-messages').empty();
+
+            $.ajax({
+                url: '{% url "update_profile" %}',
+                type: 'POST',
+                data: {
+                    'field': field,
+                    'value': newValue,
+                    'csrfmiddlewaretoken': csrfToken
+                },
+                success: function(response) {
+                    if (response.status === 'success') {
+                        var span = $('<span>').attr('id', field).attr('class', 'form-control').text(response.value);
+                        input.replaceWith(span);
+                        console.log("aaa")
+                        actualButton.replaceWith(editButton);
+                    }
+                }
+            });
+        }
+    </script>
+{% endblock content %}

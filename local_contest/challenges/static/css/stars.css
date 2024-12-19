@@ -1,0 +1,372 @@
+/*
+ * Copyright © 2006 2024. Kortic (URL : https://www.kortic.com/bloc-de-notation-5-etoiles-accessible-et-marquage-seo.html)
+ * licence Creative Commons CC BY-NC-SA 4.0
+ * https://creativecommons.org/licenses/by-nc-sa/4.0/deed.fr
+ */
+ 
+/* Définition des variables personnalisées pour les images embarquées */
+[class*="five-rate-"], .rating-scale, figure[class*='notation'] {
+  --rating-mask-full: url('data:image/svg+xml,\
+ <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">\
+    <path d="m16.04,0l4.89,10.5,11.07,1.7-7.98,8.24,1.88,11.56-9.86-5.49-9.93,5.49,1.88-11.56L0,12.19l11.07-1.7L16.04,0Z"/>\
+ </svg>');
+  --rating-mask-half: url('data:image/svg+xml,\
+ <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">\
+ <path d="m16,.08v26.45l-9.89,5.47,1.88-11.56L0,12.19l11.07-1.7L16,.08Z"/>\
+ </svg>');
+  --rating-mask-empty: url('data:image/svg+xml,\
+ <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">\
+ <path d="m25.91,32l-9.87-5.49-9.94,5.49,1.88-11.56L0,12.2l11.06-1.69L16.04,0l4.9,10.51,11.06,1.69-7.98,8.23,1.88,11.56ZM2.04,12.89l6.97,7.2-1.64,10.06,8.66-4.78,8.59,4.78-1.64-10.06,6.97-7.19-9.67-1.48-4.26-9.14-4.32,9.13-9.67,1.48Z"/>\
+ </svg>');
+  --foreground-outline: var(--primary-color, gray);
+}
+figure.mask-bullets[class*="notation"] {
+  --rating-mask-empty: url('data:image/svg+xml,\
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">\
+    <path d="M16,31c-8.27,0-15-6.73-15-15S7.73,1,16,1s15,6.73,15,15-6.73,15-15,15ZM16,4.75c-6.2,0-11.25,5.05-11.25,11.25s5.05,11.25,11.25,11.25,11.25-5.05,11.25-11.25-5.05-11.25-11.25-11.25Z"/>\
+  </svg>');
+  --rating-mask-full: url('data:image/svg+xml,\
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">\
+    <path d="M16,2.25c7.59,0,13.75,6.16,13.75,13.75s-6.16,13.75-13.75,13.75S2.25,23.59,2.25,16,8.41,2.25,16,2.25ZM16,31c-8.27,0-15-6.73-15-15S7.73,1,16,1s15,6.73,15,15-6.73,15-15,15ZM16,3.5c-6.89,0-12.5,5.61-12.5,12.5s5.61,12.5,12.5,12.5,12.5-5.61,12.5-12.5S22.89,3.5,16,3.5Z"/>\
+  </svg>');
+}
+:root[class*="contrast"] [class*="five-rate-"], :root[class*="contrast"] .rating-scale, :root[class*="contrast"] figure[class*='notation'] {
+  --foreground-outline: var(--basic-color, black);
+}
+@media (prefers-color-scheme: dark) {
+  :root[class*="contrast"] [class*="five-rate-"], :root[class*="contrast"] .rating-scale, :root[class*="contrast"] figure[class*='notation'] {
+    --foreground-outline: var(--basic-color, white);
+  }
+}
+@media (max-width: 63.9375rem) {
+  [class*="five-rate-"], .rating-scale {
+    --size-small: 1rem;
+    --size-medium: 1.5rem;
+    --size-large: 2rem;
+  }
+}
+@media (min-width: 64rem) {
+  [class*="five-rate-"], .rating-scale {
+    --size-small: 1.5rem;
+    --size-medium: 2rem;
+    --size-large: 2.5rem;
+  }
+}
+[class*="five-rate-"] {
+  display: inline-flex;
+  flex: none;
+  flex-flow: row;
+  text-align: center;
+  margin: auto;
+  white-space: nowrap;
+}
+[class*="rate-value"] {
+  width: var(--size-medium);
+  height: var(--size-medium);
+  font-size: var(--font-size, 1rem);
+  position: relative;
+  margin: 0 !important;
+}
+[class*="rate-value"]:before,
+[class*="rate-value"]:after {
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  position: absolute;
+  content: '';
+  inset: 0;
+}
+[class*="rate-value"]:before {
+  background-color: var(--foreground-outline);
+  -webkit-mask-image: var(--rating-mask-empty);
+  mask-image: var(--rating-mask-empty);
+}
+[class*="five-rate-"].larger [class*="rate-value"] {
+  width: var(--size-large);
+  height: var(--size-large);
+}
+[class*="five-rate-"].smaller [class*="rate-value"] {
+  width: var(--size-small);
+  height: var(--size-small);
+}
+[class*="five-rate-"] button [aria-hidden="true"] {
+  white-space: nowrap;
+  overflow: hidden;
+  width: 0 !important;
+  height: 0 !important;
+  text-indent: -6.25rem;
+  line-height: 0;
+  padding: 0 !important;
+  margin: 0 !important;
+  font-size: 0;
+}
+.rate-value-half:before {
+  -webkit-mask-image: var(--rating-mask-half);
+  mask-image: var(--rating-mask-half);
+  background-color: var(--yellow, orange);
+}
+/* ajout d'une bordure de contraste en mode light pour les demies étoiles */
+.rate-value-half:after {
+  -webkit-mask-image: var(--rating-mask-empty);
+  mask-image: var(--rating-mask-empty);
+  background-color: var(--foreground-outline);
+}
+@media (prefers-color-scheme: dark) {
+  /* bordure de contraste en arrière en mode dark */
+  .rate-value-half:before {
+    z-index: 1;
+  }
+  .rate-value-half:after {
+    z-index: 0;
+  }
+}
+.rate-value-full:before {
+  -webkit-mask-image: var(--rating-mask-full);
+  mask-image: var(--rating-mask-full);
+  background-color: var(--yellow, orange);
+}
+.five-rate-active:focus-within button:before {
+  -webkit-mask-image: var(--rating-mask-full);
+  mask-image: var(--rating-mask-full);
+  background-color: var(--link-color, rgb(93, 63, 224));
+}
+/*
+Gestion des changements visuels à la navigation clavier = :hover
+ */
+.five-rate-active button:focus ~ [class*="rate-value"]:before {
+  -webkit-mask-image: var(--rating-mask-empty);
+  mask-image: var(--rating-mask-empty);
+  background-color: var(--foreground-outline);
+}
+@media (prefers-color-scheme: light) {
+  /* ajout d'une bordure de contraste en mode light */
+  .rate-value-full:after, .five-rate-active:focus-within button:after {
+    -webkit-mask-image: var(--rating-mask-empty);
+    mask-image: var(--rating-mask-empty);
+    background-color: var(--foreground-outline);
+  }
+  .five-rate-active:focus-within button:after {
+    background-color: transparent;
+  }
+}
+@media (any-pointer: fine) {
+  .five-rate-active:hover button:before {
+    -webkit-mask-image: var(--rating-mask-full);
+    mask-image: var(--rating-mask-full);
+    background-color: var(--link-color, rgb(93, 63, 224));
+  }
+  .five-rate-active:hover button:after {
+    background-color: transparent;
+  }
+  .five-rate-active button:hover ~ [class*="rate-value"]:before {
+    -webkit-mask-image: var(--rating-mask-empty);
+    mask-image: var(--rating-mask-empty);
+    background-color: var(--foreground-outline);
+  }
+}
+.five-rate-inactive * {
+  cursor: default !important;
+}
+/*
+ *
+ *
+ *
+Affichage alternatif de la note en pourcentage
+Exemples :
+<figure aria-label="Évaluation actuelle (image 5 étoiles)" class="notation">
+  <span role="img" aria-labelledby="rating-647da09c0ab9d" style="width: 66%"></span>
+  <figcaption class="screen-readers" id="rating-647da09c0ab9d">noté 3,3 sur 5</figcaption>
+</figure>
+<!-- si la note est inférieure à 1, ajout de l'attribut data-cover -->
+<figure aria-label="Évaluation actuelle (image 5 étoiles)" class="notation-s" data-cover>
+  <span role="img" aria-labelledby="rating-647da09c0aba2" style="width: 15%"></span>
+  <figcaption class="screen-readers" id="rating-647da09c0aba2">noté 0,75 sur 5</figcaption>
+</figure>
+<figure aria-label="Évaluation actuelle (image 5 étoiles)" class="notation-xs">
+  <span role="img" aria-labelledby="rating-647da09c0aba3" style="width: 51%"></span>
+  <figcaption class="screen-readers" id="rating-647da09c0aba3">noté 2,55 sur 5</figcaption>
+</figure>
+ *
+*/
+figure[class*='notation'] {
+  position: relative;
+  display: inline-block;
+  width: 10rem; /* 160px */
+  height: 2rem; /* 32px */
+  vertical-align: bottom;
+}
+figure[class*='notation']:before {
+  -webkit-mask-image: var(--rating-mask-empty);
+  -webkit-mask-repeat: repeat-x;
+  mask-image: var(--rating-mask-empty);
+  mask-repeat: repeat-x;
+  content: "\20";
+  inset: 0;
+  position: absolute;
+  background-color: var(--foreground-outline);
+}
+figure.notation-s {
+  width: 5rem; /* 80px */
+  height: 1rem; /* 16px */
+}
+figure.notation-xs {
+  width: 3.125rem; /* 50px */
+  height: 0.625rem; /* 10px */
+}
+figure[class*='notation'] [role='img'] {
+  position: absolute;
+  inset: 0;
+}
+figure[class*='notation'] [role='img']:after {
+  -webkit-mask-image: var(--rating-mask-full);
+  -webkit-mask-repeat: repeat-x;
+  -webkit-mask-size: contain;
+  mask-image: var(--rating-mask-full);
+  mask-repeat: repeat-x;
+  mask-size: contain;
+  content: "\20";
+  position: absolute;
+  inset: 0;
+  background-color: rgb(102, 156, 49);
+}
+figure[class*='notation'][data-cover] [role='img']:after {
+  -webkit-mask-size: cover;
+  mask-size: cover;
+}
+@media (prefers-color-scheme: dark) {
+  figure[class*='notation'] [role='img']:after {
+    background-color: yellowgreen;
+  }
+}
+/***********************
+ * Restitution des votes
+ **********************/
+.rating-scale {
+  padding: var(--size-large);
+  width: 25rem; /* 400px */
+  display: block;
+  background-color: var(--background-color-secondary);
+  border-radius: var(--radius, 0.625rem);
+  text-align: left;
+  margin: auto;
+  max-width: 100%;
+  position: relative;
+}
+/* si gestion du mode « contrast » */
+:root[class*="contrast"] .rating-scale {
+  box-shadow: 0 0 0 1px var(--box-shadow, grey) inset;
+}
+.rating-scale[aria-label] {
+  padding-top: 2.5rem; /* 40px */
+}
+.rating-scale[aria-label]:before {
+  content: attr(aria-label);
+  position: absolute;
+  left: var(--size-large, 2.5rem);
+  top: 0.5rem;
+  line-height: 2rem; /* 32px */
+  font-size: smaller;
+}
+.rating-scale dt {
+  display: inline-block;
+  width: 2.5rem; /* 40px */
+  height: calc(var(--size-medium)/2);
+  line-height: calc(var(--size-medium)/2);
+  vertical-align: middle;
+  font-size: 0.8125rem; /* 13px */
+  position: relative;
+}
+.rating-scale dt:before, .rating-scale dt:after {
+  content: '\20';
+  position: absolute;
+  height: calc(var(--size-medium)/2);
+  width: calc(var(--size-medium)/2);
+  top: 50%;
+  right: 0.625rem; /* 10px */
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  transform: translateY(-50%);
+}
+.rating-scale dt:not([aria-hidden]):before {
+  -webkit-mask-image: var(--rating-mask-full);
+  mask-image: var(--rating-mask-full);
+  background-color: var(--yellow, orange);
+}
+.rating-scale dt[aria-hidden]:before {
+  -webkit-mask-image: var(--rating-mask-empty);
+  mask-image: var(--rating-mask-empty);
+  background-color: var(--foreground-outline);
+}
+@media (prefers-color-scheme: light) {
+  .rating-scale dt:after {
+    -webkit-mask-image: var(--rating-mask-empty);
+    mask-image: var(--rating-mask-empty);
+    background-color: var(--foreground-outline);
+  }
+}
+.rating-scale dd {
+  display: inline-block;
+  width: calc(100% - 2.8125rem); /* 100% - 45px */
+  position: relative;
+  height: var(--size-small);
+  line-height: var(--size-small);
+  vertical-align: middle;
+  font-size: 0.8125rem; /* 13px */
+}
+.rating-scale dd span.scale {
+  background-color: rgba(0, 0, 0, 0.05);
+  display: inline-block;
+  width: calc(100% - 4.375rem); /* 100% - 70px */
+  border-radius: var(--radius);
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: calc(var(--size-medium)/2);
+}
+@media (prefers-color-scheme: dark) {
+  .rating-scale dd span.scale {
+    background-color: rgba(0, 0, 0, 0.3);
+  }
+}
+/* si gestion du mode « contrast » */
+:root[class*="contrast"] .rating-scale dd span.scale {
+  box-shadow: 0 0 0 1px var(--box-shadow, grey);
+}
+.rating-scale dd .scale span {
+  display: block;
+  background-color: var(--yellow, orange);
+  height: calc(var(--size-medium)/2);
+  border-radius: var(--radius, 0.625rem);
+  position: absolute;
+  left: 0;
+  top: 0;
+  overflow: hidden;
+  font-size: 1px;
+  color: transparent;
+}
+/* si gestion du mode « contrast » */
+@media (prefers-color-scheme: light) {
+  :root[class*="contrast"] .rating-scale dd span.scale span {
+    box-shadow: 0 0 0 1px var(--box-shadow, black);
+  }
+}
+.rating-scale dd > span:not(.scale) {
+  position: absolute;
+  color: var(--foreground-outline);
+  line-height: calc(var(--size-medium)/2);
+  top: 50%;
+  width: 3.75rem; /* 60px */
+  text-align: right;
+  right: 0;
+  transform: translateY(-50%);
+}
+@media (pointer: coarse) {
+  [class*="five-rate-active"] button {
+    width: var(--size-medium, 2rem) !important;
+    height: var(--size-medium, 2rem) !important;
+  }
+}
