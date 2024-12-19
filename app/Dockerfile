@@ -18,8 +18,6 @@ WORKDIR /src/DSA_Website_v1
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
-WORKDIR /src/DSA_Website_v1/local_contest
-
 # Ajouter l'entrée
 COPY ./entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
