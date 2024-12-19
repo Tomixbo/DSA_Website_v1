@@ -35,14 +35,14 @@ def challenge_detail(request, challenge_slug=None):
             
             uploaded_file = request.FILES.get('uploaded_file')
             if uploaded_file:
-                uploaded_content = uploaded_file.read().decode('utf-8').replace('\r\n', '\n').replace('\r', '\n')
+                uploaded_content = uploaded_file.read().decode('utf-8').replace('\r\n', '\n').replace('\r', '\n').rstrip('\n')
 
                 defined_file_name = request.POST.get('defined_file_name', None)
 
                 if defined_file_name:
                     try:
                         defined_file = DefinedFile.objects.get(name=defined_file_name, level__challenge__name=challenge.name)
-                        defined_content = defined_file.output_file.read().decode('utf-8').replace('\r\n', '\n').replace('\r', '\n')
+                        defined_content = defined_file.output_file.read().decode('utf-8').replace('\r\n', '\n').replace('\r', '\n').rstrip('\n')
 
                         if uploaded_content == defined_content:
                             performance = Performance.objects.create(user=user, definedfile=defined_file, solved=True)
