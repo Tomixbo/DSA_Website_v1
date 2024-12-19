@@ -25,6 +25,8 @@ urlpatterns = [
     path('', include('challenges.urls')),
 
     path('members/', include('members.urls')),
+    path('attendance/', include('attendance.urls')),
+
 ] 
 #path('members/', include('django.contrib.auth.urls')),
 # Add URL patterns for serving media files during development.
