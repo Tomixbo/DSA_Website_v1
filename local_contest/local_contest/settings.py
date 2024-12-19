@@ -25,10 +25,13 @@ MEDIA_URL = '/media/'
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-dtqn+*_4&_qb8j(rt6n^90jb6jjgnwg)ueuc)i*!adrtp=inc#"
+SECRET_KEY = os.getenv('SECRET_KEY')
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG')
-ALLOWED_HOSTS = ["*"]
+
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS')
+CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS')
 
 
 # Application definition
@@ -78,13 +81,6 @@ WSGI_APPLICATION = "local_contest.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
-
-# DATABASES = {
-#     "default": {
-#         "ENGINE": "django.db.backends.sqlite3",
-#         "NAME": BASE_DIR / "db.sqlite3",
-#     }
-# }
 
 DATABASES = {
     "default": {
@@ -143,16 +139,15 @@ LOGIN_URL = "/members/login_user"
 
 AUTH_USER_MODEL = 'members.CustomUser'
 
-CSRF_TRUSTED_ORIGINS = ['http://localhost', 'https://*']
-
 # EMAIL_BACKEND
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = "pythontomixbo@gmail.com"
-EMAIL_HOST_PASSWORD = "bsvk ejss yntu nekj"
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
+# Email Configuration
+EMAIL_HOST = os.getenv('EMAIL_HOST')
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', 587))  # Default to 587 if not set
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True') == 'True'
 
 # Set the default email address to use as the sender
-DEFAULT_FROM_EMAIL = "pythontomixbo@gmail.com"  # Enter your Gmail email address
+DEFAULT_FROM_EMAIL = EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD') # Enter your Gmail email address
