@@ -158,4 +158,17 @@ EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True') == 'True'
 # Set the default email address to use as the sender
 DEFAULT_FROM_EMAIL = EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD') # Enter your Gmail email address
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
+    },
+}
 
