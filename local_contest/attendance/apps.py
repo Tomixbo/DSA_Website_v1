@@ -2,8 +2,6 @@ from django.apps import AppConfig
 from django.db import connections
 from django.db.utils import OperationalError
 import time
-from apscheduler.schedulers.background import BackgroundScheduler
-
 
 class AttendanceConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
