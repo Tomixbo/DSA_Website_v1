@@ -21,9 +21,9 @@ def generate_attendance_code():
     except Exception as e:
         logger.error(f"Erreur lors de la génération du code de présence : {e}")
 
-def delete_old_job_executions(max_age=3600):
+def delete_old_job_executions(max_age=120):
     """
-    Supprime les exécutions de job qui ont plus d'une heure (3600 secondes).
+    Supprime les exécutions de job qui ont plus d'une heure (120 secondes).
     """
     try:
         cutoff_time = now() - timedelta(seconds=max_age)
@@ -40,7 +40,7 @@ scheduler.add_jobstore(DjangoJobStore(), "default")
 scheduler.add_job(
     generate_attendance_code,
     "interval",
-    seconds=30,
+    seconds=300,
     id="attendance.tasks.scheduled_job",
     replace_existing=True,
 )
@@ -49,7 +49,7 @@ scheduler.add_job(
 scheduler.add_job(
     delete_old_job_executions,
     "interval",
-    minutes=10,
+    minutes=180,
     id="attendance.tasks.cleanup_job_executions",
     replace_existing=True,
 )
