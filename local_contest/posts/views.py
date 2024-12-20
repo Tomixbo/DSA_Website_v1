@@ -22,7 +22,7 @@ def create_post(request):
 
 @login_required
 def post_list(request):
-    posts = Post.objects.all()
+    posts = Post.objects.all().order_by('-date', '-time')  # Trie par date et heure décroissantes
     return render(request, 'post_list.html', {'posts': posts})
 
 def create_post_ajax(request):
