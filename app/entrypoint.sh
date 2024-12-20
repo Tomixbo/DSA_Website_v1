@@ -28,6 +28,10 @@ if ! python manage.py makemigrations attendance; then
     echo "Failed to generate migrations. Exiting..."
     exit 1
 fi
+if ! python manage.py makemigrations posts; then
+    echo "Failed to generate migrations. Exiting..."
+    exit 1
+fi
 if ! python manage.py migrate; then
     echo "Failed to apply migrations. Exiting..."
     exit 1
