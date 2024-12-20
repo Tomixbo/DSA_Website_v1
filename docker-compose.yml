@@ -23,7 +23,7 @@ services:
       - .env
     volumes:
       - static:/static 
-      - ./media:/home/dsa-insi/DSA_Website_v1/local_contest/media
+      - ./media:/src/DSA_Website_v1/local_contest/media
     depends_on:
       - db
     networks:
