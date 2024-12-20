@@ -159,7 +159,7 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
-local_contest/media/
+local_contest/media/post_images/
 local_contest//staticfiles/
 static/
 migrations/

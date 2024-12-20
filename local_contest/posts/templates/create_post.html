@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- <form action="" method="post">
+    {% csrf_token %}
+    <div class="container py-4">
+        <div class="post-box">
+            <textarea class="form-control mb-3 post-input" placeholder="Que voulez-vous partager?"></textarea>
+            <input type="file" class="form-control image-upload d-none" accept="image/*" id="image-upload">
+            <label class="btn btn-light mb-3" for="image-upload">📷 Ajouter une photo</label>
+            <button type="submit" class="btn btn-primary w-100 post-button">Publier</button>
+        </div>
+    </div>
+</form> -->
+
+
+    <div class="container py-4">
+        <form action="{% url 'create_post' %}" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary w-100 post-button">Publier</button>
+        </form>
+    </div>
+
+    <script>
+        // code JavaScript spécifique à cette page
+        const postInput = document.querySelector('.post-input');
+        const postButton = document.querySelector('.post-button');
+        const imageUpload = document.querySelector('.image-upload');
+        let selectedImage = null;
+
+        imageUpload.addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onloadend = function () {
+                    selectedImage = reader.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        postButton.addEventListener('click', function () {
+            const content = postInput.value.trim();
+            if (content) {
+                // créer un nouveau post
+                const formData = new FormData();
+                formData.append('content', content);
+                formData.append('image', imageUpload.files[0]);
+                fetch('/create_post_ajax/', {
+                    method: 'POST',
+                    body: formData,
+                })
+               .then(response => response.json())
+               .then(data => {
+                    console.log(data.message);
+                    postInput.value = '';
+                    selectedImage = null;
+                    imageUpload.value = '';
+                })
+               .catch(error => console.error(error));
+            }
+        });
+
+        postInput.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' &&!e.shiftKey) {
+                e.preventDefault();
+                postButton.click();
+            }
+        });
+    </script>
+{% endblock %}

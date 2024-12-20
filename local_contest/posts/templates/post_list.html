@@ -1,0 +1,207 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    body {
+        background: #f0f2f5;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+   .post-box {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+
+   .avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #1877f2, #2851A3);
+        margin-right: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 16px;
+    }
+
+   .post {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        position: relative;
+    }
+
+   .post.btn-close {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        font-size: 0.8rem;
+        opacity: 0.6;
+        padding: 6px;
+    }
+
+   .post.btn-close:hover {
+        opacity: 1;
+    }
+
+   .modal-content {
+        border-radius: 12px;
+        border: none;
+    }
+
+   .modal-header {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        padding: 15px 20px;
+    }
+
+   .modal-body {
+        padding: 20px;
+    }
+
+   .comment {
+        background: #f0f2f5;
+        padding: 12px;
+        border-radius: 12px;
+        margin-bottom: 12px;
+    }
+
+   .btn-light {
+        background: #f0f2f5;
+        border: none;
+        padding: 8px 16px;
+        font-weight: 500;
+    }
+
+   .btn-light:hover {
+        background: #e4e6e9;
+    }
+
+   .btn-primary {
+        background: #1877f2;
+        border: none;
+        font-weight: 500;
+    }
+
+   .btn-primary:hover {
+        background: #166fe5;
+    }
+
+   .form-control {
+        border-radius: 8px;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        padding: 12px;
+    }
+
+   .form-control:focus {
+        box-shadow: none;
+        border-color: #1877f2;
+    }
+
+   .post img {
+        max-height: 400px;
+        object-fit: contain;
+        width: 100%;
+        border-radius: 8px;
+    }
+
+   .comments-count,
+   .likes-count {
+        color: #65676b;
+        font-size: 13px;
+        margin-top: 4px;
+    }
+
+   .post.liked {
+        color: #1877f2;
+        background: #e7f3ff;
+    }
+</style>
+
+<div class="container p-4">
+    <div id="posts-container">
+        <!-- liste des posts -->
+        {% for post in posts %}
+            <div class="post">
+                
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div class="d-flex align-items-center">
+                        <div class="avatar">A</div>
+                        <div>
+                            <div class="fw-bold">{{ post.author }}</div>
+                            <div class="text-muted small">{{ post.date }}</div>
+                        </div>
+                    </div>
+                    {% comment %} <button class="btn-close"></button> {% endcomment %}
+                </div>
+                <div class="mb-3">{{ post.description }}</div>
+                {% if post.image %}
+                    <img src="{{ post.image.url }}" class="img-fluid mb-3" alt="Post image">
+                {% endif %}
+                <div class="d-flex justify-content-around border-top pt-3">
+
+                    <div class="text-center">
+                        <form id="like-form" action="{% url 'like_post' post.id %}" method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-light like-btn" disabled>J'aime</button>
+                        </form>
+                        <div class="likes-count" id="likes-count">{{ post.likes }} j'aime</div>
+                    </div>
+
+                    <div class="text-center">
+                        <button class="btn btn-light comment-btn" disabled>Commenter</button>
+                        <div class="comments-count">{{ post.comments }} commentaire</div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+    <script>
+        // code JavaScript spécifique à cette page
+        /*const likeBtns = document.querySelectorAll('.like-btn');
+        const likesCounts = document.querySelectorAll('.likes-count');
+
+        likeBtns.forEach((likeBtn, index) => {
+            likeBtn.addEventListener('click', () => {
+                const likesCount = likesCounts[index];
+                const likes = parseInt(likesCount.textContent);
+                likesCount.textContent = likes + 1 +'j'aime';
+            });
+        });*/
+        /*const likeBtns = document.querySelectorAll('.like-btn');
+
+        likeBtns.forEach((likeBtn) => {
+            likeBtn.addEventListener('click', () => {
+                const postId = likeBtn.dataset.postId;
+                fetch(`/post/like/${postId}/`, {
+                    method: 'POST',
+                })
+            .then(response => response.json())
+            .then(data => {
+                    const likesCount = document.querySelector(`.likes-count[data-post-id="${postId}"]`);
+                    likesCount.textContent = `${data.likes} j'aime`;
+                });
+            });
+        });*/
+        $(document).ready(function() {
+            $('#like-form').submit(function(event) {
+                event.preventDefault();
+                $.ajax({
+                    type: 'POST',
+                    url: $(this).attr('action'),
+                    data: $(this).serialize(),
+                    success: function(data) {
+                        $('#likes-count').text(data.likes +'j\'aime');
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock %}

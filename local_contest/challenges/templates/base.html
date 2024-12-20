@@ -34,13 +34,15 @@
 <body class="bg-light">
     <nav class="shadow navbar fixed-top navbar-expand navbar-dark px-3 py-0" style="background-color: #01686f;">
         <div class="flex-grow-1 d-flex align-items-center">
-            <a class="navbar-brand" href="{% url 'challenge_list' %}"> ⟵ Hello DSA</a>
+            <a class="navbar-brand" href="{% url 'post_list' %}"> ⟵ Hello DSA</a>
             {% if user.is_authenticated %}
+            <a class="navbar-brand" href="{% url 'challenge_list' %}" style="font-size: 1rem;">| CHALLENGES |</a>
             <a class="navbar-brand" href="{% url 'attendance:validate_attendance' %}" style="font-size: 1rem;"> | ATTENDANCE |</a>
             {% endif %}
             {% if user.is_superuser %}
                 <a class="navbar-brand" href="{% url 'attendance:display_code' %}" style="font-size: 1rem;">| A.CODE |</a>
                 <a class="navbar-brand" href="{% url 'attendance:attendance_list' %}" style="font-size: 1rem;">| A.RECORDS |</a>
+                <a class="navbar-brand" href="{% url 'create_post' %}" style="font-size: 1rem;">| CREATE POST |</a>
             {% endif %}
 
         </div>
