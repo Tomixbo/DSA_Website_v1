@@ -11,6 +11,9 @@ class CustomUser(AbstractUser):
         ('L2_IAD', 'L2_IAD'),
         ('L2_GL', 'L2_GL'),
         ('L2_ARSB', 'L2_ARSB'),
+        ('L3_IAD', 'L3_IAD'),
+        ('L3_GL', 'L3_GL'),
+        ('L3_ARSB', 'L3_ARSB'),
     ]
     CATEGORY_CHOICES = [
         ('Alpha', 'Alpha'),
