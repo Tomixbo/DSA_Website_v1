@@ -50,7 +50,7 @@ INSTALLED_APPS = [
     'members',
     'attendance',
     'django_apscheduler',
-    'posts'
+    'posts',
 ]
 
 MIDDLEWARE = [

@@ -3,6 +3,8 @@ from django.contrib.auth.decorators import login_required, user_passes_test, per
 from .models import Post
 from .forms import PostForm
 from django.http import JsonResponse
+import markdown
+from django.utils.safestring import mark_safe
 
 def is_staff(user):
     return user.is_staff
@@ -23,6 +25,8 @@ def create_post(request):
 @login_required
 def post_list(request):
     posts = Post.objects.all().order_by('-date', '-time')  # Trie par date et heure décroissantes
+    for post in posts:
+        post.description = mark_safe(markdown.markdown(post.description))
     return render(request, 'post_list.html', {'posts': posts})
 
 def create_post_ajax(request):

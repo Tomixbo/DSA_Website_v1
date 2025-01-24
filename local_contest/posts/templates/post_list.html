@@ -122,6 +122,37 @@
         color: #1877f2;
         background: #e7f3ff;
     }
+
+    .post p {
+        margin-bottom: 1em;
+        line-height: 1.6;
+    }
+
+    .post h1, .post h2, .post h3, .post h4, .post h5, .post h6 {
+        margin: 1em 0 0.5em;
+        font-weight: bold;
+    }
+
+    .post ul {
+        padding-left: 1.5em;
+        margin-bottom: 1em;
+    }
+
+    .post a {
+        color: #1877f2;
+        text-decoration: none;
+    }
+
+    .post a:hover {
+        text-decoration: underline;
+    }
+
+    .post blockquote {
+        border-left: 4px solid #dfe2e5;
+        padding-left: 1em;
+        color: #6a737d;
+        margin: 1em 0;
+    }
 </style>
 
 <div class="container p-4">
@@ -140,7 +171,7 @@
                     </div>
                     {% comment %} <button class="btn-close"></button> {% endcomment %}
                 </div>
-                <div class="mb-3">{{ post.description }}</div>
+                <div class="mb-3">{{ post.description|safe }}</div>
                 {% if post.image %}
                     <img src="{{ post.image.url }}" class="img-fluid mb-3" alt="Post image">
                 {% endif %}
