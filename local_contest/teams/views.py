@@ -9,7 +9,7 @@ def list_teams(request):
     teams = Team.objects.all()
     user_team = Team.objects.filter(members=request.user).first()  # Récupère l'équipe de l'utilisateur courant
 
-    # Récupérer les demandes en attente de l'utilisateur
+    # Récupérer les IDs des équipes pour lesquelles l'utilisateur a déjà une demande en attente
     pending_requests = Team.objects.filter(join_requests__user=request.user, join_requests__status='pending')
 
     return render(request, 'teams/team_list.html', {
@@ -44,13 +44,19 @@ def join_team(request, team_id):
         messages.error(request, "You are already in a team!")
         return redirect('list_teams')
 
+    # Vérifier si l'utilisateur a déjà une demande en attente pour cette équipe
+    existing_request = JoinRequest.objects.filter(user=request.user, team=team, status='pending').exists()
+    if existing_request:
+        messages.warning(request, "You have already sent a join request to this team!")
+        return redirect('list_teams')
+
     # Vérifier si l'équipe a encore de la place
     if team.members.count() >= 5:
         messages.error(request, "This team is already full!")
         return redirect('list_teams')
 
     # Créer une demande d'adhésion
-    join_request = JoinRequest.objects.create(user=request.user, team=team)
+    JoinRequest.objects.create(user=request.user, team=team)
     messages.success(request, f"Your request to join the team {team.name} has been sent!")
     
     return redirect('list_teams')
