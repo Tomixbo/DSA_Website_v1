@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+<div class="shadow container-fluid p-3 px-4 text-white" style="background-color: #051934;">
+    <h2>Competition List</h2>
+</div>
+
+{% if messages %}
+    {% for message in messages %}
+        <br/>
+        <div class="container-fluid px-3">
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+    {% endfor %}
+{% endif %}
+
+{% if no_competitions_message %}
+    <div class="container-fluid px-3">
+        <div class="alert alert-info" role="alert">
+            {{ no_competitions_message }}
+        </div>
+    </div>
+{% else %}
+    <div class="card m-3 p-3">
+        <table id="contest-table" class="table table-hover">
+            <thead>
+                <tr>
+                    <th><a href="#" class="link-primary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" onclick="sortTable(0)">Competition name <i class="bi bi-funnel"></i></a></th>
+                    <th class="text-center"><a href="#" class="link-primary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" onclick="sortTable(1)">Start Time <i class="bi bi-funnel"></i></a></th>
+                    <th class="text-center"><a href="#" class="link-primary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" onclick="sortTable(2)">End Time <i class="bi bi-funnel"></i></a></th>
+                    <th class="text-center"><a href="#" class="link-primary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" onclick="sortTable(3)">Created By <i class="bi bi-funnel"></i></a></th>
+                    <th class="text-center"><a href="#" class="link-primary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" onclick="sortTable(4)">Created At <i class="bi bi-funnel"></i></a></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for competition in competitions %}
+                    <tr>
+                        <td><a href="{% url 'competition_detail' competition.pk %}" class="list-group-item">{{ competition.name }}</a></td>
+                        <td class="text-center">{{ competition.start_time|date:"Y-m-d H:i:s" }}</td>
+                        <td class="text-center">{{ competition.end_time|date:"Y-m-d H:i:s" }}</td>
+                        <td class="text-center">{{ competition.created_by.username }}</td>
+                        <td class="text-center">{{ competition.created_at|date:"Y-m-d H:i:s" }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endif %}
+
+{% endblock %}
