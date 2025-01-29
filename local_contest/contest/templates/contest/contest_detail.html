@@ -3,46 +3,80 @@
 {% load django_template_maths %}
 
 {% block content %}
-    <div class="shadow container-fluid p-3 px-4 text-white" style="background-color: #051934;">
-        <h2>{{ contest.name }}</h2>
-        <p>Start Date: {{ contest.start_date|date:"d M Y H:i" }}</p>
-        <p>End Date: {{ contest.end_date|date:"d M Y H:i" }}</p>
-        <p>Status: 
+<div class="shadow container-fluid py-4 px-3 text-white" style="background-color: #051934;">
+    <!-- First line: Contest Name -->
+    <h2 class="mb-3 mx-3 text-left">{{ contest.name }}</h2>
+
+    <!-- Second line: Start Date | End Date | Status -->
+    <div class="d-flex flex-column flex-md-row mb-3">
+        <p class="mb-1 mx-5"><strong>Start Date:</strong> {{ contest.start_date|date:"d M Y H:i" }}</p>
+        <p class="mb-1 mx-3"><strong>End Date:</strong> {{ contest.end_date|date:"d M Y H:i" }}</p>
+        <p class="mb-1 mx-3">
+            <strong>Status:</strong>
             {% if contest.is_active %}
-                <span class="badge bg-success">Active</span>
+                <span class="badge bg-success">Ongoing</span>
+            {% elif contest.is_finished %}
+                <span class="badge bg-danger">Finished</span>
             {% else %}
-                <span class="badge bg-secondary">Closed</span>
+                <span class="badge bg-secondary">Not started</span>
             {% endif %}
         </p>
     </div>
 
-    <div class="container mt-4">
-        <div class="row">
-            <div class="col-12 col-md-3 col-lg-2 p-1">
-                <div class="card m-3">
-                    <div class="card-header">
-                        <h3>Challenges</h3>
-                    </div>
-                    <div class="card-body p-0">
-                        <ul class="list-group list-group-flush">
-                            {% for challenge in challenges %}
-                                <a href="{% url 'contest_challenge_detail' contest.id challenge.slug %}" class="list-group-item level-link list-group-item-action">{{ challenge.name }}</a>
-                            {% endfor %}
-                        </ul>
-                    </div>
-                </div>
-            </div>  
-            
-            <div class="col p-1">
-                <div class="card m-3">
-                    <div class="card-header">
-                        <h3>Your Progress</h3>
-                    </div>
-                    <div class="card-body">
-                        <p>Your score for this contest: <strong>{{ contest.get_contest_score }}</strong></p>
-                    </div>
-                </div>
-            </div>  
+    <!-- Third line: Your Progress with Progress Bar in the Same Line -->
+    <div class="d-flex flex-column flex-md-row align-items-center">
+        <p class="mb-1 mx-5"><strong>Your Progress:</strong></p>
+        <div class="progress" style="width: 300px; height: 25px;">
+            <div class="progress-bar bg-success fw-bold text-center" 
+                 role="progressbar" 
+                 style="width: {{ progress_percent }}%;" 
+                 aria-valuenow="{{ progress_percent }}" 
+                 aria-valuemin="0" 
+                 aria-valuemax="100">
+                {{ progress_percent }}%
+            </div>
         </div>
     </div>
+</div>
+
+
+        <div class="card m-3 p-3">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Challenge Name</th>
+                        <th class="text-center">Category</th>
+                        <th class="text-center">Difficulty</th>
+                        <th class="col-2 text-center">Your progress</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for challenge in challenges %}
+                        {% if challenge.published %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'contest_challenge_detail' contest.id challenge.slug %}" class="list-group-item level-link">
+                                        {{ challenge.name }}
+                                    </a>
+                                </td>
+                                <td class="text-center">{{ challenge.category }}</td>
+                                <td class="text-center">
+                                    <figure class="notation-s my-1">
+                                        <span role="img" aria-labelledby="rating-{{ challenge.id }}" style="width: {{ challenge.difficulty|mul:20 }}%"></span>
+                                    </figure>
+                                </td>
+                                <td class="text-center">{{ challenge.num_resolved_defined_files }}/{{ challenge.num_defined_files }}</td>
+                            </tr>
+                        {% endif %}
+                    {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center text-muted">No challenges available in this contest.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    <script src="{% static 'js/jquery.min.js' %}"></script>
+
 {% endblock content %}

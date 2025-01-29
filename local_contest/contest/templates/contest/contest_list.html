@@ -47,7 +47,7 @@
             <tbody>
                 {% for contest in contests %}
                     <tr>
-                        <td><a href="{% url 'contest_detail' contest.id %}" class="list-group-item level-link">{{ contest.name }}</a></td>
+                        <td><a href="{% url 'contest_inscription' contest.id %}" class="list-group-item level-link">{{ contest.name }}</a></td>
                         <td class="text-center">{{ contest.start_date|date:"d M Y H:i" }}</td>
                         <td class="text-center">{{ contest.end_date|date:"d M Y H:i" }}</td>
                         <td class="text-center">
@@ -68,4 +68,5 @@
     </div>
 
     <script src="{% static 'js/jquery.min.js' %}"></script>
+
 {% endblock content %}

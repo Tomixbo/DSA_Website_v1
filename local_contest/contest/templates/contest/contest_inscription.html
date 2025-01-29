@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+<div class="shadow container-fluid p-3 px-4 text-white" style="background-color: #051934;">
+    <h2>{{ contest.name }}</h2>
+</div>
+
+<div class="container px-3 mt-3">
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Description</h5>
+            <p class="card-text">{{ contest.description }}</p>
+            <hr>
+            <h5 class="card-title">Details</h5>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">
+                    <i class="bi bi-calendar-date-fill mr-2 text-success px-3"></i>
+                    <strong>Start Time:</strong> {{ contest.start_date|date:"Y-m-d H:i:s" }}
+                </li>
+                <li class="list-group-item">
+                    <i class="bi bi-calendar-date-fill mr-2 text-danger px-3"></i>
+                    <strong>End Time:</strong> {{ contest.end_date|date:"Y-m-d H:i:s" }}
+                </li>
+                <li class="list-group-item">
+                    <i class="bi bi-clock-history mr-2"></i>
+                    <strong>Created At:</strong> {{ contest.created_at|date:"Y-m-d H:i:s" }}
+                </li>
+            </ul>
+            <hr>
+            <div class="d-flex justify-content-end align-items-center">
+                <div>
+                    {% if button_state == 'enabled' %}
+                        {% if method == 'POST' %}
+                            <!-- ✅ Wrap the button in a form to send a POST request -->
+                            <form method="POST" action="{% url redirect_url contest.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-check-circle-fill mr-2"></i>
+                                    {{ button_message }}
+                                </button>
+                            </form>
+                        {% else %}
+                            <!-- ✅ If method is GET, use a regular button -->
+                            <button type="button" class="btn btn-primary" onclick="handleButtonClick('{{ redirect_url }}', {{ contest.id }})">
+                                <i class="bi bi-check-circle-fill mr-2"></i>
+                                {{ button_message }}
+                            </button>
+                        {% endif %}
+                    {% else %}
+                        <button type="button" class="btn btn-secondary" disabled>
+                            <i class="bi bi-x-circle-fill mr-2"></i>
+                            {{ button_message }}
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function handleButtonClick(redirectUrl, id) {
+        if (redirectUrl === 'contest_participate') {
+            window.location.href = `/contest/participate/${id}/`;
+        } else if (redirectUrl === 'contest_time_left') {
+            window.location.href = `/contest/time-left/${id}/`;
+        } else if (redirectUrl === 'contest_challenges') {
+            window.location.href = `/contest/challenges/${id}/`;
+        }
+    }
+
+    // ✅ Pass Django context variable into a JavaScript variable
+    const currentTime = "{{ current_time|date:'Y-m-d H:i:s' }}";
+    const contestEndTIme = "{{ contest.end_date|date:'Y-m-d H:i:s' }}";
+
+    // ✅ Log it in the console
+    console.log("Current Time from Django:", currentTime);
+    console.log("End Time from Django:", contestEndTIme);
+
+</script>
+
+{% endblock %}
