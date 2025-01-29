@@ -27,7 +27,18 @@
                     <strong>Created At:</strong> {{ contest.created_at|date:"Y-m-d H:i:s" }}
                 </li>
             </ul>
+
+            <!-- ✅ Countdown Timer (Only If Contest Hasn't Started Yet) -->
+            {% if current_time < contest.start_date %}
+            <div class="d-flex justify-content-center align-items-center my-3">
+                <div class="countdown-container text-center">
+                    <h3 id="countdown" class="fw-bold text-light"></h3>
+                </div>
+            </div>
+            {% endif %}
+
             <hr>
+
             <div class="d-flex justify-content-end align-items-center">
                 <div>
                     {% if button_state == 'enabled' %}
@@ -59,6 +70,7 @@
     </div>
 </div>
 
+<!-- ✅ JavaScript for Countdown Timer -->
 <script>
     function handleButtonClick(redirectUrl, id) {
         if (redirectUrl === 'contest_participate') {
@@ -70,14 +82,49 @@
         }
     }
 
-    // ✅ Pass Django context variable into a JavaScript variable
-    const currentTime = "{{ current_time|date:'Y-m-d H:i:s' }}";
-    const contestEndTIme = "{{ contest.end_date|date:'Y-m-d H:i:s' }}";
+    // ✅ Pass Django context variable into JavaScript variables
+    const currentTime = new Date("{{ current_time|date:'Y-m-d H:i:s' }}").getTime();
+    const contestStartTime = new Date("{{ contest.start_date|date:'Y-m-d H:i:s' }}").getTime();
 
-    // ✅ Log it in the console
-    console.log("Current Time from Django:", currentTime);
-    console.log("End Time from Django:", contestEndTIme);
+    // ✅ Countdown Timer (Only If Contest Hasn't Started)
+    if (currentTime < contestStartTime) {
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const timeLeft = contestStartTime - now;
 
+            if (timeLeft <= 0) {
+                document.getElementById("countdown").innerHTML = "Contest has started!";
+                clearInterval(countdownInterval);
+                return;
+            }
+
+            const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+            document.getElementById("countdown").innerHTML = 
+                `${days}d ${hours}h ${minutes}m ${seconds}s left`;
+        }
+
+        // Update every second
+        const countdownInterval = setInterval(updateCountdown, 1000);
+        updateCountdown();
+    }
 </script>
+
+<!-- ✅ Countdown Styling -->
+<style>
+    .countdown-container {
+        font-size: 2.5rem;
+        font-weight: bold;
+        background: rgba(1, 104, 111, 0.7);
+        padding: 15px 25px;
+        border-radius: 10px;
+        display: inline-block;
+        box-shadow: 0px 4px 10px rgba(255, 255, 255, 0.1);
+        text-align: center;
+    }
+</style>
 
 {% endblock %}

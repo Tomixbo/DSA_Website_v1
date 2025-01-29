@@ -14,11 +14,18 @@ def contest_list(request):
 
 
 
-
 @login_required
 def contest_detail(request, contest_id):
     contest = get_object_or_404(Contest, id=contest_id)
     user = request.user  # Get current user
+
+    # ✅ Redirect if the contest is finished
+    if contest.is_finished():
+        return redirect('contest_inscription', contest_id=contest.id)
+
+    # ✅ Redirect if the user is NOT a participant
+    if user not in contest.participants.all():
+        return redirect('contest_inscription', contest_id=contest.id)
 
     # ✅ Get all challenges associated with the contest
     challenges = Challenge.objects.filter(contest_challenges__contest=contest).order_by('category', 'name')
@@ -37,9 +44,8 @@ def contest_detail(request, contest_id):
         count=Count('levels__defined_files', filter=Q(levels__defined_files__performance__user=user, levels__defined_files__performance__solved=True))
     ).values('count')
 
-
     # ✅ Annotate challenges with progress data
-    challenges = Challenge.objects.filter(contest_challenges__contest=contest).order_by('category', 'name').annotate(
+    challenges = challenges.annotate(
         num_defined_files=Subquery(defined_files_count),
         num_resolved_defined_files=Subquery(resolved_files_count)
     )
@@ -63,6 +69,14 @@ def contest_challenge_detail(request, contest_id, challenge_slug):
     user = request.user  # Current user
 
     contest = get_object_or_404(Contest, id=contest_id)
+
+    # ✅ Redirect if the contest is finished
+    if contest.is_finished():
+        return redirect('contest_inscription', contest_id=contest.id)
+
+    # ✅ Ensure user is a participant
+    if user not in contest.participants.all():
+        return redirect('contest_inscription', contest_id=contest.id)
 
     # ✅ Ensure challenge belongs to contest
     challenge = get_object_or_404(Challenge, slug=challenge_slug, contest_challenges__contest=contest)
@@ -124,20 +138,19 @@ def contest_inscription(request, contest_id):
 
     # Initialize variables
     button_state = 'disabled'
-    button_message = 'The contest is over.'
+    button_message = 'Over : See Leaderboard'
     redirect_url = None
     method = 'GET'
 
     if contest.is_finished():
         # Contest is over
         button_state = 'disabled'
-        button_message = 'The contest is over.'
+        button_message = 'Over : See Leaderboard'
     elif current_time < contest.start_date:
         # Contest has not started yet
         if is_participant:
-            button_state = 'enabled'
-            button_message = 'See Schedule'
-            redirect_url = 'contest_time_left'
+            button_state = 'disabled'
+            button_message = 'Enrolled'
         else:
             button_state = 'enabled'
             button_message = 'Participate'
@@ -172,11 +185,13 @@ def contest_participate(request, contest_id):
     user = request.user
 
     if request.method == 'POST':
-        if user in contest.participants.all():
-            return redirect('contest_detail', contes_id=contest.id)
-        contest.participants.add(user)
-        return redirect('contest_detail', contest_id=contest.id)
+        if user not in contest.participants.all():
+            # ✅ Add the user as a participant
+            contest.participants.add(user)
 
-    return render(request, 'contest/contest_inscription.html', {
-        'contest': contest
-    })
+        # ✅ If the contest is active, redirect to contest_detail
+        if contest.is_active():
+            return redirect('contest_detail', contest_id=contest.id)
+
+    # ✅ If contest is NOT active, stay on the same page (contest_inscription)
+    return redirect('contest_inscription', contest_id=contest.id)
