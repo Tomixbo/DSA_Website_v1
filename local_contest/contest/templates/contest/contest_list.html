@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% load static %}
+{% load django_template_maths %}
+
+{% block rank_and_score %}
+    <li class="nav-item">
+        <a id="user-rank" class="nav-link hover text-white" href="{% url 'ranking' %}">Your rank : {{ user.rank }}/{{ total_user }} <i class="bi-info-circle ms-1"></i></a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link disabled text-white" href="#">|</a>
+    </li>
+    <li class="nav-item">
+        <a id="user-score" class="nav-link disabled text-white" href="#">Your score : {{ user.score }}</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link disabled text-white" href="#">|</a>
+    </li>
+{% endblock rank_and_score %}
+
+{% block content %}
+    <div class="shadow container-fluid p-3 px-4 text-white" style="background-color: #051934;">
+        <h2>Contest List</h2>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <br/>
+            <div class="container-fluid px-3">
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+             </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="card m-3 p-3">
+        <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>Contest Name</th>
+                <th class="text-center">Start Date</th>
+                <th class="text-center">End Date</th>
+                <th class="col-2 text-center">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+                {% for contest in contests %}
+                    <tr>
+                        <td><a href="{% url 'contest_inscription' contest.id %}" class="list-group-item level-link">{{ contest.name }}</a></td>
+                        <td class="text-center">{{ contest.start_date|date:"d M Y H:i" }}</td>
+                        <td class="text-center">{{ contest.end_date|date:"d M Y H:i" }}</td>
+                        <td class="text-center">
+                            {% if contest.is_active %}
+                                <span class="badge bg-success">Ongoing</span>
+                            {% else %}
+                                {% if contest.is_finished %}
+                                    <span class="badge bg-danger">Finished</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Not started</span>
+                                {% endif %}
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+          </table>
+    </div>
+
+    <script src="{% static 'js/jquery.min.js' %}"></script>
+
+{% endblock content %}

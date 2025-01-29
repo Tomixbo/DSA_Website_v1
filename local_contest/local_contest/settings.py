@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'attendance',
     'django_apscheduler',
     'posts',
+    'contest',
     'teams',
 ]
 

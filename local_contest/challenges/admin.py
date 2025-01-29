@@ -6,6 +6,7 @@ from .forms import DefinedFileAdminForm
 class ChallengeAdmin(admin.ModelAdmin):
     list_display = ('name', 'author', 'published')
     list_filter = ('published','author')
+    search_fields = ('name', 'category')
 
 class LevelAdmin(admin.ModelAdmin):
     list_display = ('name', 'challenge_name')

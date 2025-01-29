@@ -1,0 +1,289 @@
+{% extends "base.html" %}
+{% load static %}
+{% load django_template_maths %}
+{% load custom_filters %}
+{% block rank_and_score %}
+    {% comment %} <li class="nav-item">
+        <a id="user-rank" class="nav-link hover text-white" href="{% url 'ranking' %}">Your rank : {{ user.rank }}/{{ total_user }} <i class="bi-info-circle ms-1"></i></a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link disabled text-white" href="#">|</a>
+    </li>
+    <li class="nav-item">
+        <a id="user-score" class="nav-link disabled text-white" href="#">Your score : {{ user.score }}</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link disabled text-white" href="#">|</a>
+    </li> {% endcomment %}
+{% endblock rank_and_score %}
+{% block content %}
+<style>
+    /* Styles pour les résultats VALID */
+    .result.valid {
+        color: green;
+    }
+
+    /* Styles pour les résultats inconnus (?) */
+    .result.unknown {
+        color: black;
+    }
+
+
+</style>
+<script src="{% static 'js/jquery.min.js' %}"></script>
+    <script>
+        $(document).ready(function () {
+            // Reset file input fields on page load
+            // $('.fileInput').val('');
+
+            // Function to compare files
+            function compareFiles(definedFileName, uploadedFile, resultSpan, compareBtn) {
+                var formData = new FormData();
+                formData.append('defined_file_name', definedFileName);
+                formData.append('uploaded_file', uploadedFile);
+
+                // Get CSRF token from the cookie
+                var csrftoken = getCookie('csrftoken');
+
+                $.ajax({
+                    url: '',
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                    },
+                    success: function (data) {
+                        
+                        if (data.result=="VALID"){
+                            $(resultSpan).css('color', 'green');
+                            $(resultSpan).text(data.result);
+                            $(compareBtn).prop('disabled', true);
+                            $(compareBtn).css('text-decoration', 'line-through');
+                            $(compareBtn).addClass('btn-outline-secondary');
+                            // Attendre 1 seconde avant de déclencher la deuxième requête AJAX
+                            
+                        }
+                        else{
+                            $(resultSpan).css('color', 'red');
+                            $(resultSpan).text(data.result);
+                            
+                        }
+                        
+                    }
+                });
+                
+                setTimeout(function() {
+                    $.ajax({
+                        url: '/{ challenge.slug }/get_user_rank/', // URL de votre vue pour récupérer le rang de l'utilisateur
+                        type: 'GET',
+                        success: function(data) {
+                            $('#user-rank').html('Your rank : '+data.rank+'/'+data.total_user+' <i class="bi-info-circle ms-1"></i>');
+                            $('#user-score').text('Your score : ' + data.score);
+                            $('#user-category').html('Your category : <span class="ms-1 fw-bold">'+data.category+'</span>');
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('Error fetching user rank:', error);
+                        }
+                    });
+                }, 1000);
+
+                
+            }
+
+            // Function to get CSRF token from cookies
+            function getCookie(name) {
+                var cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    var cookies = document.cookie.split(';');
+                    for (var i = 0; i < cookies.length; i++) {
+                        var cookie = cookies[i].trim();
+                        // Does this cookie string begin with the name we want?
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+
+            // Click event handler for compare buttons
+            $('.compareBtn').on('click', function () {
+                var definedFileName = $(this).data('defined-file-name');
+                var uploadedFile = $(this).closest('.col').prev('.col-4').find('.fileInput')[0].files[0];
+                var resultSpan = $(this).closest('.col').next('.col').find('.result');
+                compareFiles(definedFileName, uploadedFile, resultSpan, this);
+            });
+            
+            
+
+            // Click event handler for level links
+            $('.level-link').on('click', function(e) {
+                e.preventDefault();
+                // Remove active class from all level links
+                $('.level-link').removeClass('active');
+                
+                // Add active class to the clicked level link
+                $(this).addClass('active');
+
+                var levelId = $(this).data('level-id');
+                //console.log('Clicked level with ID:', levelId);
+
+                $('.downloads').hide(); // Hide all defined files containers
+                $('.downloads[data-level-id="' + levelId + '"]').show(); // Show defined files for selected level
+
+                $('.defined-files-container').hide(); // Hide all defined files containers
+                $('.defined-files-container[data-level-id="' + levelId + '"]').show(); // Show defined files for selected level
+
+
+                // Store last selected level in local storage
+                localStorage.setItem('lastLevelId', levelId);
+            });
+
+            // Retrieve last selected level from local storage
+            var lastLevelId = localStorage.getItem('lastLevelId');
+            if (lastLevelId) {
+                $('.level-link[data-level-id="' + lastLevelId + '"]').click();
+            } else {
+                // If no last selected level, click on the first level link
+                $('.level-link:first').click();
+            }
+
+
+        });
+    </script>
+
+    <div class="shadow container-fluid  p-3 px-4 text-white" style="background-color: #051934;">
+        <div class="d-flex ">
+            <div class="d-flex flex-grow-1 align-items-center">
+                <h2>{{ challenge.name }}</h2>
+            </div>
+            <div class="d-flex align-items-center mx-3">
+                <h4>Category : {{ challenge.category }} </h4>
+            </div>
+            <div class="d-flex align-items-center mx-3">
+                <h4>Difficulty :</h4>
+            </div>
+            <div class="mx-2" >
+                <figure class="notation " style="margin-top: 5px; margin-bottom: -5px">
+                    <span role="img" style="width: {{ challenge.difficulty|mul:20 }}%" class=""></span>
+                </figure>
+            </div>
+            
+        </div>
+        
+    </div>
+
+    
+    <!-- <p>{{ challenge.description | safe }}</p> -->
+
+    
+    
+    <div class="container-fluid">
+        <div class="row ">
+            <div class="col-12 col-md-3 col-lg-2  p-1 ">
+                <div class="card m-3">
+                    <div class="card-header">
+                        <h3>Levels</h3>
+                    </div>
+                    <div class="card-body p-0">
+                        <ul class="list-group list-group-flush">
+                            <!-- Render all levels in a list -->
+                            {% for level in levels %}
+                                    <a href="#" class="list-group-item level-link list-group-item-action" data-level-id="{{ level.id }}">{{ level.name }}</a>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    
+                </div>
+            </div>          
+            
+            <div class="col p-1 ">
+                {% for level in levels %}
+                <div class="downloads card m-3" data-level-id="{{ level.id }}" style="display: none;">
+                        <div class="card-header">
+                            <h3>Downloads</h3>
+                        </div>
+                        
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6 col-lg-3">
+                                    <h5>{{ level.name }} description</h5>
+                                    {% if level.description_file %}
+                                        <a href="{{ level.description_file.url }}" download>
+                                            <button type="button" class="btn btn-outline-dark"><i class="bi-file-pdf me-1"></i> Download Description File </button>
+                                        </a>
+                                    {% else %}
+                                        <p>No description file available.</p>
+                                    {% endif %}
+                                </div>
+                                <div class="col-6 col-lg-3">
+                                    <h5>Input files</h5> 
+                                    {% if level.input_file %}
+                                        <a href="{{ level.input_file.url }}" download>
+                                            <button type="button" class="btn btn-outline-dark"><i class="bi-file-zip me-1"></i>Download Input Files</button>
+                                        </a>
+                                    {% else %}
+                                        <p>No input file available.</p>
+                                    {% endif %}
+                                </div>   
+                            </div>
+   
+                            
+                        </div>
+                          
+                </div>
+                {% endfor %}
+                <div class="solutions card m-3">
+                    <div class="card-header">
+                        <h3>Solution submit</h3>
+                    </div>
+                    <div class="card-body">
+                        <!-- This div will be dynamically updated with the form for the selected level -->
+                        <div id="definedFileForm">
+                            <!-- The form for the initially selected level -->
+                            <!-- Include the form for the initially selected level here -->
+                        </div>
+                        <!-- Render defined files for the selected level -->
+                        {% for level in levels %}
+                            <div class="defined-files-container list-group " data-level-id="{{ level.id }}" style="display: none;">
+                                {% for defined_file in level.defined_files.all|dictsort:"name" %}
+                                    <div class="defined-file list-group-item">
+                                        <div class="row">
+                                            <div class="col-lg-2 col-md-3 col-4">
+                                                {% if defined_file.input_file %}
+                                                    <a href="{{ defined_file.input_file.url }}" download type="button" class="btn btn-outline-dark">
+                                                        <i class="bi-file-text me-1"></i>{{ defined_file.filename }}
+                                                    </a>
+                                                {% else %}
+                                                    <p>No input file available.</p>
+                                                {% endif %}  
+                                            </div>
+                                            <div class="col-4" >
+                                                <input  class="form-control fileInput mx-3" type="file" name="uploaded_file" accept=".txt">
+                                            </div>
+                                            <div class="col">
+                                                <button  type="button " class="compareBtn btn btn-success {% if test_results|get_item:defined_file.id == 'VALID' %}btn-outline-secondary{% endif %}" data-defined-file-name="{{ defined_file.name }}" {% if test_results|get_item:defined_file.id == 'VALID' %}style="text-decoration : line-through;" disabled{% endif %}>Test {{ defined_file.name }}</button>
+                                            </div>
+                                            <div class="col">
+                                                <span class="result {% if test_results|get_item:defined_file.id == 'VALID' %}valid{% else %}unknown{% endif %}">{{ test_results|get_item:defined_file.id }}</span>
+                                            </div>
+                                            
+                                            
+                                            
+                                        </div>
+                                        
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endfor %}                    
+                    </div>
+    
+                </div>
+                
+            </div>  
+        </div>
+    </div>
+{% endblock content %}
