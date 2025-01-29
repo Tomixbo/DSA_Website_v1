@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% load static %}
+{% load django_template_maths %}
+
+{% block content %}
+    <div class="shadow container-fluid p-3 px-4 text-white" style="background-color: #051934;">
+        <h2>{{ contest.name }}</h2>
+        <p>Start Date: {{ contest.start_date|date:"d M Y H:i" }}</p>
+        <p>End Date: {{ contest.end_date|date:"d M Y H:i" }}</p>
+        <p>Status: 
+            {% if contest.is_active %}
+                <span class="badge bg-success">Active</span>
+            {% else %}
+                <span class="badge bg-secondary">Closed</span>
+            {% endif %}
+        </p>
+    </div>
+
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-12 col-md-3 col-lg-2 p-1">
+                <div class="card m-3">
+                    <div class="card-header">
+                        <h3>Challenges</h3>
+                    </div>
+                    <div class="card-body p-0">
+                        <ul class="list-group list-group-flush">
+                            {% for challenge in challenges %}
+                                <a href="{% url 'contest_challenge_detail' contest.id challenge.slug %}" class="list-group-item level-link list-group-item-action">{{ challenge.name }}</a>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>  
+            
+            <div class="col p-1">
+                <div class="card m-3">
+                    <div class="card-header">
+                        <h3>Your Progress</h3>
+                    </div>
+                    <div class="card-body">
+                        <p>Your score for this contest: <strong>{{ contest.get_contest_score }}</strong></p>
+                    </div>
+                </div>
+            </div>  
+        </div>
+    </div>
+{% endblock content %}

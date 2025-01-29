@@ -1,0 +1,9 @@
+from django.urls import path
+from .views import contest_list, contest_detail, contest_challenge_detail
+
+urlpatterns = [
+    path('contest-list/', contest_list, name='contest_list'),
+    path('<int:contest_id>/', contest_detail, name='contest_detail'),
+    path('<int:contest_id>/<str:challenge_slug>/', contest_challenge_detail, name='contest_challenge_detail'),
+
+]
