@@ -24,14 +24,12 @@
                 </li>
             </ul>
 
-            <!-- ✅ Countdown Timer (Only If Contest Hasn't Started Yet) -->
-            {% if current_time < contest.start_date %}
+            <!-- ✅ Countdown Timer (Before and During Contest) -->
             <div class="d-flex justify-content-center align-items-center my-3">
                 <div class="countdown-container text-center">
                     <h3 id="countdown" class="fw-bold text-light"></h3>
                 </div>
             </div>
-            {% endif %}
 
             <hr>
 
@@ -81,29 +79,37 @@
     // ✅ Pass Django context variable into JavaScript variables
     const currentTime = new Date("{{ current_time|date:'Y-m-d H:i:s' }}").getTime();
     const contestStartTime = new Date("{{ contest.start_date|date:'Y-m-d H:i:s' }}").getTime();
+    const contestEndTime = new Date("{{ contest.end_date|date:'Y-m-d H:i:s' }}").getTime();
 
-    // ✅ Countdown Timer (Only If Contest Hasn't Started)
-    if (currentTime < contestStartTime) {
-        function updateCountdown() {
-            const now = new Date().getTime();
-            const timeLeft = contestStartTime - now;
+    function updateCountdown() {
+        const now = new Date().getTime();
+        let timeLeft, message;
 
-            if (timeLeft <= 0) {
-                document.getElementById("countdown").innerHTML = "Contest has started!";
-                clearInterval(countdownInterval);
-                return;
-            }
-
-            const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
-
-            document.getElementById("countdown").innerHTML = 
-                `${days}d ${hours}h ${minutes}m ${seconds}s left`;
+        if (now < contestStartTime) {
+            // ✅ Before contest starts: Countdown to start time
+            timeLeft = contestStartTime - now;
+            message = "Starts in ";
+        } else if (now >= contestStartTime && now < contestEndTime) {
+            // ✅ During contest: Countdown to end time
+            timeLeft = contestEndTime - now;
+            message = "Time Remaining: ";
+        } else {
+            // ✅ After contest: Display finished message
+            document.getElementById("countdown").innerHTML = "Contest has ended!";
+            clearInterval(countdownInterval);
+            return;
         }
 
-        // Update every second
+        const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+        document.getElementById("countdown").innerHTML = 
+            `${message} ${days}d ${hours}h ${minutes}m ${seconds}s`;
+    }
+
+    if (document.getElementById("countdown")) {
         const countdownInterval = setInterval(updateCountdown, 1000);
         updateCountdown();
     }
