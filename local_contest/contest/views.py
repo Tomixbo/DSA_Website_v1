@@ -1,10 +1,12 @@
 from django.shortcuts import render, get_object_or_404, redirect
+from django.urls import reverse
 from .models import Contest
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from challenges.models import Challenge, Level, DefinedFile, Performance
 from django.db.models import Count, Q, OuterRef, Subquery
 from django.utils import timezone
+from teams.models import Team
 
 
 @login_required
@@ -134,14 +136,16 @@ def contest_inscription(request, contest_id):
     user = request.user
 
     # Check if the user is already a participant
-    is_participant = user in contest.participants.all()
+    # is_participant = user in contest.participants.all()
+    is_participant = Team.objects.filter(members=request.user).first()
 
     # Initialize variables
     button_state = 'disabled'
     button_message = 'Over : See Leaderboard'
     redirect_url = None
     method = 'GET'
-
+    teams = Team.objects.all()
+    pending_requests = Team.objects.filter(join_requests__user=request.user, join_requests__status='pending')
     if contest.is_finished():
         # Contest is over
         button_state = 'disabled'
@@ -154,7 +158,7 @@ def contest_inscription(request, contest_id):
         else:
             button_state = 'enabled'
             button_message = 'Participate'
-            redirect_url = 'contest_participate'
+            redirect_url = reverse('list_team' )
             method = 'POST'
     elif contest.is_active():
         # Contest is ongoing
@@ -166,7 +170,7 @@ def contest_inscription(request, contest_id):
         else:
             button_state = 'enabled'
             button_message = 'Participate'
-            redirect_url = 'contest_participate'
+            redirect_url = reverse('list_team')
             method = 'POST'
 
     return render(request, 'contest/contest_inscription.html', {
@@ -176,7 +180,11 @@ def contest_inscription(request, contest_id):
         'is_participant': is_participant,
         'redirect_url': redirect_url,
         'current_time': current_time,
-        'method': method
+        'method': method,
+        'teams': teams,
+        'user_team': is_participant,
+        'pending_requests': pending_requests,  # Ajouter les requêtes en attente au contexte
+                
     })
     
 @login_required
