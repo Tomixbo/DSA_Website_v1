@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block content %}
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>List teams</title>
+</head>
+<body>
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <h1 class="mb-4">Team List</h1>
+
+            <!-- Vérifie si l'utilisateur a déjà une team -->
+            {% if user_team %}
+                <a href="{% url 'team_members' user_team.id %}" class="btn btn-warning">Your team</a>
+            {% else %}
+                <a href="/teams/create" type="button" class="btn btn-outline-primary">Create team</a>
+            {% endif %}
+        </div>
+
+        <table class="table table-bordered">
+            <thead class="table-light">
+                <tr>
+                    <th scope="col">Name of teams</th>
+                    <th scope="col">Number of members</th>
+                    <th scope="col">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for team in teams %}
+                    <tr>
+                        <td>{{ team.name }}</td>
+                        <td>{{ team.members.count }}</td>
+                        <td>
+                            <div class="d-flex col">
+                                {% if team.members.count < 5 and not user_team %}
+                                    <form method="POST" action="{% url 'join_team' team.id %}" class="d-flex w-6">    
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-outline-warning col-6 mx-1">Join</button>
+                                    </form>
+                                {% else %}
+                                    <button type="button" class="btn btn-secondary col-6 mx-1" disabled>Join</button>
+                                {% endif %}
+                                <a href="{% url 'team_members' team.id %}" class="btn btn-outline-primary col-6">Members</a>
+                            </div>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="3" class="text-center">Aucune équipe disponible.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Ajouter le script de Bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-pzjw8f+ua7Kw1TIq0r55+Plb6F5RHX2y3Xx5D5gxUoxNf7EYwrjFgp6b1qzfzctd" crossorigin="anonymous"></script>
+</body>
+
+</html>
+{% endblock content %}

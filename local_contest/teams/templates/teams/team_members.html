@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center">
+        <h1>{{ team.name }} - Members</h1>
+        
+        {% if is_member %}
+            <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#notificationModal">
+                Notifications
+            </button>
+        {% endif %}
+
+        <!-- Modal des notifications -->
+        <div class="modal fade" id="notificationModal" tabindex="-1" aria-labelledby="notificationModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="notificationModalLabel">Notifications</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        {% for request in pending_requests %}
+                            <div>
+                                <p>{{ request.user.username }} has requested to join the team.</p>
+                                <form method="POST" action="{% url 'accept_request' request.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-success">Accept</button>
+                                </form>
+                                <form method="POST" action="{% url 'reject_request' request.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger">Reject</button>
+                                </form>
+                            </div>
+                        {% empty %}
+                            <p>No pending requests.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <table class="table table-bordered mt-3">
+        <thead class="table-light">
+            <tr>
+                <th scope="col">Member Name</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for member in team.members.all %}
+                <tr>
+                    <td>{{ member.username }}</td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="1" class="text-center">No members in this team.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% if is_member %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const notificationBtn = document.getElementById("notification-btn");
+    const notificationPopup = document.getElementById("notification-popup");
+    const notificationCount = document.getElementById("notification-count");
+    const notificationList = document.getElementById("notification-list");
+
+    function fetchNotifications() {
+        fetch("{% url 'get_notifications' %}") 
+            .then(response => response.json())
+            .then(data => {
+                notificationList.innerHTML = "";
+                if (data.notifications.length > 0) {
+                    notificationCount.textContent = data.notifications.length;
+                    data.notifications.forEach(notification => {
+                        let li = document.createElement("li");
+                        li.className = "p-2 border-bottom";
+                        li.innerHTML = `
+                            ${notification.message} 
+                            <small class="text-muted d-block">${notification.created_at}</small>
+                            <button class="btn btn-sm btn-success mt-1" onclick="markAsRead(${notification.id}, this)">Mark as Read</button>
+                        `;
+                        notificationList.appendChild(li);
+                    });
+                } else {
+                    notificationCount.textContent = "0";
+                    notificationList.innerHTML = "<li class='text-center'>No notifications</li>";
+                }
+            });
+    }
+
+    function markAsRead(notificationId, button) {
+        fetch(`/notifications/mark/${notificationId}/`, { method: "POST" })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    button.parentElement.remove();
+                    fetchNotifications();
+                }
+            });
+    }
+
+    notificationBtn.addEventListener("click", function () {
+        notificationPopup.style.display = notificationPopup.style.display === "block" ? "none" : "block";
+        fetchNotifications();
+    });
+
+    setInterval(fetchNotifications, 10000);
+});
+</script>
+{% endif %}
+{% endblock %}
