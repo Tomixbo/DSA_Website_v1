@@ -16,7 +16,17 @@
             <ul class="list-group list-group-flush">
                 <li class="list-group-item"><strong>Start Time:</strong> {{ competition.start_time|date:"Y-m-d H:i:s" }}</li>
                 <li class="list-group-item"><strong>End Time:</strong> {{ competition.end_time|date:"Y-m-d H:i:s" }}</li>
-                <li class="list-group-item"><strong>Created By:</strong> {{ competition.created_by.username }}</li>
+                <li class="list-group-item"><strong>Created By:</strong> 
+                    {% if competition.is_active %}
+                        <span class="badge bg-success">Ongoing</span>
+                    {% else %}
+                        {% if competition.is_finished %}
+                            <span class="badge bg-success">Finished</span>
+                        {% else %}
+                            <span class="badge bg-secondary">Not started</span>
+                        {% endif %}
+                    {% endif %}
+                </li>
                 <li class="list-group-item"><strong>Created At:</strong> {{ competition.created_at|date:"Y-m-d H:i:s" }}</li>
             </ul>
             <hr>

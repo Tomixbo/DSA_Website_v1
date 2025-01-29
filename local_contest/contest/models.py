@@ -19,3 +19,13 @@ class Competition(models.Model):
 
     def __str__(self):
         return self.name
+
+    def is_active(self):
+        """Vérifie si le contest est en cours"""
+        now = timezone.now()
+        return self.start_time <= now <= self.end_time
+
+    def is_finished(self):
+        """Vérifie si le contest est terminé"""
+        now = timezone.now()
+        return now > self.end_time

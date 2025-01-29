@@ -34,7 +34,6 @@ def competition_list(request):
         'no_competitions_message': no_competitions_message
     })
 
-
 @login_required
 def competition_detail(request, pk):
     competition = get_object_or_404(Competition, pk=pk)
@@ -42,14 +41,14 @@ def competition_detail(request, pk):
     user = request.user
 
     # Check if the user is already a participant
-    is_participant = competition.participants.filter(pk=user.pk).exists()
+    is_participant = user in competition.participants.all()
 
     # Initialize variables
     button_state = 'disabled'
     button_message = 'The competition is over.'
     redirect_url = None
 
-    if current_time > competition.end_time:
+    if competition.is_finished():
         # Competition is over
         button_state = 'disabled'
         button_message = 'The competition is over.'
@@ -63,7 +62,7 @@ def competition_detail(request, pk):
             button_state = 'enabled'
             button_message = 'Participate'
             redirect_url = 'competition_participate'
-    else:
+    elif competition.is_active():
         # Competition is ongoing
         if is_participant:
             button_state = 'enabled'
