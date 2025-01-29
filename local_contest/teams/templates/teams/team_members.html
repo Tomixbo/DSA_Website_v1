@@ -7,7 +7,7 @@
         
         {% if is_member %}
             <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#notificationModal">
-                Notifications
+                Notifications <span id="notification-count" class="badge bg-danger" style="display: none;"></span>
             </button>
         {% endif %}
 
@@ -74,12 +74,14 @@ document.addEventListener("DOMContentLoaded", function () {
     const notificationList = document.getElementById("notification-list");
 
     function fetchNotifications() {
-        fetch("{% url 'get_notifications' %}") 
+        fetch("{% url 'get_notifications' %}")
             .then(response => response.json())
             .then(data => {
-                notificationList.innerHTML = "";
+                notificationList.innerHTML = ""; // Effacer les notifications précédentes
+
                 if (data.notifications.length > 0) {
-                    notificationCount.textContent = data.notifications.length;
+                    notificationCount.style.display = "inline-block";  // Afficher le badge
+                    notificationCount.textContent = data.notifications.length;  // Afficher le nombre de notifications
                     data.notifications.forEach(notification => {
                         let li = document.createElement("li");
                         li.className = "p-2 border-bottom";
@@ -91,12 +93,11 @@ document.addEventListener("DOMContentLoaded", function () {
                         notificationList.appendChild(li);
                     });
                 } else {
-                    notificationCount.textContent = "0";
+                    notificationCount.style.display = "none";  // Masquer le badge si aucune notification
                     notificationList.innerHTML = "<li class='text-center'>No notifications</li>";
                 }
             });
     }
-
     function markAsRead(notificationId, button) {
         fetch(`/notifications/mark/${notificationId}/`, { method: "POST" })
             .then(response => response.json())
