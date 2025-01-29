@@ -7,9 +7,9 @@
     <title>List teams</title>
 </head>
 <body>
-    <div class="container mt-4">
+    <div class="shadow container-fluid p-3 px-4 text-white" style="background-color: #051934;">
         <div class="d-flex justify-content-between align-items-center">
-            <h1 class="mb-4">Team List</h1>
+            <h2 class="">Team List</h2>
 
             <!-- Vérifie si l'utilisateur a déjà une team -->
             {% if user_team %}
@@ -18,7 +18,9 @@
                 <a href="/teams/create" type="button" class="btn btn-outline-primary">Create team</a>
             {% endif %}
         </div>
+    </div>
 
+    <div class="container mt-4">
         <table class="table table-bordered">
             <thead class="table-light">
                 <tr>

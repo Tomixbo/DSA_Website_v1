@@ -1,9 +1,9 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container mt-4">
+<div class="shadow container-fluid p-3 px-4 text-white" style="background-color: #051934;">
     <div class="d-flex justify-content-between align-items-center">
-        <h1>{{ team.name }} - Members</h1>
+        <h2>{{ team.name }} - Members</h2>
         
         {% if is_member %}
             <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#notificationModal">
@@ -39,8 +39,9 @@
                 </div>
             </div>
         </div>
-
     </div>
+</div>
+<div class="container mt-4">
 
     <table class="table table-bordered mt-3">
         <thead class="table-light">
