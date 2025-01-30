@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="shadow container-fluid p-3 px-4" style="background-color: #051934;">
+    <div class="d-flex justify-content-between align-items-center">
+        <h2 class="text-white">{{ team.name }} - Members</h2>
+        <div class="">
+        {% if is_member %}
+        <button id="notification-btn" type="button" class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#notificationModal">
+            Notifications <span id="notification-count" class="badge bg-danger" style="display: none;"></span>
+        </button>
+        {% endif %}
+        {% if not contest.is_finished %}
+            <a href="{% url 'contest_detail' contest.id %}" class="btn btn-outline-light">Back to Contest</a>
+        {% else %}
+            <a href="{% url 'contest_list' %}" class="btn btn-outline-light">Back to Contest List</a>
+        {% endif %}
+        
+        
+        </div>
+
+        <!-- Modal des notifications -->
+        <div class="modal fade" id="notificationModal" tabindex="-1" aria-labelledby="notificationModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="notificationModalLabel">Notifications</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body d-flex">
+                        {% for request in pending_requests %}
+                            <div>
+                                
+                                    <p>{{ request.user.username }} has requested to join the team.</p>
+                                    <div class="d-flex">
+                                    <form method="POST" action="{% url 'accept_request' request.id %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-success">Accept</button>
+                                    </form>
+                                    <form method="POST" action="{% url 'reject_request' request.id %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-danger">Reject</button>
+                                    </form>
+                                </div>
+                            </div>
+                        {% empty %}
+                            <p>No pending requests.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container mt-4">
+
+    <table class="table table-bordered mt-3">
+        <thead class="table-light">
+            <tr>
+                <th scope="col">Member Name</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for member in team.members.all %}
+                <tr>
+                    <td>{{ member.username }}</td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="1" class="text-center">No members in this team.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% if is_member %}
+<div class="container mt-5">
+    <div class="card shadow-sm p-4 border-0 rounded">
+        <h3 class="mb-3 text-center fw-semibold">Search for a User</h3>
+        
+        <!-- Search Form -->
+        <form method="GET" class="mb-4">
+            <div class="input-group">
+                <input type="text" class="form-control border px-3 py-2" name="search"
+                    placeholder="Enter username..." value="{{ query }}">
+                <button type="submit" class="btn btn-dark px-3">Search</button>
+            </div>
+        </form>
+
+        <!-- Search Results -->
+        {% if search_results %}
+            <h5 class="mb-3 fw-semibold">Found Users:</h5>
+            <ul class="list-group rounded shadow-sm">
+                {% for user in search_results %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center border-0 py-2 px-3">
+                        <span class="fw-medium">{{ user.username }}</span>
+
+                        {% if user not in team.members.all %}
+                            <form method="POST" action="{% url 'send_invite' team.id user.id %}" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-outline-dark btn-sm px-3 rounded-pill">
+                                    Invite
+                                </button>
+                            </form>
+                        {% else %}
+                            <span class="text-muted">Already a Member</span>
+                        {% endif %}
+                    </li>
+                {% empty %}
+                    <p class="text-muted text-center mt-3">No users found.</p>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+
+{% if is_member %}
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const notificationBtn = document.getElementById("notification-btn");
+        const notificationCount = document.getElementById("notification-count");
+    
+        function fetchNotificationCount() {
+            fetch("{% url 'get_notifications' %}") 
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);  // ✅ Debug: Vérifie si l'API renvoie bien des notifications
+                    if (data.notifications.length > 0) {
+                        notificationCount.style.display = "inline-block";
+                        notificationCount.textContent = data.notifications.length;
+                    } else {
+                        notificationCount.style.display = "none";
+                    }
+                })
+                .catch(error => console.error("Error fetching notifications:", error));
+        }
+        fetchNotificationCount();
+
+        // Rafraîchir le nombre de notifications toutes les 10 secondes
+        setInterval(fetchNotificationCount, 10000);
+    
+        // Charger les notifications dès l'ouverture de la modale
+        notificationBtn.addEventListener("click", fetchNotificationCount);
+    });
+</script>
+{% endif %}
+{% endblock %}

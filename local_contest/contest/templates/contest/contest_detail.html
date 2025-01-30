@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+{% load static %}
+{% load django_template_maths %}
+
+{% block content %}
+<div class="shadow container-fluid py-4 px-3 text-white " style="background-color: #051934;">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center">
+        
+        <!-- Left Section: Contest Name & Details -->
+        <div>
+            <h2 class="mb-3 mx-3 text-left">{{ contest.name }}</h2>
+            <div class="d-flex flex-column flex-md-row mb-3">
+                <p class="mb-1 mx-4"><i class="bi bi-calendar-event text-primary"></i> <strong>Start Date:</strong> {{ contest.start_date|date:"d M Y H:i" }}</p>
+                <p class="mb-1 mx-4"><i class="bi bi-calendar-check text-danger"></i> <strong>End Date:</strong> {{ contest.end_date|date:"d M Y H:i" }}</p>
+                <p class="mb-1 mx-4">
+                    <strong>Status:</strong>
+                    {% if contest.is_active %}
+                        <span class="badge bg-success px-3 py-2">Ongoing</span>
+                    {% elif contest.is_finished %}
+                        <span class="badge bg-danger px-3 py-2">Finished</span>
+                    {% else %}
+                        <span class="badge bg-secondary px-3 py-2">Not started</span>
+                    {% endif %}
+                </p>
+            </div>
+
+            <!-- Third Line: Your Progress -->
+            <div class="d-flex align-items-center">
+                <p class="mb-0 mx-4"><strong>Your Progress:</strong></p>
+                <div class="progress" style="width: 300px; height: 25px; border-radius: 10px; overflow: hidden;">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated bg-success fw-bold text-center" 
+                         role="progressbar" 
+                         style="width: {{ progress_percent }}%;" 
+                         aria-valuenow="{{ progress_percent }}" 
+                         aria-valuemin="0" 
+                         aria-valuemax="100">
+                        {{ progress_percent }}%
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Center Section: Team Button -->
+        <div class="my-3 my-md-0">
+            <a href="{% url 'team_members' contest.id user_team.id %}" class="btn btn-warning d-flex align-items-center px-4 py-2 fw-bold shadow-sm">
+                <i class="bi bi-people-fill me-2"></i> YOUR TEAM
+            </a>
+        </div>
+
+        <!-- Center Section: Leaderboard -->
+        <div class="my-3 my-md-0">
+            <a href="{% url 'contest_leaderboard' contest.id %}" class="btn btn-warning d-flex align-items-center px-4 py-2 fw-bold shadow-sm">
+                <i class="bi bi-people-fill me-2"></i> LEADERBOARD
+            </a>
+        </div>
+
+        <!-- Right Section: Countdown Timer -->
+        {% if contest.is_active %}
+        <div class="countdown-container text-center bg-dark px-4 py-3 rounded shadow">
+            <h4 class="text-white">Time Remaining</h4>
+            <h3 id="countdown" class="fw-bold text-warning"></h3>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+
+<!-- Challenge List -->
+<div class="card m-3 p-3">
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Challenge Name</th>
+                <th class="text-center">Category</th>
+                <th class="text-center">Difficulty</th>
+                <th class="col-2 text-center">Your progress</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for challenge in challenges %}
+                {% if challenge.published %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'contest_challenge_detail' contest.id challenge.slug %}" class="list-group-item level-link">
+                                {{ challenge.name }}
+                            </a>
+                        </td>
+                        <td class="text-center">{{ challenge.category }}</td>
+                        <td class="text-center">
+                            <figure class="notation-s my-1">
+                                <span role="img" aria-labelledby="rating-{{ challenge.id }}" style="width: {{ challenge.difficulty|mul:20 }}%"></span>
+                            </figure>
+                        </td>
+                        <td class="text-center">{{ challenge.num_resolved_defined_files }}/{{ challenge.num_defined_files }}</td>
+                    </tr>
+                {% endif %}
+            {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center text-muted">No challenges available in this contest.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script src="{% static 'js/jquery.min.js' %}"></script>
+
+<!-- ✅ Countdown Timer Script -->
+<script>
+    const contestEndTime = new Date("{{ contest.end_date|date:'Y-m-d H:i:s' }}").getTime();
+    
+    function updateCountdown() {
+        const now = new Date().getTime();
+        const timeLeft = contestEndTime - now;
+
+        if (timeLeft <= 0) {
+            document.getElementById("countdown").innerHTML = "Contest Finished";
+            clearInterval(countdownInterval);
+            return;
+        }
+
+        const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+        document.getElementById("countdown").innerHTML = 
+            `${days}d ${hours}h ${minutes}m ${seconds}s`;
+    }
+
+    if (document.getElementById("countdown")) {
+        const countdownInterval = setInterval(updateCountdown, 1000);
+        updateCountdown();
+    }
+</script>
+
+<!-- ✅ Countdown Styling -->
+<style>
+    .countdown-container {
+        font-size: 2rem;
+        font-weight: bold;
+        background: rgba(255, 255, 255, 0.1);
+        padding: 15px 25px;
+        border-radius: 10px;
+        box-shadow: 0px 4px 10px rgba(255, 255, 255, 0.1);
+        text-align: center;
+    }
+</style>
+
+{% endblock %}

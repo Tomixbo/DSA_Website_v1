@@ -5,6 +5,8 @@ from .models import DefinedFile, Challenge, Level, Performance, CustomUser
 from django.db.models import Count, Subquery, OuterRef, Q
 from django.contrib.auth.decorators import login_required
 from .utils import calculate_rank, calculate_score, update_ranks, update_score, update_category
+from contest.models import ContestChallenge
+
 
 
 def fetch_defined_files(request, challenge_slug):
@@ -77,30 +79,41 @@ def challenge_detail(request, challenge_slug=None):
         # Add logic here if needed
         return render(request, 'challenge_list.html', {'challenges': Challenge.objects.all(), 'user': user, 'total_user': total_user})
 
+
+
 @login_required
 def challenge_list(request):
     update_ranks()
     user = request.user
     update_category(user)
+
+    # ✅ Exclure les challenges liés à un contest
+    excluded_challenges = ContestChallenge.objects.values_list('challenge_id', flat=True)
+
     # Sous-requête pour compter tous les fichiers définis pour chaque challenge
     defined_files_count = Challenge.objects.filter(
-            pk=OuterRef('pk')
-        ).annotate(
-            count=Count('levels__defined_files')
-        ).values('count')
+        pk=OuterRef('pk')
+    ).annotate(
+        count=Count('levels__defined_files')
+    ).values('count')
 
     # Sous-requête pour compter les fichiers définis résolus par l'utilisateur courant pour chaque challenge
     resolved_files_count = Challenge.objects.filter(
-            pk=OuterRef('pk')
-        ).annotate(
-            count=Count('levels__defined_files', filter=Q(levels__defined_files__performance__user=user, levels__defined_files__performance__solved=True))
-        ).values('count')
-    challenges = Challenge.objects.order_by('category', 'name').filter(published=True).annotate(
+        pk=OuterRef('pk')
+    ).annotate(
+        count=Count('levels__defined_files', filter=Q(levels__defined_files__performance__user=user, levels__defined_files__performance__solved=True))
+    ).values('count')
+
+    # ✅ Appliquer le filtre pour exclure les challenges des contests
+    challenges = Challenge.objects.exclude(id__in=excluded_challenges).order_by('category', 'name').filter(published=True).annotate(
         num_defined_files=Subquery(defined_files_count),
         num_resolved_defined_files=Subquery(resolved_files_count)
-        )
+    )
+
     rank, total_user = calculate_rank(user)
+    
     return render(request, 'challenge_list.html', {'challenges': challenges, 'total_user': total_user})
+
 
 
 def get_user_rank(request, challenge_slug):
