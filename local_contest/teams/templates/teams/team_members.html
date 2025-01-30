@@ -65,6 +65,48 @@
     </table>
 </div>
 
+
+
+{% comment %} bar de recherche {% endcomment %}
+{% if is_member %}
+<div class="container mt-4">
+    <div class="card shadow-sm p-4">
+        <h3 class="mb-3 text-center">Search for a User</h3>
+        
+        <!-- Formulaire de recherche -->
+        <form method="GET" class="mb-4">
+            <div class="input-group">
+                <input type="text" class="form-control rounded-start" name="search" placeholder="Enter username..." value="{{ query }}">
+                <button type="submit" class="btn btn-primary">🔍 Search</button>
+            </div>
+        </form>
+
+        <!-- Résultats de recherche -->
+        {% if search_results %}
+            <h5 class="text-success mb-3">Résultats trouvés :</h5>
+            <ul class="list-group">
+                {% for user in search_results %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span class="fw-bold">{{ user.username }}</span>
+
+                        {% if user not in team.members.all %}
+                            <form method="POST" action="{% url 'send_invite' team.id user.id %}" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-success btn-sm">➕ Inviter</button>
+                            </form>
+                        {% else %}
+                            <span class="badge bg-secondary">Déjà membre</span>
+                        {% endif %}
+                    </li>
+                {% empty %}
+                    <p class="text-muted text-center mt-3">Aucun utilisateur trouvé.</p>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
 {% if is_member %}
 <script>
 document.addEventListener("DOMContentLoaded", function () {

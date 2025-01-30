@@ -44,3 +44,14 @@ class Notification(models.Model):
     is_read = models.BooleanField(default=False)
     join_request = models.ForeignKey(JoinRequest, null=True, blank=True, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
+
+
+class Invitation(models.Model):
+    STATUS_CHOICES = (
+        ('pending', 'En attente'),
+        ('accepted', 'Acceptée'),
+        ('rejected', 'Rejetée'),
+    )
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="invitations")
+    team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name="invitations")
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
