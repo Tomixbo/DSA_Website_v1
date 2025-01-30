@@ -180,14 +180,14 @@
                     <div class="text-center">
                         <form id="like-form" action="{% url 'like_post' post.id %}" method="post">
                             {% csrf_token %}
-                            <button type="submit" class="btn btn-light like-btn" disabled>J'aime</button>
+                            <button type="submit" class="btn btn-light like-btn" disabled>Like</button>
                         </form>
-                        <div class="likes-count" id="likes-count">{{ post.likes }} j'aime</div>
+                        <div class="likes-count" id="likes-count">{{ post.likes }} Like</div>
                     </div>
 
                     <div class="text-center">
-                        <button class="btn btn-light comment-btn" disabled>Commenter</button>
-                        <div class="comments-count">{{ post.comments }} commentaire</div>
+                        <button class="btn btn-light comment-btn" disabled>Comment</button>
+                        <div class="comments-count">{{ post.comments }} 0 Comment</div>
                     </div>
                 </div>
             </div>
@@ -203,7 +203,7 @@
             likeBtn.addEventListener('click', () => {
                 const likesCount = likesCounts[index];
                 const likes = parseInt(likesCount.textContent);
-                likesCount.textContent = likes + 1 +'j'aime';
+                likesCount.textContent = likes + 1 +'Like';
             });
         });*/
         /*const likeBtns = document.querySelectorAll('.like-btn');
@@ -217,7 +217,7 @@
             .then(response => response.json())
             .then(data => {
                     const likesCount = document.querySelector(`.likes-count[data-post-id="${postId}"]`);
-                    likesCount.textContent = `${data.likes} j'aime`;
+                    likesCount.textContent = `${data.likes} Like`;
                 });
             });
         });*/
