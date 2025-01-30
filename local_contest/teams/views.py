@@ -227,7 +227,7 @@ def send_invitation(request, team_id, user_id):
         message=f"Vous avez reçu une invitation pour rejoindre l'équipe {team.name}.",
     )
 
-    return JsonResponse({"message": "Invitation envoyée avec succès"}, status=201)
+    return redirect('team_list') 
 
 @login_required
 def respond_to_invitation(request, invitation_id, response):
