@@ -13,7 +13,7 @@ class ContestAdmin(admin.ModelAdmin):
     list_filter = ('start_date', 'end_date')
     search_fields = ('name',)
     inlines = [ContestChallengeInline]  # ✅ Allows adding/removing challenges
-    filter_horizontal = ('participants',)  # ✅ Allows easy selection/removal of participants
+    filter_horizontal = ('teams',)  # ✅ Allows easy selection/removal of participants
 
 @admin.register(ContestChallenge)
 class ContestChallengeAdmin(admin.ModelAdmin):

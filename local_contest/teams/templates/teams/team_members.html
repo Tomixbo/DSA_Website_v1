@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="shadow container-fluid p-3 px-4" style="background-color: #051934;">
+    <div class="d-flex justify-content-between align-items-center">
+        <h2 class="text-white">{{ team.name }} - Members</h2>
+        
+        {% if is_member %}
+        <button id="notification-btn" type="button" class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#notificationModal">
+            Notifications <span id="notification-count" class="badge bg-danger" style="display: none;"></span>
+        </button>
+        {% endif %}
+
+        <!-- Modal des notifications -->
+        <div class="modal fade" id="notificationModal" tabindex="-1" aria-labelledby="notificationModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="notificationModalLabel">Notifications</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body d-flex">
+                        {% for request in pending_requests %}
+                            <div>
+                                
+                                    <p>{{ request.user.username }} has requested to join the team.</p>
+                                    <div class="d-flex">
+                                    <form method="POST" action="{% url 'accept_request' request.id %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-success">Accept</button>
+                                    </form>
+                                    <form method="POST" action="{% url 'reject_request' request.id %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-danger">Reject</button>
+                                    </form>
+                                </div>
+                            </div>
+                        {% empty %}
+                            <p>No pending requests.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container mt-4">
+
+    <table class="table table-bordered mt-3">
+        <thead class="table-light">
+            <tr>
+                <th scope="col">Member Name</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for member in team.members.all %}
+                <tr>
+                    <td>{{ member.username }}</td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="1" class="text-center">No members in this team.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% if is_member %}
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const notificationBtn = document.getElementById("notification-btn");
+        const notificationCount = document.getElementById("notification-count");
+    
+        function fetchNotificationCount() {
+            fetch("{% url 'get_notifications' %}") 
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);  // ✅ Debug: Vérifie si l'API renvoie bien des notifications
+                    if (data.notifications.length > 0) {
+                        notificationCount.style.display = "inline-block";
+                        notificationCount.textContent = data.notifications.length;
+                    } else {
+                        notificationCount.style.display = "none";
+                    }
+                })
+                .catch(error => console.error("Error fetching notifications:", error));
+        }
+        fetchNotificationCount();
+
+        // Rafraîchir le nombre de notifications toutes les 10 secondes
+        setInterval(fetchNotificationCount, 10000);
+    
+        // Charger les notifications dès l'ouverture de la modale
+        notificationBtn.addEventListener("click", fetchNotificationCount);
+    });
+</script>
+{% endif %}
+{% endblock %}

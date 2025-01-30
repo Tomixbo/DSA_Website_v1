@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'django_apscheduler',
     'posts',
     'contest',
+    'teams',
 ]
 
 MIDDLEWARE = [

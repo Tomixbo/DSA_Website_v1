@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils import timezone
 from challenges.models import Challenge
-from members.models import CustomUser
+from teams.models import Team
 from django.utils.text import slugify
 
 class Contest(models.Model):
@@ -11,7 +11,7 @@ class Contest(models.Model):
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
     created_at = models.DateTimeField(auto_now_add=True)
-    participants = models.ManyToManyField(CustomUser, related_name='competitions', blank=True)
+    teams = models.ManyToManyField(Team, related_name='contests', blank=True)
 
     def save(self, *args, **kwargs):
         if not self.slug:
