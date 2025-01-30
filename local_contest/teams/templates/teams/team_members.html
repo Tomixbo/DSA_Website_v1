@@ -4,12 +4,20 @@
 <div class="shadow container-fluid p-3 px-4" style="background-color: #051934;">
     <div class="d-flex justify-content-between align-items-center">
         <h2 class="text-white">{{ team.name }} - Members</h2>
-        
+        <div class="">
         {% if is_member %}
         <button id="notification-btn" type="button" class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#notificationModal">
             Notifications <span id="notification-count" class="badge bg-danger" style="display: none;"></span>
         </button>
         {% endif %}
+        {% if not contest.is_finished %}
+            <a href="{% url 'contest_detail' contest.id %}" class="btn btn-outline-light">Back to Contest</a>
+        {% else %}
+            <a href="{% url 'contest_list' %}" class="btn btn-outline-light">Back to Contest List</a>
+        {% endif %}
+        
+        
+        </div>
 
         <!-- Modal des notifications -->
         <div class="modal fade" id="notificationModal" tabindex="-1" aria-labelledby="notificationModalLabel" aria-hidden="true">
@@ -65,6 +73,48 @@
         </tbody>
     </table>
 </div>
+{% if is_member %}
+<div class="container mt-5">
+    <div class="card shadow-sm p-4 border-0 rounded">
+        <h3 class="mb-3 text-center fw-semibold">Search for a User</h3>
+        
+        <!-- Search Form -->
+        <form method="GET" class="mb-4">
+            <div class="input-group">
+                <input type="text" class="form-control border px-3 py-2" name="search"
+                    placeholder="Enter username..." value="{{ query }}">
+                <button type="submit" class="btn btn-dark px-3">Search</button>
+            </div>
+        </form>
+
+        <!-- Search Results -->
+        {% if search_results %}
+            <h5 class="mb-3 fw-semibold">Found Users:</h5>
+            <ul class="list-group rounded shadow-sm">
+                {% for user in search_results %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center border-0 py-2 px-3">
+                        <span class="fw-medium">{{ user.username }}</span>
+
+                        {% if user not in team.members.all %}
+                            <form method="POST" action="{% url 'send_invite' team.id user.id %}" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-outline-dark btn-sm px-3 rounded-pill">
+                                    Invite
+                                </button>
+                            </form>
+                        {% else %}
+                            <span class="text-muted">Already a Member</span>
+                        {% endif %}
+                    </li>
+                {% empty %}
+                    <p class="text-muted text-center mt-3">No users found.</p>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
 
 {% if is_member %}
 <script>

@@ -53,4 +53,30 @@
     </table>
 </div>
 
+{% if pending_invitations %}
+<div class="container mt-4">
+    <h4 class="text-primary">📩 Invitations received
+    </h4>
+    <ul class="list-group">
+        {% for invite in pending_invitations %}
+            {% if invite.sender != request.user %}  {# Vérifie que ce n'est pas l'utilisateur qui a envoyé l'invitation #}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span><strong>{{ invite.team.name }}</strong> vous a invité</span>
+                    <div>
+                        <form method="POST" action="{% url 'accept_invite' invite.id %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-success btn-sm">✅ Accept</button>
+                        </form>
+                        <form method="POST" action="{% url 'decline_invite' invite.id %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger btn-sm">❌ Cancel</button>
+                        </form>
+                    </div>
+                </li>
+            {% endif %}
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+
 {% endblock content %}

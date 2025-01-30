@@ -182,23 +182,39 @@
     
     
     <div class="container-fluid">
-        <div class="row ">
-            <div class="col-12 col-md-3 col-lg-2  p-1 ">
+        <div class="row">
+            <!-- ✅ Section des niveaux -->
+            <div class="col-12 col-md-3 col-lg-2 p-1">
                 <div class="card m-3">
                     <div class="card-header">
                         <h3>Levels</h3>
                     </div>
                     <div class="card-body p-0">
                         <ul class="list-group list-group-flush">
-                            <!-- Render all levels in a list -->
                             {% for level in levels %}
-                                    <a href="#" class="list-group-item level-link list-group-item-action" data-level-id="{{ level.id }}">{{ level.name }}</a>
+                                <a href="#" class="list-group-item level-link list-group-item-action" data-level-id="{{ level.id }}">{{ level.name }}</a>
                             {% endfor %}
                         </ul>
                     </div>
-                    
                 </div>
-            </div>          
+    
+                <!-- ✅ Ajout du Mini Leaderboard en bas de la section Levels -->
+                <div class="card m-3">
+                    <div class="card-header bg-dark text-white text-center">
+                        <h5>🏆 Top 5 Teams</h5>
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        {% for entry in top_teams %}
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span>#{{ entry.rank }} {{ entry.team.name }}</span>
+                                <span>{{ entry.progress }}</span>
+                            </li>
+                        {% empty %}
+                            <li class="list-group-item text-center">No teams yet.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>        
             
             <div class="col p-1 ">
                 {% for level in levels %}

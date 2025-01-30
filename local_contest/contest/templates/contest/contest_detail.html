@@ -47,6 +47,13 @@
             </a>
         </div>
 
+        <!-- Center Section: Leaderboard -->
+        <div class="my-3 my-md-0">
+            <a href="{% url 'contest_leaderboard' contest.id %}" class="btn btn-warning d-flex align-items-center px-4 py-2 fw-bold shadow-sm">
+                <i class="bi bi-people-fill me-2"></i> LEADERBOARD
+            </a>
+        </div>
+
         <!-- Right Section: Countdown Timer -->
         {% if contest.is_active %}
         <div class="countdown-container text-center bg-dark px-4 py-3 rounded shadow">

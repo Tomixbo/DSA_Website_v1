@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import (
     get_notifications, handle_join_request, join_team, list_teams,
-    team_members, create_team, accept_request, reject_request
+    team_members, create_team, accept_request, reject_request, send_invitation, accept_invite, decline_invite, respond_to_invitation
 )
 
 urlpatterns = [
@@ -26,4 +26,10 @@ urlpatterns = [
     # ✅ Accepter ou rejeter une demande d'adhésion
     path('requests/accept/<int:request_id>/', accept_request, name='accept_request'),
     path('requests/reject/<int:request_id>/', reject_request, name='reject_request'),
+    path('join_request/<int:request_id>/', handle_join_request, name='handle_join_request'),  # Vérifie cette ligne
+    path('teams/<int:team_id>/invite/<int:user_id>/', send_invitation, name='send_invite'),
+    path('teams/accept_invite/<int:invite_id>/', accept_invite, name='accept_invite'),
+    path('teams/decline_invite/<int:invite_id>/', decline_invite, name='decline_invite'),
+    path('invitations/<int:invitation_id>/<str:response>/', respond_to_invitation, name='respond_invite'),
+    path('teams/accept_request/<int:request_id>/', accept_request, name='accept_request'),
 ]

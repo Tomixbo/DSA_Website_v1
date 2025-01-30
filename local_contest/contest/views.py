@@ -6,6 +6,54 @@ from django.http import JsonResponse
 from challenges.models import Challenge, Level, DefinedFile, Performance
 from django.db.models import Count, Q, OuterRef, Subquery
 from django.utils import timezone
+from django.db.models import Max
+
+
+@login_required
+def contest_leaderboard(request, contest_id):
+    contest = get_object_or_404(Contest, id=contest_id)
+    teams = contest.teams.all()
+
+    leaderboard_data = []
+
+    # ✅ Récupérer toutes les defined_files du contest
+    total_defined_files = DefinedFile.objects.filter(level__challenge__contest_challenges__contest=contest).count() or 1  # Évite division par 0
+
+    for team in teams:
+        # ✅ Nombre de fichiers résolus par cette équipe
+        solved_files = Performance.objects.filter(
+            definedfile__level__challenge__contest_challenges__contest=contest,
+            user__in=team.members.all(),
+            solved=True
+        ).values("definedfile").distinct().count()
+
+        # ✅ Dernière soumission de l'équipe
+        last_performance = Performance.objects.filter(
+            user__in=team.members.all(),
+            solved=True
+        ).aggregate(last=Max("created_at"))["last"] or "2000-01-01"  # Eviter None
+
+        # ✅ Calcul du score
+        score = (solved_files / total_defined_files) * 100
+
+        leaderboard_data.append({
+            "team": team,
+            "score": round(score, 2),
+            "last_performance": last_performance
+        })
+
+    # ✅ Trier par score DESC et dernière soumission ASC (plus rapide = meilleur classement)
+    leaderboard_data.sort(key=lambda x: (-x["score"], x["last_performance"]))
+
+    # ✅ Assignation des rangs stricts
+    for index, entry in enumerate(leaderboard_data):
+        entry["rank"] = index + 1  # Chaque team a un rank unique
+
+    return render(request, 'contest/leaderboard.html', {
+        "contest": contest,
+        "leaderboard_data": leaderboard_data
+    })
+
 
 
 @login_required
@@ -63,7 +111,6 @@ def contest_detail(request, contest_id):
     })
 
 
-
 @login_required
 def contest_challenge_detail(request, contest_id, challenge_slug):
     user = request.user  # Current user
@@ -85,8 +132,55 @@ def contest_challenge_detail(request, contest_id, challenge_slug):
     levels = Level.objects.filter(challenge=challenge).order_by('name')
     defined_files = DefinedFile.objects.filter(level__challenge=challenge).order_by('name')
 
+    # ✅ Récupérer les membres de l'équipe
+    team_members = user_team.members.all()
+    
     # ✅ Générer les résultats des tests pour l'utilisateur
-    test_results = {df.id: df.get_test_result_for_user(request) for df in defined_files}
+    test_results = {}
+    for df in defined_files:
+        # Vérifie si au moins un membre de l'équipe a validé ce fichier
+        is_solved = Performance.objects.filter(definedfile=df, user__in=team_members, solved=True).exists()
+        test_results[df.id] = "VALID" if is_solved else "INVALID"
+    # ✅ Mini Leaderboard (Top 5 équipes)
+    teams = contest.teams.all()
+    leaderboard_data = []
+
+    # ✅ Total des fichiers définis du contest
+    total_defined_files = DefinedFile.objects.filter(level__challenge__contest_challenges__contest=contest).count() or 1
+
+    for team in teams:
+        # ✅ Nombre de fichiers résolus par l'équipe
+        solved_files = Performance.objects.filter(
+            definedfile__level__challenge__contest_challenges__contest=contest,
+            user__in=team.members.all(),
+            solved=True
+        ).values("definedfile").distinct().count()
+
+        # ✅ Dernière soumission
+        last_performance = Performance.objects.filter(
+            user__in=team.members.all(),
+            solved=True
+        ).aggregate(last=Max("created_at"))["last"] or "2000-01-01"
+
+        # ✅ Calcul du score
+        score = (solved_files / total_defined_files) * 100
+
+        leaderboard_data.append({
+            "team": team,
+            "score": round(score, 2),
+            "progress": f"{solved_files}/{total_defined_files}",  # Format x/y
+            "last_performance": last_performance
+        })
+
+    # ✅ Trier par score DESC et date ASC
+    leaderboard_data.sort(key=lambda x: (-x["score"], x["last_performance"]))
+
+    # ✅ Assignation du rang
+    for index, entry in enumerate(leaderboard_data):
+        entry["rank"] = index + 1
+
+    # ✅ Sélectionner uniquement le Top 5
+    top_teams = leaderboard_data[:5]
 
     result = 'Upload your file first'
 
@@ -122,7 +216,8 @@ def contest_challenge_detail(request, contest_id, challenge_slug):
         'levels': levels,
         'defined_files': defined_files,
         'test_results': test_results,
-        'user_team': user_team  # ✅ Ajout du user_team au contexte
+        'user_team': user_team,  # ✅ Ajout du user_team
+        'top_teams': top_teams  # ✅ Ajout du leaderboard
     })
 
 
@@ -151,8 +246,9 @@ def contest_inscription(request, contest_id):
 
     # ✅ Gérer l'affichage du bouton d'inscription
     if contest.is_finished():
-        button_state = 'disabled'
+        button_state = 'enabled'
         button_message = 'Over : See Leaderboard'
+        redirect_url = 'contest_leaderboard'
     elif current_time < contest.start_date:
         # ✅ Contest pas encore commencé
         if team_already_in_contest:
