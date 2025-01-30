@@ -1,5 +1,4 @@
 from django.urls import path
-from . import views
 from .views import (
     get_notifications, handle_join_request, join_team, list_teams,
     team_members, create_team, accept_request, reject_request

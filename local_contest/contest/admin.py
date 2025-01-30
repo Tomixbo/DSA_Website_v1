@@ -1,6 +1,5 @@
 from django.contrib import admin
 from .models import Contest, ContestChallenge
-from challenges.models import Challenge
 
 class ContestChallengeInline(admin.TabularInline):
     model = ContestChallenge

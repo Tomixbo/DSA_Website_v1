@@ -1,6 +1,6 @@
 from django.http import JsonResponse
 from django.shortcuts import redirect, render, get_object_or_404
-from .models import JoinRequest, Notification, Team
+from .models import JoinRequest, Team
 from contest.models import Contest
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
