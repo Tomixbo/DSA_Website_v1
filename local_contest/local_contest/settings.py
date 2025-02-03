@@ -39,6 +39,7 @@ CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',')
 # Application definition
 
 INSTALLED_APPS = [
+    'theme',
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -46,6 +47,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     'django_template_maths',
+    'tailwind',
     'challenges',
     'members',
     'attendance',
@@ -53,6 +55,7 @@ INSTALLED_APPS = [
     'posts',
     'contest',
     'teams',
+    
 ]
 
 MIDDLEWARE = [
@@ -179,3 +182,5 @@ LOGGING = {
 }
 
 X_FRAME_OPTIONS = 'SAMEORIGIN'
+TAILWIND_APP_NAME = 'theme'
+NPM_BIN_PATH = os.getenv('NPM_BIN_PATH')
