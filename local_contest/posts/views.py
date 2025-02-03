@@ -6,9 +6,13 @@ from django.http import JsonResponse
 import markdown
 from django.utils.safestring import mark_safe
 from members.models import CustomUser
+from contest.models import Contest, ContestChallenge
+from challenges.models import Challenge
+
 
 def is_staff(user):
     return user.is_staff
+
 
 @login_required
 def post_list(request):
@@ -27,13 +31,23 @@ def post_list(request):
     for post in posts:
         post.description = mark_safe(markdown.markdown(post.description))
 
-    # Get the TOP 5 ranking users
+    # Get the TOP 10 ranking users
     ranking_users = CustomUser.objects.order_by('rank')[:10]
+
+    # 1) Fetch the 3 most recent contests
+    contests = Contest.objects.all().order_by('-start_date')[:3]
+
+    # 2) Fetch 5 random published challenges
+    #    (If you want more advanced logic like excluding contest challenges, adapt as needed)
+    excluded_challenges = ContestChallenge.objects.values_list('challenge_id', flat=True)
+    random_challenges = Challenge.objects.exclude(id__in=excluded_challenges).filter(published=True).order_by('?')[:5]
 
     return render(request, 'post_list.html', {
         'form': form,
         'posts': posts,
         'ranking_users': ranking_users,
+        'contests': contests,
+        'random_challenges': random_challenges,
     })
 
 @permission_required('is_staff')

@@ -46,38 +46,86 @@
   -->
 <div class="tw-flex tw-flex-row tw-gap-4 tw-w-full">
 
+
   <!-- Left Column (Pinned Ranking), hidden on screens < lg -->
-  <div class="tw-bg-white tw-shadow tw-hidden lg:tw-block tw-w-1/5 tw-h-screen tw-sticky tw-top-0 tw-overflow-auto tw-p-6 tw-pt-10">
-    {% if ranking_users %}
-      <div class="  tw-w-full tw-rounded-lg tw-p-4">
-        <h5 class="tw-font-bold tw-mb-2 tw-text-lg">TOP 10 DSA-RANKING</h5>
-        <table class="table table-sm table-hover">
-          <thead>
+  <div class="tw-flex-col tw-bg-white tw-shadow tw-hidden lg:tw-flex tw-w-1/5 tw-h-screen tw-sticky tw-top-0 tw-overflow-auto tw-p-6 tw-pt-14">
+    <div class="tw-mb-6">
+      <h2 class="tw-font-bold tw-text-lg tw-mb-2">WIN CONTEST</h2>
+    
+      <div class="tw-overflow-x-auto tw-bg-white tw-rounded tw-shadow-sm tw-border tw-border-gray-200">
+        <table class="tw-w-full tw-border-collapse tw-text-sm">
+          <thead class="tw-border-b tw-border-gray-200">
             <tr>
-              <th>Rank</th>
-              <th>User</th>
+              <th class="tw-px-2 tw-py-2 tw-text-left tw-text-gray-500">Contest</th>
+              <th class="tw-px-2 tw-py-2 tw-text-left tw-text-gray-500">Starting Date</th>
             </tr>
           </thead>
           <tbody>
-            {% for ruser in ranking_users %}
-            <tr>
-              <td>{{ ruser.rank }}{% if ruser.rank == 1%}<i class="bi-trophy-fill ms-2 text-warning">
-                {% elif ruser.rank == 2%}<i class="bi-trophy ms-2 text-secondary">
-                {% elif ruser.rank == 3%}<i class="bi-trophy ms-2" style="color: #b06311;">{%endif%}</td>
-              <td>{{ ruser.username }}</td>
+            {% for contest in contests %}
+            <tr class="tw-border-b tw-border-gray-100 last:tw-border-0 hover:tw-bg-gray-50">
+              <td class="tw-px-2 tw-py-2">
+                <!-- Clickable link to contest detail (update if you have a detail view) -->
+                <a href="{% url 'contest_list' %}" 
+                  class="tw-text-blue-600 tw-underline tw-font-semibold">
+                  {{ contest.name }}
+                </a>
+              </td>
+              <td class="tw-px-2 tw-py-2 tw-text-gray-500">
+                {{ contest.start_date }}
+              </td>
             </tr>
             {% endfor %}
           </tbody>
         </table>
-
-        <!-- Link to Full Ranking Board -->
-        <a href="{% url 'ranking' %}" class="tw-text-blue-600 tw-underline tw-text-sm">
-          <i class="fas fa-hand-point-right tw-mr-2"></i></i> See the full ranking board here
+      </div>
+    
+      <!-- Link to see full contest list -->
+      <div class="tw-mt-2">
+        <a href="{% url 'contest_list' %}" class="tw-text-blue-600 tw-underline tw-text-sm">
+          <i class="fas fa-hand-point-right tw-mr-2"></i>See all contests
         </a>
       </div>
-    {% endif %}
+    </div>
+    
+    <!-- 2) Show 5 random challenges in a table -->
+    <div class="tw-mb-6">
+      <h2 class="tw-font-bold tw-text-lg tw-mb-2">PRACTICE ALGO & DATA STRUCTURES</h2>
+    
+      <div class="tw-overflow-x-auto tw-bg-white tw-rounded tw-shadow-sm tw-border tw-border-gray-200">
+        <table class="tw-w-full tw-border-collapse tw-text-sm">
+          <thead class="tw-border-b tw-border-gray-200">
+            <tr>
+              <th class="tw-px-2 tw-py-2 tw-text-left tw-text-gray-500">Challenge</th>
+              <th class="tw-px-2 tw-py-2 tw-text-left tw-text-gray-500">Category</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for c in random_challenges %}
+            <tr class="tw-border-b tw-border-gray-100 last:tw-border-0 hover:tw-bg-gray-50">
+              <td class="tw-px-2 tw-py-2">
+                <!-- Clickable link to challenge detail (example route) -->
+                <a href="{% url 'challenge_detail' challenge_slug=c.slug %}"
+                  class="tw-text-blue-600 tw-underline tw-font-semibold">
+                  {{ c.name }}
+                </a>
+              </td>
+              <td class="tw-px-2 tw-py-2 tw-text-gray-500">
+                {{ c.category }}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    
+      <!-- Link to see full challenge list -->
+      <div class="tw-mt-2 ">
+        <a href="{% url 'challenge_list' %}" class="tw-text-blue-600 tw-underline tw-text-sm ">
+          <i class="fas fa-hand-point-right tw-mr-2"></i>See all challenges
+        </a>
+      </div>
+    </div>
   </div>
-
   <!-- Middle Column (Posts & Create-Post Form) -->
   <div class="tw-flex-auto tw-max-w-2xl tw-mx-auto">
 
@@ -175,10 +223,42 @@
     </div>
   </div>
 
-  <!-- Right Column (Empty), hidden on screens < lg -->
-  <div class="tw-hidden lg:tw-block tw-w-1/5">
-    <!-- Placeholder for future usage -->
-  </div>
+
+
+    
+    <!-- Right Column (Was Empty), hidden on screens < lg -->
+    <div class="tw-bg-white tw-shadow tw-hidden lg:tw-block tw-w-1/5 tw-h-screen tw-sticky tw-top-0 tw-overflow-auto tw-p-6 tw-pt-10">
+      {% if ranking_users %}
+        <div class="  tw-w-full tw-rounded-lg tw-p-4">
+          <h5 class="tw-font-bold tw-mb-2 tw-text-lg">TOP 10 DSA-RANKING</h5>
+          <table class="table table-sm table-hover">
+            <thead>
+              <tr>
+                <th>Rank</th>
+                <th>User</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for ruser in ranking_users %}
+              <tr>
+                <td>{{ ruser.rank }}{% if ruser.rank == 1%}<i class="bi-trophy-fill ms-2 text-warning">
+                  {% elif ruser.rank == 2%}<i class="bi-trophy ms-2 text-secondary">
+                  {% elif ruser.rank == 3%}<i class="bi-trophy ms-2" style="color: #b06311;">{%endif%}</td>
+                <td>{{ ruser.username }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+  
+          <!-- Link to Full Ranking Board -->
+          <a href="{% url 'ranking' %}" class="tw-text-blue-600 tw-underline tw-text-sm">
+            <i class="fas fa-hand-point-right tw-mr-2"></i> See the full ranking board here
+          </a>
+        </div>
+      {% endif %}
+    </div>
+
+
 </div>
 
 <!-- See More / See Less Script -->
