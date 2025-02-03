@@ -13,6 +13,7 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 load_dotenv()
+import sys
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -37,7 +38,7 @@ CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',')
 
 
 # Application definition
-
+sys.modules['fontawesome_free'] = __import__('fontawesome-free')
 INSTALLED_APPS = [
     'theme',
     "django.contrib.admin",
@@ -55,6 +56,7 @@ INSTALLED_APPS = [
     'posts',
     'contest',
     'teams',
+    'fontawesome_free'
     
 ]
 

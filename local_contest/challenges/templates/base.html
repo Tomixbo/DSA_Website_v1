@@ -6,8 +6,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- FontAwesome CDN -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha384-55o7zLyy04+elK5rNl76IC4mEt/j9kM1A4SyhPcoG0A1dKfqG5SFLbXkWLDkm2xK" crossorigin="anonymous">
 
     <link href="{% static 'css/stars.css' %}" rel="stylesheet">
     <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
@@ -17,6 +15,12 @@
     <!-- Bootstrap Font Icon CSS -->
     <link  href="{% static 'css/bootstrap-icons.css' %}" rel="stylesheet"/>
     <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+
+    <!-- FontAwesome CDN -->
+    <!-- reference your installed Font Awesome Free package's files here -->
+    <script src="{% static 'fontawesome_free/js/all.min.js' %}"></script>
+    <link href="{% static 'fontawesome_free/css/all.min.css' %}" rel="stylesheet" type="text/css">
+
     {% tailwind_css %}
     <title>DSA Website</title>
 </head>

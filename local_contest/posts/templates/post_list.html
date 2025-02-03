@@ -8,13 +8,13 @@
     }
 
     .post h1{
-        margin: 1em 0 0.5em;
+        margin: 0.5em 0 0.5em;
         font-weight: bold;
         font-size: 30px;
     }
 
     .post h2 {
-        margin: 1em 0 0.5em;
+        margin: 0.5em 0 0.5em;
         font-weight: bold;
         font-size: 20px;
     }
@@ -47,7 +47,8 @@
 </style>
   <!-- Create Post Form (visible only for admin users) -->
   {% if user.is_staff %}
-  <div class="tw-max-w-4xl tw-mx-auto tw-px-4 tw-py-6 tw-bg-white tw-shadow tw-rounded-lg tw-mt-6">
+  <div class="tw-max-w-2xl tw-mx-auto ">
+  <div class="w-full tw-mx-auto tw-px-4 tw-py-6 tw-bg-white tw-shadow tw-rounded-lg tw-mt-6">
     <h2 class="tw-text-xl tw-font-semibold tw-text-gray-800 tw-mb-4">Créer une publication</h2>
     <form id="create-post-form" action="{% url 'post_list' %}" method="post" enctype="multipart/form-data">
       {% csrf_token %}
@@ -58,7 +59,7 @@
           placeholder="Que voulez-vous partager ?" rows="4">{{ form.description.value|default_if_none:"" }}</textarea>
         <!-- Embedded image upload button -->
         <label for="image-upload"
-          class="tw-absolute tw-bottom-2 tw-right-2 tw-cursor-pointer tw-bg-gray-200 tw-text-gray-700 tw-px-3 tw-py-1 tw-rounded hover:tw-bg-gray-300 tw-transition">
+          class="tw-absolute tw-bottom-2 tw-right-2 tw-cursor-pointer tw-bg-gray-200 tw-text-gray-700 tw-p-1 tw-rounded hover:tw-bg-gray-300 tw-transition">
           <i class="fas fa-image"></i>
         </label>
       </div>
@@ -83,21 +84,21 @@
   {% endif %}
 
   <!-- Posts List -->
-  <div class="tw-max-w-4xl tw-mx-auto tw-py-6" id="post-div">
-    <div id="posts-container" class="tw-space-y-6">
+  <div class="w-full tw-mx-auto tw-py-6" id="post-div">
+    <div id="posts-container" class="tw-space-y-3">
       {% for post in posts %}
-      <div class="post tw-bg-white tw-rounded-lg tw-shadow tw-p-6 tw-relative">
+      <div class="post tw-bg-white tw-rounded-lg tw-shadow tw-relative tw-py-3">
         <!-- Delete Button (visible only for staff users) -->
         {% if user.is_staff %}
-        <form method="post" action="{% url 'delete_post' post.id %}" class="tw-absolute tw-top-2 tw-right-2">
+        <form method="post" action="{% url 'delete_post' post.id %}" class="tw-absolute tw-top-4 tw-right-4">
           {% csrf_token %}
-          <button type="submit" class="tw-text-red-500 hover:tw-text-red-700">
+          <button type="submit" class="tw-text-gray-500 tw-opacity-40 hover:tw-opacity-100 hover:tw-text-red-700 tw-text-lg">
             <i class="fas fa-trash"></i>
           </button>
         </form>
         {% endif %}
         <!-- Post Header -->
-        <div class="tw-flex tw-items-center tw-justify-between">
+        <div class="tw-flex tw-items-center tw-justify-between tw-px-4 ">
           <div class="tw-flex tw-items-center">
             <div class="tw-w-10 tw-h-10 tw-rounded-full tw-bg-gradient-to-br tw-from-blue-600 tw-to-blue-800 tw-flex tw-items-center tw-justify-center tw-text-white tw-font-bold tw-text-lg tw-mr-3">
               <img src="https://api.dicebear.com/7.x/initials/svg?seed={{ post.author }}" alt="Avatar" class="tw-w-full tw-h-full tw-rounded-full">
@@ -109,12 +110,12 @@
           </div>
         </div>
         <!-- Post Description with See More/See Less -->
-        <div class="description tw-mt-4 tw-mb-3 tw-text-gray-700">
+        <div class="description tw-text-gray-700 tw-px-4 tw-pt-1">
           {{ post.description|safe }}
         </div>
         <!-- Post Image (if available) -->
         {% if post.image %}
-          <img src="{{ post.image.url }}" alt="Post image" class="tw-w-full tw-rounded tw-mb-3 tw-object-contain" style="max-height: 400px;">
+          <img src="{{ post.image.url }}" alt="Post image" class="tw-w-full tw-rounded tw-mb-3 tw-object-cover tw-max-h-[700px]">
         {% endif %}
         <!-- Post Actions -->
         <div class="tw-flex tw-justify-around tw-border-t tw-pt-3">
@@ -134,6 +135,8 @@
       {% endfor %}
     </div>
   </div>
+</div>
+
 
   <!-- See More / See Less Script -->
   <script>
