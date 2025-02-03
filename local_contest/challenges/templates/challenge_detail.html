@@ -151,7 +151,7 @@
     <div class="shadow container-fluid  p-3 px-4 text-white" style="background-color: #051934;">
         <div class="d-flex ">
             <div class="d-flex flex-grow-1 align-items-center text-white tw-font-semibold tw-text-2xl">
-                <h2>{{ challenge.name }}</h2>
+                <h1>{{ challenge.name }}</h1>
             </div>
             <div class="d-flex align-items-center mx-3">
                 <h4>Category : {{ challenge.category }} </h4>
@@ -202,7 +202,7 @@
         <div class="card-body">
             <div class="row">
                 <div class="col-6 col-lg-3">
-                    <h5>{{ level.name }} description</h5>
+                    <h5 class="tw-font-semibold tw-text-lg  tw-py-1">{{ level.name }} description</h5>
                     {% if level.description_file %}
                         <!-- Button to open modal -->
                         <a href="{{ level.description_file.url }}" target="_blank" class="btn btn-outline-dark">
@@ -222,7 +222,7 @@
                     {% endif %}
                 </div>
                 <div class="col-6 col-lg-3">
-                    <h5>Input files</h5>
+                    <h5 class="tw-font-semibold tw-text-lg tw-py-1">Input files</h5>
                     {% if level.input_file %}
                         <a href="{{ level.input_file.url }}" download>
                             <button type="button" class="btn btn-outline-dark">

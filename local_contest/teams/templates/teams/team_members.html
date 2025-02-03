@@ -2,8 +2,8 @@
 
 {% block content %}
 <div class="shadow container-fluid p-3 px-4" style="background-color: #051934;">
-    <div class="d-flex justify-content-between align-items-center">
-        <h2 class="text-white">{{ team.name }} - Members</h2>
+    <div class="d-flex justify-content-between align-items-center text-white tw-font-semibold tw-text-2xl">
+        <h2 class="text-white">MEMBERS OF TEAM : {{ team.name }}</h2>
         <div class="">
         {% if is_member %}
         <button id="notification-btn" type="button" class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#notificationModal">
@@ -20,31 +20,31 @@
         </div>
 
         <!-- Modal des notifications -->
-        <div class="modal fade" id="notificationModal" tabindex="-1" aria-labelledby="notificationModalLabel" aria-hidden="true">
+        <div class="modal fade " id="notificationModal" tabindex="-1" aria-labelledby="notificationModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="notificationModalLabel">Notifications</h5>
+                        <h5 class="modal-title tw-text-black" id="notificationModalLabel">Notifications</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body d-flex">
                         {% for request in pending_requests %}
                             <div>
                                 
-                                    <p>{{ request.user.username }} has requested to join the team.</p>
+                                    <p class="tw-text-black">{{ request.user.username }} has requested to join the team.</p>
                                     <div class="d-flex">
                                     <form method="POST" action="{% url 'accept_request' request.id %}">
                                         {% csrf_token %}
-                                        <button type="submit" class="btn btn-success">Accept</button>
+                                        <button type="submit" class="btn btn-success tw-text-black">Accept</button>
                                     </form>
                                     <form method="POST" action="{% url 'reject_request' request.id %}">
                                         {% csrf_token %}
-                                        <button type="submit" class="btn btn-danger">Reject</button>
+                                        <button type="submit" class="btn btn-danger tw-text-black">Reject</button>
                                     </form>
                                 </div>
                             </div>
                         {% empty %}
-                            <p>No pending requests.</p>
+                            <p class="tw-text-black tw-text-sm tw-font-medium">No pending requests.</p>
                         {% endfor %}
                     </div>
                 </div>

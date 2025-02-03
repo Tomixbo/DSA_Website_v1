@@ -2,23 +2,23 @@
 {% load static %}
 {% block content %}
 
-<div class="shadow container-fluid p-3 px-4 text-white" style="background-color: #051934;">
-    <h2>{{ contest.name }}</h2>
+<div class="shadow container-fluid  p-3 px-4 text-white tw-font-semibold tw-text-2xl " style="background-color: #051934;">
+    <h1>{{ contest.name }}</h1>
 </div>
 
 <div class="container px-3 mt-3">
     <div class="card">
         <div class="card-body">
-            <h5 class="card-title">Description</h5>
+            <h3 class="card-title tw-font-semibold tw-text-lg">Description</h3>
             <p class="card-text">{{ contest.description }}</p>
-            <hr>
-            <h5 class="card-title">Details</h5>
+            <hr  class="tw-my-2">
+            <h3 class="card-title tw-font-semibold tw-text-lg">Details</h3>
             <ul class="list-group list-group-flush">
-                <li class="list-group-item">
+                <li class="list-group-item tw-border-none">
                     <i class="bi bi-calendar-date-fill mr-2 text-success px-3"></i>
                     <strong>Start Time:</strong> {{ contest.start_date|date:"Y-m-d H:i:s" }}
                 </li>
-                <li class="list-group-item">
+                <li class="list-group-item tw-border-none">
                     <i class="bi bi-calendar-date-fill mr-2 text-danger px-3"></i>
                     <strong>End Time:</strong> {{ contest.end_date|date:"Y-m-d H:i:s" }}
                 </li>
@@ -31,7 +31,7 @@
                 </div>
             </div>
 
-            <hr>
+            <hr  class="tw-my-2">
 
             <div class="d-flex justify-content-end align-items-center">
                 <div>
