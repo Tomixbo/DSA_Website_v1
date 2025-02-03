@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+<div class="shadow container-fluid p-3 px-4 text-white" style="background-color: #051934;">
+    <div class="d-flex justify-content-between align-items-center">
+        <h2>Leaderboard - {{ contest.name }}</h2>
+        
+        <!-- ✅ Condition : Afficher le bon bouton selon l'état du contest -->
+        {% if not contest.is_finished %}
+            <a href="{% url 'contest_detail' contest.id %}" class="btn btn-outline-light">Back to Contest</a>
+        {% else %}
+            <a href="{% url 'contest_list' %}" class="btn btn-outline-light">Back to Contest List</a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card m-3 p-3">
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Rank</th>
+                <th>Team</th>
+                <th>Score</th>
+                <th>Members</th>
+                <th>Last Performance</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for entry in leaderboard_data %}
+                <tr class="{% if entry.team in user_team %}table-success{% endif %}">
+                    <td>
+                        {{ entry.rank }}
+                        {% if entry.rank == 1%}<i class="bi-trophy-fill ms-2 text-warning"></i>
+                        {% elif entry.rank == 2%}<i class="bi-trophy ms-2 text-secondary"></i>
+                        {% elif entry.rank == 3%}<i class="bi-trophy ms-2" style="color: #b06311;"></i>
+                        {% endif %}
+                    </td>
+                    <td>{{ entry.team.name }}</td>
+                    <td>{{ entry.score }}</td>
+                    <td>
+                        {% for member in entry.team.members.all %}
+                            {{ member.username }}{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </td>
+                    <td>
+                        {% if entry.last_performance %}
+                            {{ entry.last_performance|date:"d M Y H:i" }}
+                        {% else %}
+                            No Activity
+                        {% endif %}
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center text-muted">No teams have scored yet.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock content %}

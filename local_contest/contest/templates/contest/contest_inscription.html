@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+<div class="shadow container-fluid p-3 px-4 text-white" style="background-color: #051934;">
+    <h2>{{ contest.name }}</h2>
+</div>
+
+<div class="container px-3 mt-3">
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Description</h5>
+            <p class="card-text">{{ contest.description }}</p>
+            <hr>
+            <h5 class="card-title">Details</h5>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">
+                    <i class="bi bi-calendar-date-fill mr-2 text-success px-3"></i>
+                    <strong>Start Time:</strong> {{ contest.start_date|date:"Y-m-d H:i:s" }}
+                </li>
+                <li class="list-group-item">
+                    <i class="bi bi-calendar-date-fill mr-2 text-danger px-3"></i>
+                    <strong>End Time:</strong> {{ contest.end_date|date:"Y-m-d H:i:s" }}
+                </li>
+            </ul>
+
+            <!-- ✅ Countdown Timer (Before and During Contest) -->
+            <div class="d-flex justify-content-center align-items-center my-3">
+                <div class="countdown-container text-center">
+                    <h3 id="countdown" class="fw-bold text-light"></h3>
+                </div>
+            </div>
+
+            <hr>
+
+            <div class="d-flex justify-content-end align-items-center">
+                <div>
+                    {% if button_state == 'enabled' %}
+                        {% if method == 'POST' %}
+                            <!-- ✅ Wrap the button in a form to send a POST request -->
+                            <form method="POST" action="{% url redirect_url contest.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-check-circle-fill mr-2"></i>
+                                    {{ button_message }}
+                                </button>
+                            </form>
+                        {% else %}
+                            <!-- ✅ If method is GET, use a regular button -->
+                            <button type="button" class="btn btn-primary" onclick="handleButtonClick('{{ redirect_url }}', {{ contest.id }})">
+                                <i class="bi bi-check-circle-fill mr-2"></i>
+                                {{ button_message }}
+                            </button>
+                        {% endif %}
+                    {% else %}
+                        <button type="button" class="btn btn-secondary" disabled>
+                            <i class="bi bi-x-circle-fill mr-2"></i>
+                            {{ button_message }}
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ✅ JavaScript for Countdown Timer -->
+<script>
+    function handleButtonClick(redirectUrl, id) {
+        if (redirectUrl === 'contest_participate') {
+            window.location.href = `/contest/participate/${id}/`;
+        } else if (redirectUrl === 'contest_time_left') {
+            window.location.href = `/contest/time-left/${id}/`;
+        } else if (redirectUrl === 'contest_challenges') {
+            window.location.href = `/contest/challenges/${id}/`;
+        
+        } else if (redirectUrl === 'contest_leaderboard') {
+            window.location.href = `/contest/contest_leaderboard/${id}/`;
+        }
+    }
+
+    // ✅ Pass Django context variable into JavaScript variables
+    const currentTime = new Date("{{ current_time|date:'Y-m-d H:i:s' }}").getTime();
+    const contestStartTime = new Date("{{ contest.start_date|date:'Y-m-d H:i:s' }}").getTime();
+    const contestEndTime = new Date("{{ contest.end_date|date:'Y-m-d H:i:s' }}").getTime();
+
+    function updateCountdown() {
+        const now = new Date().getTime();
+        let timeLeft, message;
+
+        if (now < contestStartTime) {
+            // ✅ Before contest starts: Countdown to start time
+            timeLeft = contestStartTime - now;
+            message = "Starts in ";
+        } else if (now >= contestStartTime && now < contestEndTime) {
+            // ✅ During contest: Countdown to end time
+            timeLeft = contestEndTime - now;
+            message = "Time Remaining: ";
+        } else {
+            // ✅ After contest: Display finished message
+            document.getElementById("countdown").innerHTML = "Contest has ended!";
+            clearInterval(countdownInterval);
+            return;
+        }
+
+        const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+        document.getElementById("countdown").innerHTML = 
+            `${message} ${days}d ${hours}h ${minutes}m ${seconds}s`;
+    }
+
+    if (document.getElementById("countdown")) {
+        const countdownInterval = setInterval(updateCountdown, 1000);
+        updateCountdown();
+    }
+</script>
+
+<!-- ✅ Countdown Styling -->
+<style>
+    .countdown-container {
+        font-size: 2.5rem;
+        font-weight: bold;
+        background: rgba(1, 104, 111, 0.7);
+        padding: 15px 25px;
+        border-radius: 10px;
+        display: inline-block;
+        box-shadow: 0px 4px 10px rgba(255, 255, 255, 0.1);
+        text-align: center;
+    }
+</style>
+
+{% endblock %}

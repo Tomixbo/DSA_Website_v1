@@ -51,6 +51,8 @@ INSTALLED_APPS = [
     'attendance',
     'django_apscheduler',
     'posts',
+    'contest',
+    'teams',
 ]
 
 MIDDLEWARE = [
@@ -135,6 +137,10 @@ USE_TZ = True
 
 STATIC_ROOT = "/static/"
 STATIC_URL = "/static/"
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'challenges/static'),  # Pointe vers le dossier static de l'application challenges
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field

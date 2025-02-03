@@ -22,7 +22,7 @@ def login_user(request):
             if user is not None:
                 login(request, user)
                 messages.success(request, (f"You were logged as : {username.capitalize()}"))
-                return redirect('challenge_list')
+                return redirect('post_list')
                 
             else:
                 messages.success(request, ("Error : verify username/password, and try again..."))
