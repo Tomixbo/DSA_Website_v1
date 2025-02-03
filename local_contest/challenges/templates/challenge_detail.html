@@ -153,6 +153,8 @@
 
 
         });
+
+   
     </script>
 
     <div class="shadow container-fluid  p-3 px-4 text-white" style="background-color: #051934;">
@@ -202,40 +204,49 @@
             
             <div class="col p-1 ">
                 {% for level in levels %}
-                <div class="downloads card m-3" data-level-id="{{ level.id }}" style="display: none;">
-                        <div class="card-header">
-                            <h3>Downloads</h3>
-                        </div>
+    <div class="downloads card m-3" data-level-id="{{ level.id }}" style="display: none;">
+        <div class="card-header">
+            <h3>Downloads</h3>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-6 col-lg-3">
+                    <h5>{{ level.name }} description</h5>
+                    {% if level.description_file %}
+                        <!-- Button to open modal -->
+                        <a href="{{ level.description_file.url }}" target="_blank" class="btn btn-outline-dark">
+                            <i class="bi-file-earmark-text me-1"></i> See Description
+                        </a>
                         
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-6 col-lg-3">
-                                    <h5>{{ level.name }} description</h5>
-                                    {% if level.description_file %}
-                                        <a href="{{ level.description_file.url }}" download>
-                                            <button type="button" class="btn btn-outline-dark"><i class="bi-file-pdf me-1"></i> Download Description File </button>
-                                        </a>
-                                    {% else %}
-                                        <p>No description file available.</p>
-                                    {% endif %}
-                                </div>
-                                <div class="col-6 col-lg-3">
-                                    <h5>Input files</h5> 
-                                    {% if level.input_file %}
-                                        <a href="{{ level.input_file.url }}" download>
-                                            <button type="button" class="btn btn-outline-dark"><i class="bi-file-zip me-1"></i>Download Input Files</button>
-                                        </a>
-                                    {% else %}
-                                        <p>No input file available.</p>
-                                    {% endif %}
-                                </div>   
-                            </div>
-   
-                            
-                        </div>
-                          
+                        <!-- Download icon button -->
+                        <a href="{{ level.description_file.url }}" download>
+                            <button type="button" class="btn btn-outline-dark ms-2">
+                                <i class="bi-download"></i>
+                            </button>
+                        </a>
+                        
+                        
+                    {% else %}
+                        <p>No description file available.</p>
+                    {% endif %}
                 </div>
-                {% endfor %}
+                <div class="col-6 col-lg-3">
+                    <h5>Input files</h5>
+                    {% if level.input_file %}
+                        <a href="{{ level.input_file.url }}" download>
+                            <button type="button" class="btn btn-outline-dark">
+                                <i class="bi-file-zip me-1"></i> Download Input Files
+                            </button>
+                        </a>
+                    {% else %}
+                        <p>No input file available.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endfor %}
+
                 <div class="solutions card m-3">
                     <div class="card-header">
                         <h3>Solution submit</h3>
@@ -286,4 +297,5 @@
             </div>  
         </div>
     </div>
+
 {% endblock content %}

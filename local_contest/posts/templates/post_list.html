@@ -153,17 +153,23 @@
         color: #6a737d;
         margin: 1em 0;
     }
+    #post-div {
+        max-width:650px;
+    }
 </style>
 
-<div class="container p-4">
+<div class="container p-4" id="post-div">
     <div id="posts-container">
         <!-- liste des posts -->
         {% for post in posts %}
             <div class="post">
                 
-                <div class="d-flex align-items-center justify-content-between mb-3">
+                <div class="d-flex align-items-center justify-content-between">
                     <div class="d-flex align-items-center">
-                        <div class="avatar">A</div>
+                        <div class="avatar">
+                            <img  src="https://api.dicebear.com/7.x/initials/svg?seed=A" alt="Avatar">
+
+                        </div>
                         <div>
                             <div class="fw-bold">{{ post.author }}</div>
                             <div class="text-muted small">{{ post.date }}</div>
@@ -171,7 +177,7 @@
                     </div>
                     {% comment %} <button class="btn-close"></button> {% endcomment %}
                 </div>
-                <div class="mb-3">{{ post.description|safe }}</div>
+                <div class="description mb-3">{{ post.description|safe }}</div>
                 {% if post.image %}
                     <img src="{{ post.image.url }}" class="img-fluid mb-3" alt="Post image">
                 {% endif %}
@@ -194,45 +200,93 @@
         {% endfor %}
     </div>
 </div>
-    <script>
-        // code JavaScript spécifique à cette page
-        /*const likeBtns = document.querySelectorAll('.like-btn');
-        const likesCounts = document.querySelectorAll('.likes-count');
-
-        likeBtns.forEach((likeBtn, index) => {
-            likeBtn.addEventListener('click', () => {
-                const likesCount = likesCounts[index];
-                const likes = parseInt(likesCount.textContent);
-                likesCount.textContent = likes + 1 +'j'aime';
-            });
-        });*/
-        /*const likeBtns = document.querySelectorAll('.like-btn');
-
-        likeBtns.forEach((likeBtn) => {
-            likeBtn.addEventListener('click', () => {
-                const postId = likeBtn.dataset.postId;
-                fetch(`/post/like/${postId}/`, {
-                    method: 'POST',
-                })
-            .then(response => response.json())
-            .then(data => {
-                    const likesCount = document.querySelector(`.likes-count[data-post-id="${postId}"]`);
-                    likesCount.textContent = `${data.likes} j'aime`;
-                });
-            });
-        });*/
-        $(document).ready(function() {
-            $('#like-form').submit(function(event) {
-                event.preventDefault();
-                $.ajax({
-                    type: 'POST',
-                    url: $(this).attr('action'),
-                    data: $(this).serialize(),
-                    success: function(data) {
-                        $('#likes-count').text(data.likes +'j\'aime');
-                    }
-                });
-            });
+<script>
+    /**
+     * Tronquer par blocs, sans couper au milieu d'une balise.
+     * On arrête dès qu'ajouter un nouveau bloc ferait dépasser maxLength.
+     */
+    function truncateHTMLByBlock(html, maxLength) {
+      // On parse le HTML pour récupérer un DOM dans doc.body
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+      const body = doc.body;
+    
+      // Nouveau conteneur qui va recevoir la version tronquée
+      const truncatedBody = document.createElement('div');
+    
+      let currentCount = 0;
+      // On parcourt les enfants directs du body
+      const children = Array.from(body.children); // h1, p, etc.
+    
+      for (let child of children) {
+        // Longueur textuelle de ce bloc
+        const blockLength = child.textContent.trim().length;
+    
+        if (currentCount + blockLength > maxLength) {
+          // On dépasse la limite : on n'ajoute pas ce bloc.
+          // On peut insérer un "..." si on veut indiquer qu'il y a plus à voir
+          // Par exemple, on peut le faire juste après le dernier bloc valide
+          // Mais souvent on s'arrête net ici.
+          break;
+        }
+    
+        // Sinon, on ajoute ce bloc intégralement
+        currentCount += blockLength;
+        truncatedBody.appendChild(child.cloneNode(true));
+      }
+    
+      // Retourner le HTML tronqué
+      return truncatedBody.innerHTML;
+    }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+      const maxLength = 100;
+    
+      document.querySelectorAll('.description').forEach(function(desc) {
+        // HTML complet déjà converti par la librairie Markdown
+        const fullHTML = desc.innerHTML.trim();
+        // Texte brut pour savoir si on dépasse la limite
+        const textContent = desc.textContent.trim();
+    
+        if (textContent.length <= maxLength) {
+          // Pas besoin de tronquer
+          return;
+        }
+    
+        // Tronquer proprement, bloc par bloc
+        const truncatedHTML = truncateHTMLByBlock(fullHTML, maxLength);
+    
+        // On insère :
+        // 1) Version tronquée visible par défaut
+        // 2) Version complète masquée
+        // 3) Bouton “Voir plus / Voir moins”
+        desc.innerHTML = `
+          <div class="short-text">${truncatedHTML}...</div>
+          <div class="full-text" style="display: none;">${fullHTML}</div>
+          <button class="btn btn-link see-more-btn p-0" style="display: block; margin-top: 5px;">
+              Show More
+          </button>
+        `;
+    
+        const shortTextEl = desc.querySelector('.short-text');
+        const fullTextEl  = desc.querySelector('.full-text');
+        const btn         = desc.querySelector('.see-more-btn');
+    
+        btn.addEventListener('click', function() {
+          if (fullTextEl.style.display === 'none') {
+            shortTextEl.style.display = 'none';
+            fullTextEl.style.display = 'block';
+            btn.textContent = 'Show Less';
+          } else {
+            shortTextEl.style.display = 'block';
+            fullTextEl.style.display = 'none';
+            btn.textContent = 'Show More';
+          }
         });
+      });
+    });
     </script>
+    
+
+
 {% endblock %}
