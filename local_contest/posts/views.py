@@ -5,6 +5,7 @@ from .forms import PostForm
 from django.http import JsonResponse
 import markdown
 from django.utils.safestring import mark_safe
+from members.models import CustomUser
 
 def is_staff(user):
     return user.is_staff
@@ -20,10 +21,20 @@ def post_list(request):
             return redirect('post_list')
     else:
         form = PostForm()
-    posts = Post.objects.all().order_by('-date', '-time')  # Trie par date et heure décroissantes
+
+    # Retrieve your posts
+    posts = Post.objects.all().order_by('-date', '-time')
     for post in posts:
         post.description = mark_safe(markdown.markdown(post.description))
-    return render(request, 'post_list.html', {'form': form, 'posts': posts})
+
+    # Get the TOP 5 ranking users
+    ranking_users = CustomUser.objects.order_by('rank')[:10]
+
+    return render(request, 'post_list.html', {
+        'form': form,
+        'posts': posts,
+        'ranking_users': ranking_users,
+    })
 
 @permission_required('is_staff')
 def delete_post(request, post_id):
@@ -32,13 +43,3 @@ def delete_post(request, post_id):
         post.delete()
     return redirect('post_list')
 
-    
-# fonction pour liker
-def like_post(request, post_id):
-    print("La vue like_post a été appelée")
-    if request.method == 'POST':
-        post = Post.objects.get(id=post_id)
-        post.like()
-        return JsonResponse({'likes': post.likes})
-    else:
-        return JsonResponse({'error': 'Méthode non autorisée'})

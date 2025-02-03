@@ -45,98 +45,131 @@
         margin: 1em 0;
     }
 </style>
-  <!-- Create Post Form (visible only for admin users) -->
-  {% if user.is_staff %}
-  <div class="tw-max-w-2xl tw-mx-auto ">
-  <div class="w-full tw-mx-auto tw-px-4 tw-py-6 tw-bg-white tw-shadow tw-rounded-lg tw-mt-6">
-    <h2 class="tw-text-xl tw-font-semibold tw-text-gray-800 tw-mb-4">Créer une publication</h2>
-    <form id="create-post-form" action="{% url 'post_list' %}" method="post" enctype="multipart/form-data">
-      {% csrf_token %}
-      <div class="tw-relative">
-        <!-- The textarea uses "description" as its name to match PostForm -->
-        <textarea id="post-input" name="description"
-          class="tw-w-full tw-p-3 tw-border tw-rounded-lg tw-text-gray-800 tw-bg-gray-100 focus:tw-ring-2 focus:tw-ring-blue-500 tw-resize-none"
-          placeholder="Que voulez-vous partager ?" rows="4">{{ form.description.value|default_if_none:"" }}</textarea>
-        <!-- Embedded image upload button -->
-        <label for="image-upload"
-          class="tw-absolute tw-bottom-2 tw-right-2 tw-cursor-pointer tw-bg-gray-200 tw-text-gray-700 tw-p-1 tw-rounded hover:tw-bg-gray-300 tw-transition">
-          <i class="fas fa-image"></i>
-        </label>
-      </div>
-      <!-- Hidden file input -->
-      <input type="file" id="image-upload" name="image" accept="image/*" class="tw-hidden">
-      <!-- Image Preview Container -->
-      <div id="image-preview-container" class="tw-mt-4 tw-relative" style="display: none;">
-        <img id="image-preview" src="" alt="Aperçu de l'image" class="tw-w-full tw-rounded">
-        <button type="button" id="cancel-image"
-          class="tw-absolute tw-top-2 tw-right-2 tw-bg-red-500 tw-text-white tw-rounded-full tw-p-1 hover:tw-bg-red-600 tw-transition">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-      <!-- Submit Button (disabled until form is valid) -->
-      <button type="submit" id="post-button"
-        class="tw-mt-4 tw-w-full tw-bg-green-500 tw-text-white tw-font-medium tw-py-2 tw-rounded-lg tw-shadow-md hover:tw-bg-green-600 tw-transition"
-        disabled>
-        Publier
-      </button>
-    </form>
+<div class="tw-flex tw-flex-row ">
+  <div class=" tw-w-1/4 tw-p-6 ">
+
+    <!-- Pinned Ranking (Top 5) at the left side -->
+    {% if ranking_users %}
+    <div class="tw-bg-white tw-shadow tw-w-full tw-rounded-lg tw-p-4 tw-hidden lg:tw-block">
+        <h5 class="fw-bold mb-2">Top 10 Ranking</h5>
+        <table class="table table-sm table-hover">
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>User</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for ruser in ranking_users %}
+            <tr>
+              <td>{{ ruser.rank }}</td>
+              <td>{{ ruser.username }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+    </div>
+    {% endif %}
   </div>
-  {% endif %}
+  <div class="tw-flex-auto">
 
-  <!-- Posts List -->
-  <div class="w-full tw-mx-auto tw-py-6" id="post-div">
-    <div id="posts-container" class="tw-space-y-3">
-      {% for post in posts %}
-      <div class="post tw-bg-white tw-rounded-lg tw-shadow tw-relative tw-py-3">
-        <!-- Delete Button (visible only for staff users) -->
-        {% if user.is_staff %}
-        <form method="post" action="{% url 'delete_post' post.id %}" class="tw-absolute tw-top-4 tw-right-4">
-          {% csrf_token %}
-          <button type="submit" class="tw-text-gray-500 tw-opacity-40 hover:tw-opacity-100 hover:tw-text-red-700 tw-text-lg">
-            <i class="fas fa-trash"></i>
+    <!-- Create Post Form (visible only for admin users) -->
+  
+    {% if user.is_staff %}
+    <div class="tw-max-w-2xl tw-mx-auto ">
+    <div class="w-full tw-mx-auto tw-px-4 tw-py-6 tw-bg-white tw-shadow tw-rounded-lg tw-mt-6">
+      <h2 class="tw-text-xl tw-font-semibold tw-text-gray-800 tw-mb-4">Créer une publication</h2>
+      <form id="create-post-form" action="{% url 'post_list' %}" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="tw-relative">
+          <!-- The textarea uses "description" as its name to match PostForm -->
+          <textarea id="post-input" name="description"
+            class="tw-w-full tw-p-3 tw-border tw-rounded-lg tw-text-gray-800 tw-bg-gray-100 focus:tw-ring-2 focus:tw-ring-blue-500 tw-resize-none"
+            placeholder="Que voulez-vous partager ?" rows="4">{{ form.description.value|default_if_none:"" }}</textarea>
+          <!-- Embedded image upload button -->
+          <label for="image-upload"
+            class="tw-absolute tw-bottom-2 tw-right-2 tw-cursor-pointer tw-bg-gray-200 tw-text-gray-700 tw-p-1 tw-rounded hover:tw-bg-gray-300 tw-transition">
+            <i class="fas fa-image"></i>
+          </label>
+        </div>
+        <!-- Hidden file input -->
+        <input type="file" id="image-upload" name="image" accept="image/*" class="tw-hidden">
+        <!-- Image Preview Container -->
+        <div id="image-preview-container" class="tw-mt-4 tw-relative" style="display: none;">
+          <img id="image-preview" src="" alt="Aperçu de l'image" class="tw-w-full tw-rounded">
+          <button type="button" id="cancel-image"
+            class="tw-absolute tw-top-2 tw-right-2 tw-bg-red-500 tw-text-white tw-rounded-full tw-p-1 hover:tw-bg-red-600 tw-transition">
+            <i class="fas fa-times"></i>
           </button>
-        </form>
-        {% endif %}
-        <!-- Post Header -->
-        <div class="tw-flex tw-items-center tw-justify-between tw-px-4 ">
-          <div class="tw-flex tw-items-center">
-            <div class="tw-w-10 tw-h-10 tw-rounded-full tw-bg-gradient-to-br tw-from-blue-600 tw-to-blue-800 tw-flex tw-items-center tw-justify-center tw-text-white tw-font-bold tw-text-lg tw-mr-3">
-              <img src="https://api.dicebear.com/7.x/initials/svg?seed={{ post.author }}" alt="Avatar" class="tw-w-full tw-h-full tw-rounded-full">
-            </div>
-            <div>
-              <div class="tw-font-bold tw-text-gray-800">{{ post.author }}</div>
-              <div class="tw-text-gray-500 tw-text-sm">{{ post.date }}</div>
-            </div>
-          </div>
         </div>
-        <!-- Post Description with See More/See Less -->
-        <div class="description tw-text-gray-700 tw-px-4 tw-pt-1">
-          {{ post.description|safe }}
-        </div>
-        <!-- Post Image (if available) -->
-        {% if post.image %}
-          <img src="{{ post.image.url }}" alt="Post image" class="tw-w-full tw-rounded tw-mb-3 tw-object-cover tw-max-h-[700px]">
-        {% endif %}
-        <!-- Post Actions -->
-        <div class="tw-flex tw-justify-around tw-border-t tw-pt-3">
-          <div class="tw-flex tw-flex-col tw-items-center">
+        <!-- Submit Button (disabled until form is valid) -->
+        <button type="submit" id="post-button"
+          class="tw-mt-4 tw-w-full tw-bg-green-500 tw-text-white tw-font-medium tw-py-2 tw-rounded-lg tw-shadow-md hover:tw-bg-green-600 tw-transition"
+          disabled>
+          Publier
+        </button>
+      </form>
+    </div>
+    {% endif %}
 
-              <button type="submit" class="tw-bg-gray-200 tw-text-gray-700 tw-px-4 tw-py-2 tw-rounded" disabled>Like</button>
 
-            <div class="tw-text-xs tw-text-gray-600 tw-mt-1">{{ post.likes }} Like</div>
+
+    <!-- Posts List -->
+    <div class="w-full tw-mx-auto tw-py-6" id="post-div">
+      <div id="posts-container" class="tw-space-y-3">
+        {% for post in posts %}
+        <div class="post tw-bg-white tw-rounded-lg tw-shadow tw-relative tw-py-3">
+          <!-- Delete Button (visible only for staff users) -->
+          {% if user.is_staff %}
+          <form method="post" action="{% url 'delete_post' post.id %}" class="tw-absolute tw-top-4 tw-right-4">
+            {% csrf_token %}
+            <button type="submit" class="tw-text-gray-500 tw-opacity-40 hover:tw-opacity-100 hover:tw-text-red-700 tw-text-lg">
+              <i class="fas fa-trash"></i>
+            </button>
+          </form>
+          {% endif %}
+          <!-- Post Header -->
+          <div class="tw-flex tw-items-center tw-justify-between tw-px-4 ">
+            <div class="tw-flex tw-items-center">
+              <div class="tw-w-10 tw-h-10 tw-rounded-full tw-bg-gradient-to-br tw-from-blue-600 tw-to-blue-800 tw-flex tw-items-center tw-justify-center tw-text-white tw-font-bold tw-text-lg tw-mr-3">
+                <img src="https://api.dicebear.com/9.x/initials/svg?seed={{ post.author }}" alt="Avatar" class="tw-w-full tw-h-full tw-rounded-full">
+              </div>
+              <div>
+                <div class="tw-font-bold tw-text-gray-800">{{ post.author }}</div>
+                <div class="tw-text-gray-500 tw-text-sm">{{ post.date }}</div>
+              </div>
+            </div>
           </div>
-          <div class="tw-flex tw-flex-col tw-items-center">
-            <button class="tw-bg-gray-200 tw-text-gray-700 tw-px-4 tw-py-2 tw-rounded" disabled>Comment</button>
-            <div class="tw-text-xs tw-text-gray-600 tw-mt-1">{{ post.comments }} Comment</div>
+          <!-- Post Description with See More/See Less -->
+          <div class="description tw-text-gray-700 tw-px-4 tw-pt-1">
+            {{ post.description|safe }}
+          </div>
+          <!-- Post Image (if available) -->
+          {% if post.image %}
+            <img src="{{ post.image.url }}" alt="Post image" class="tw-w-full tw-rounded tw-mb-3 tw-object-cover tw-max-h-[700px]">
+          {% endif %}
+          <!-- Post Actions -->
+          <div class="tw-flex tw-justify-around tw-border-t tw-pt-3">
+            <div class="tw-flex tw-flex-col tw-items-center">
+
+                <button type="submit" class="tw-bg-gray-200 tw-text-gray-700 tw-px-4 tw-py-2 tw-rounded" disabled>Like</button>
+
+              <div class="tw-text-xs tw-text-gray-600 tw-mt-1">{{ post.likes }} Like</div>
+            </div>
+            <div class="tw-flex tw-flex-col tw-items-center">
+              <button class="tw-bg-gray-200 tw-text-gray-700 tw-px-4 tw-py-2 tw-rounded" disabled>Comment</button>
+              <div class="tw-text-xs tw-text-gray-600 tw-mt-1">{{ post.comments }} Comment</div>
+            </div>
           </div>
         </div>
+        {% endfor %}
       </div>
-      {% endfor %}
     </div>
   </div>
+  </div>
+  <div class="tw-w-1/4">
+  </div>
 </div>
-
-
   <!-- See More / See Less Script -->
   <script>
     /**
