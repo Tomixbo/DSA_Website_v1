@@ -6,38 +6,31 @@
         margin-bottom: 1em;
         line-height: 1.6;
     }
-
-    .post h1{
+    .post h1 {
         margin: 0.5em 0 0.5em;
         font-weight: bold;
         font-size: 30px;
     }
-
     .post h2 {
         margin: 0.5em 0 0.5em;
         font-weight: bold;
         font-size: 20px;
     }
-
     .post h3, .post h4, .post h5, .post h6 {
         margin: 1em 0 0.5em;
         font-weight: bold;
     }
-
     .post ul {
         padding-left: 1.5em;
         margin-bottom: 1em;
     }
-
     .post a {
         color: #1877f2;
         text-decoration: none;
     }
-
     .post a:hover {
         text-decoration: underline;
     }
-
     .post blockquote {
         border-left: 4px solid #dfe2e5;
         padding-left: 1em;
@@ -45,13 +38,19 @@
         margin: 1em 0;
     }
 </style>
-<div class="tw-flex tw-flex-row ">
-  <div class=" tw-w-1/4 tw-p-6 ">
 
-    <!-- Pinned Ranking (Top 5) at the left side -->
+<!-- 3-Column Layout:
+     - Left: 1/4 width (pinned ranking), hidden below lg
+     - Center: auto (posts, tw-max-w-2xl)
+     - Right: 1/4 empty, hidden below lg
+  -->
+<div class="tw-flex tw-flex-row tw-gap-4 tw-w-full">
+
+  <!-- Left Column (Pinned Ranking), hidden on screens < lg -->
+  <div class="tw-bg-white tw-shadow tw-hidden lg:tw-block tw-w-1/5 tw-h-screen tw-sticky tw-top-0 tw-overflow-auto tw-p-6 tw-pt-10">
     {% if ranking_users %}
-    <div class="tw-bg-white tw-shadow tw-w-full tw-rounded-lg tw-p-4 tw-hidden lg:tw-block">
-        <h5 class="fw-bold mb-2">Top 10 Ranking</h5>
+      <div class="  tw-w-full tw-rounded-lg tw-p-4">
+        <h5 class="tw-font-bold tw-mb-2 tw-text-lg">TOP 10 DSA-RANKING</h5>
         <table class="table table-sm table-hover">
           <thead>
             <tr>
@@ -62,22 +61,29 @@
           <tbody>
             {% for ruser in ranking_users %}
             <tr>
-              <td>{{ ruser.rank }}</td>
+              <td>{{ ruser.rank }}{% if ruser.rank == 1%}<i class="bi-trophy-fill ms-2 text-warning">
+                {% elif ruser.rank == 2%}<i class="bi-trophy ms-2 text-secondary">
+                {% elif ruser.rank == 3%}<i class="bi-trophy ms-2" style="color: #b06311;">{%endif%}</td>
               <td>{{ ruser.username }}</td>
             </tr>
             {% endfor %}
           </tbody>
         </table>
-    </div>
+
+        <!-- Link to Full Ranking Board -->
+        <a href="{% url 'ranking' %}" class="tw-text-blue-600 tw-underline tw-text-sm">
+          <i class="fas fa-hand-point-right tw-mr-2"></i></i> See the full ranking board here
+        </a>
+      </div>
     {% endif %}
   </div>
-  <div class="tw-flex-auto">
+
+  <!-- Middle Column (Posts & Create-Post Form) -->
+  <div class="tw-flex-auto tw-max-w-2xl tw-mx-auto">
 
     <!-- Create Post Form (visible only for admin users) -->
-  
     {% if user.is_staff %}
-    <div class="tw-max-w-2xl tw-mx-auto ">
-    <div class="w-full tw-mx-auto tw-px-4 tw-py-6 tw-bg-white tw-shadow tw-rounded-lg tw-mt-6">
+    <div class="tw-mt-6 tw-bg-white tw-shadow tw-rounded-lg tw-px-4 tw-py-6">
       <h2 class="tw-text-xl tw-font-semibold tw-text-gray-800 tw-mb-4">Créer une publication</h2>
       <form id="create-post-form" action="{% url 'post_list' %}" method="post" enctype="multipart/form-data">
         {% csrf_token %}
@@ -94,6 +100,7 @@
         </div>
         <!-- Hidden file input -->
         <input type="file" id="image-upload" name="image" accept="image/*" class="tw-hidden">
+
         <!-- Image Preview Container -->
         <div id="image-preview-container" class="tw-mt-4 tw-relative" style="display: none;">
           <img id="image-preview" src="" alt="Aperçu de l'image" class="tw-w-full tw-rounded">
@@ -102,6 +109,7 @@
             <i class="fas fa-times"></i>
           </button>
         </div>
+
         <!-- Submit Button (disabled until form is valid) -->
         <button type="submit" id="post-button"
           class="tw-mt-4 tw-w-full tw-bg-green-500 tw-text-white tw-font-medium tw-py-2 tw-rounded-lg tw-shadow-md hover:tw-bg-green-600 tw-transition"
@@ -112,10 +120,8 @@
     </div>
     {% endif %}
 
-
-
     <!-- Posts List -->
-    <div class="w-full tw-mx-auto tw-py-6" id="post-div">
+    <div class="tw-w-full tw-my-6" id="post-div">
       <div id="posts-container" class="tw-space-y-3">
         {% for post in posts %}
         <div class="post tw-bg-white tw-rounded-lg tw-shadow tw-relative tw-py-3">
@@ -128,8 +134,9 @@
             </button>
           </form>
           {% endif %}
+
           <!-- Post Header -->
-          <div class="tw-flex tw-items-center tw-justify-between tw-px-4 ">
+          <div class="tw-flex tw-items-center tw-justify-between tw-px-4">
             <div class="tw-flex tw-items-center">
               <div class="tw-w-10 tw-h-10 tw-rounded-full tw-bg-gradient-to-br tw-from-blue-600 tw-to-blue-800 tw-flex tw-items-center tw-justify-center tw-text-white tw-font-bold tw-text-lg tw-mr-3">
                 <img src="https://api.dicebear.com/9.x/initials/svg?seed={{ post.author }}" alt="Avatar" class="tw-w-full tw-h-full tw-rounded-full">
@@ -140,20 +147,21 @@
               </div>
             </div>
           </div>
+
           <!-- Post Description with See More/See Less -->
           <div class="description tw-text-gray-700 tw-px-4 tw-pt-1">
             {{ post.description|safe }}
           </div>
+
           <!-- Post Image (if available) -->
           {% if post.image %}
             <img src="{{ post.image.url }}" alt="Post image" class="tw-w-full tw-rounded tw-mb-3 tw-object-cover tw-max-h-[700px]">
           {% endif %}
+
           <!-- Post Actions -->
           <div class="tw-flex tw-justify-around tw-border-t tw-pt-3">
             <div class="tw-flex tw-flex-col tw-items-center">
-
-                <button type="submit" class="tw-bg-gray-200 tw-text-gray-700 tw-px-4 tw-py-2 tw-rounded" disabled>Like</button>
-
+              <button type="submit" class="tw-bg-gray-200 tw-text-gray-700 tw-px-4 tw-py-2 tw-rounded" disabled>Like</button>
               <div class="tw-text-xs tw-text-gray-600 tw-mt-1">{{ post.likes }} Like</div>
             </div>
             <div class="tw-flex tw-flex-col tw-items-center">
@@ -166,109 +174,107 @@
       </div>
     </div>
   </div>
-  </div>
-  <div class="tw-w-1/4">
+
+  <!-- Right Column (Empty), hidden on screens < lg -->
+  <div class="tw-hidden lg:tw-block tw-w-1/5">
+    <!-- Placeholder for future usage -->
   </div>
 </div>
-  <!-- See More / See Less Script -->
-  <script>
-    /**
-     * Truncate HTML block-by-block without cutting in the middle of an element.
-     * Stops adding blocks when adding another would exceed maxLength.
-     */
-    function truncateHTMLByBlock(html, maxLength) {
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(html, 'text/html');
-      const body = doc.body;
-      const truncatedBody = document.createElement('div');
-      let currentCount = 0;
-      const children = Array.from(body.children);
-      for (let child of children) {
-        const blockLength = child.textContent.trim().length;
-        if (currentCount + blockLength > maxLength) break;
-        currentCount += blockLength;
-        truncatedBody.appendChild(child.cloneNode(true));
-      }
-      return truncatedBody.innerHTML;
+
+<!-- See More / See Less Script -->
+<script>
+  function truncateHTMLByBlock(html, maxLength) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    const body = doc.body;
+    const truncatedBody = document.createElement('div');
+    let currentCount = 0;
+    const children = Array.from(body.children);
+    for (let child of children) {
+      const blockLength = child.textContent.trim().length;
+      if (currentCount + blockLength > maxLength) break;
+      currentCount += blockLength;
+      truncatedBody.appendChild(child.cloneNode(true));
     }
+    return truncatedBody.innerHTML;
+  }
 
-    document.addEventListener('DOMContentLoaded', function() {
-      const maxLength = 100;
-      document.querySelectorAll('.description').forEach(function(desc) {
-        const fullHTML = desc.innerHTML.trim();
-        const textContent = desc.textContent.trim();
-        if (textContent.length <= maxLength) return;
-        const truncatedHTML = truncateHTMLByBlock(fullHTML, maxLength);
-        desc.innerHTML = `
-          <div class="short-text tw-text-gray-700">${truncatedHTML}...</div>
-          <div class="full-text" style="display: none;">${fullHTML}</div>
-          <button class="see-more-btn tw-text-blue-500 tw-mt-2" style="display: block;">
-              Show More
-          </button>
-        `;
-        const shortTextEl = desc.querySelector('.short-text');
-        const fullTextEl  = desc.querySelector('.full-text');
-        const btn         = desc.querySelector('.see-more-btn');
-        btn.addEventListener('click', function() {
-          if (fullTextEl.style.display === 'none') {
-            shortTextEl.style.display = 'none';
-            fullTextEl.style.display = 'block';
-            btn.textContent = 'Show Less';
-          } else {
-            shortTextEl.style.display = 'block';
-            fullTextEl.style.display = 'none';
-            btn.textContent = 'Show More';
-          }
-        });
+  document.addEventListener('DOMContentLoaded', function() {
+    const maxLength = 100;
+    document.querySelectorAll('.description').forEach(function(desc) {
+      const fullHTML = desc.innerHTML.trim();
+      const textContent = desc.textContent.trim();
+      if (textContent.length <= maxLength) return;
+      const truncatedHTML = truncateHTMLByBlock(fullHTML, maxLength);
+      desc.innerHTML = `
+        <div class="short-text tw-text-gray-700">${truncatedHTML}...</div>
+        <div class="full-text" style="display: none;">${fullHTML}</div>
+        <button class="see-more-btn tw-text-blue-500 tw-mt-2" style="display: block;">
+            Show More
+        </button>
+      `;
+      const shortTextEl = desc.querySelector('.short-text');
+      const fullTextEl  = desc.querySelector('.full-text');
+      const btn         = desc.querySelector('.see-more-btn');
+      btn.addEventListener('click', function() {
+        if (fullTextEl.style.display === 'none') {
+          shortTextEl.style.display = 'none';
+          fullTextEl.style.display = 'block';
+          btn.textContent = 'Show Less';
+        } else {
+          shortTextEl.style.display = 'block';
+          fullTextEl.style.display = 'none';
+          btn.textContent = 'Show More';
+        }
       });
     });
-  </script>
+  });
+</script>
 
-  <!-- Create Post Form Script -->
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      const postInput = document.getElementById('post-input');
-      const postButton = document.getElementById('post-button');
-      const imageUpload = document.getElementById('image-upload');
-      const imagePreviewContainer = document.getElementById('image-preview-container');
-      const imagePreview = document.getElementById('image-preview');
-      const cancelImage = document.getElementById('cancel-image');
-      const createPostForm = document.getElementById('create-post-form');
+<!-- Create Post Form Script -->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const postInput = document.getElementById('post-input');
+    const postButton = document.getElementById('post-button');
+    const imageUpload = document.getElementById('image-upload');
+    const imagePreviewContainer = document.getElementById('image-preview-container');
+    const imagePreview = document.getElementById('image-preview');
+    const cancelImage = document.getElementById('cancel-image');
+    const createPostForm = document.getElementById('create-post-form');
 
-      // Enable submit button only if description is nonempty.
-      function validateForm() {
-        postButton.disabled = postInput.value.trim().length === 0;
+    // Enable submit button only if description is nonempty.
+    function validateForm() {
+      postButton.disabled = (postInput.value.trim().length === 0);
+    }
+    postInput.addEventListener('input', validateForm);
+    validateForm();
+
+    // Image Preview
+    imageUpload.addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          imagePreview.src = evt.target.result;
+          imagePreviewContainer.style.display = 'block';
+        }
+        reader.readAsDataURL(file);
       }
-      postInput.addEventListener('input', validateForm);
-      validateForm();
-
-      // Image Preview Handling
-      imageUpload.addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file) {
-          const reader = new FileReader();
-          reader.onload = function(evt) {
-            imagePreview.src = evt.target.result;
-            imagePreviewContainer.style.display = 'block';
-          }
-          reader.readAsDataURL(file);
-        }
-      });
-
-      // Cancel Image Import
-      cancelImage.addEventListener('click', function() {
-        imageUpload.value = '';
-        imagePreview.src = '';
-        imagePreviewContainer.style.display = 'none';
-      });
-
-      // Prevent accidental form submission via Enter key on non-textarea elements.
-      createPostForm.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') {
-          e.preventDefault();
-        }
-      });
     });
-  </script>
 
+    // Cancel Image Import
+    cancelImage.addEventListener('click', function() {
+      imageUpload.value = '';
+      imagePreview.src = '';
+      imagePreviewContainer.style.display = 'none';
+    });
+
+    // Prevent accidental form submission if Enter is pressed outside <textarea>.
+    createPostForm.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') {
+        e.preventDefault();
+      }
+    });
+  });
+</script>
 {% endblock %}
