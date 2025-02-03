@@ -9,7 +9,7 @@ from django.utils.safestring import mark_safe
 def is_staff(user):
     return user.is_staff
 
-@permission_required('is_staff')
+@login_required
 def post_list(request):
     if request.method == 'POST':
         form = PostForm(request.POST, request.FILES)
@@ -32,17 +32,6 @@ def delete_post(request, post_id):
         post.delete()
     return redirect('post_list')
 
-def create_post_ajax(request):
-    if request.method == 'POST':
-        content = request.POST.get('content')
-        image = request.FILES.get('image')
-        if content:
-            post = Post.objects.create(description=content, image=image, author=request.user)
-            return JsonResponse({'message': 'Post créé avec succès'})
-        else:
-            return JsonResponse({'message': 'Contenu du post requis'})
-    else:
-        return JsonResponse({'message': 'Méthode non autorisée'})
     
 # fonction pour liker
 def like_post(request, post_id):

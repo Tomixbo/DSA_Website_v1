@@ -120,10 +120,9 @@
         <!-- Post Actions -->
         <div class="tw-flex tw-justify-around tw-border-t tw-pt-3">
           <div class="tw-flex tw-flex-col tw-items-center">
-            <form id="like-form-{{ post.id }}" action="{% url 'like_post' post.id %}" method="post">
-              {% csrf_token %}
+
               <button type="submit" class="tw-bg-gray-200 tw-text-gray-700 tw-px-4 tw-py-2 tw-rounded" disabled>Like</button>
-            </form>
+
             <div class="tw-text-xs tw-text-gray-600 tw-mt-1">{{ post.likes }} Like</div>
           </div>
           <div class="tw-flex tw-flex-col tw-items-center">
