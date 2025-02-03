@@ -2,133 +2,24 @@
 
 {% block content %}
 <style>
-    body {
-        background: #f0f2f5;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    }
-
-   .post-box {
-        background: white;
-        border-radius: 12px;
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-        padding: 20px;
-        margin-bottom: 20px;
-    }
-
-   .avatar {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, #1877f2, #2851A3);
-        margin-right: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-weight: bold;
-        font-size: 16px;
-    }
-
-   .post {
-        background: white;
-        border-radius: 12px;
-        padding: 20px;
-        margin-bottom: 20px;
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-        position: relative;
-    }
-
-   .post.btn-close {
-        position: absolute;
-        top: 12px;
-        right: 12px;
-        font-size: 0.8rem;
-        opacity: 0.6;
-        padding: 6px;
-    }
-
-   .post.btn-close:hover {
-        opacity: 1;
-    }
-
-   .modal-content {
-        border-radius: 12px;
-        border: none;
-    }
-
-   .modal-header {
-        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-        padding: 15px 20px;
-    }
-
-   .modal-body {
-        padding: 20px;
-    }
-
-   .comment {
-        background: #f0f2f5;
-        padding: 12px;
-        border-radius: 12px;
-        margin-bottom: 12px;
-    }
-
-   .btn-light {
-        background: #f0f2f5;
-        border: none;
-        padding: 8px 16px;
-        font-weight: 500;
-    }
-
-   .btn-light:hover {
-        background: #e4e6e9;
-    }
-
-   .btn-primary {
-        background: #1877f2;
-        border: none;
-        font-weight: 500;
-    }
-
-   .btn-primary:hover {
-        background: #166fe5;
-    }
-
-   .form-control {
-        border-radius: 8px;
-        border: 1px solid rgba(0, 0, 0, 0.1);
-        padding: 12px;
-    }
-
-   .form-control:focus {
-        box-shadow: none;
-        border-color: #1877f2;
-    }
-
-   .post img {
-        max-height: 400px;
-        object-fit: contain;
-        width: 100%;
-        border-radius: 8px;
-    }
-
-   .comments-count,
-   .likes-count {
-        color: #65676b;
-        font-size: 13px;
-        margin-top: 4px;
-    }
-
-   .post.liked {
-        color: #1877f2;
-        background: #e7f3ff;
-    }
-
     .post p {
         margin-bottom: 1em;
         line-height: 1.6;
     }
 
-    .post h1, .post h2, .post h3, .post h4, .post h5, .post h6 {
+    .post h1{
+        margin: 1em 0 0.5em;
+        font-weight: bold;
+        font-size: 30px;
+    }
+
+    .post h2 {
+        margin: 1em 0 0.5em;
+        font-weight: bold;
+        font-size: 20px;
+    }
+
+    .post h3, .post h4, .post h5, .post h6 {
         margin: 1em 0 0.5em;
         font-weight: bold;
     }
@@ -153,125 +44,136 @@
         color: #6a737d;
         margin: 1em 0;
     }
-    #post-div {
-        max-width:650px;
-    }
 </style>
+  <!-- Create Post Form (visible only for admin users) -->
+  {% if user.is_staff %}
+  <div class="tw-max-w-4xl tw-mx-auto tw-px-4 tw-py-6 tw-bg-white tw-shadow tw-rounded-lg tw-mt-6">
+    <h2 class="tw-text-xl tw-font-semibold tw-text-gray-800 tw-mb-4">Créer une publication</h2>
+    <form id="create-post-form" action="{% url 'post_list' %}" method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="tw-relative">
+        <!-- The textarea uses "description" as its name to match PostForm -->
+        <textarea id="post-input" name="description"
+          class="tw-w-full tw-p-3 tw-border tw-rounded-lg tw-text-gray-800 tw-bg-gray-100 focus:tw-ring-2 focus:tw-ring-blue-500 tw-resize-none"
+          placeholder="Que voulez-vous partager ?" rows="4">{{ form.description.value|default_if_none:"" }}</textarea>
+        <!-- Embedded image upload button -->
+        <label for="image-upload"
+          class="tw-absolute tw-bottom-2 tw-right-2 tw-cursor-pointer tw-bg-gray-200 tw-text-gray-700 tw-px-3 tw-py-1 tw-rounded hover:tw-bg-gray-300 tw-transition">
+          <i class="fas fa-image"></i>
+        </label>
+      </div>
+      <!-- Hidden file input -->
+      <input type="file" id="image-upload" name="image" accept="image/*" class="tw-hidden">
+      <!-- Image Preview Container -->
+      <div id="image-preview-container" class="tw-mt-4 tw-relative" style="display: none;">
+        <img id="image-preview" src="" alt="Aperçu de l'image" class="tw-w-full tw-rounded">
+        <button type="button" id="cancel-image"
+          class="tw-absolute tw-top-2 tw-right-2 tw-bg-red-500 tw-text-white tw-rounded-full tw-p-1 hover:tw-bg-red-600 tw-transition">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <!-- Submit Button (disabled until form is valid) -->
+      <button type="submit" id="post-button"
+        class="tw-mt-4 tw-w-full tw-bg-green-500 tw-text-white tw-font-medium tw-py-2 tw-rounded-lg tw-shadow-md hover:tw-bg-green-600 tw-transition"
+        disabled>
+        Publier
+      </button>
+    </form>
+  </div>
+  {% endif %}
 
-<div class="container p-4" id="post-div">
-    <div id="posts-container">
-        <!-- liste des posts -->
-        {% for post in posts %}
-            <div class="post">
-                
-                <div class="d-flex align-items-center justify-content-between">
-                    <div class="d-flex align-items-center">
-                        <div class="avatar">
-                            <img  src="https://api.dicebear.com/7.x/initials/svg?seed=A" alt="Avatar">
-
-                        </div>
-                        <div>
-                            <div class="fw-bold">{{ post.author }}</div>
-                            <div class="text-muted small">{{ post.date }}</div>
-                        </div>
-                    </div>
-                    {% comment %} <button class="btn-close"></button> {% endcomment %}
-                </div>
-                <div class="description mb-3">{{ post.description|safe }}</div>
-                {% if post.image %}
-                    <img src="{{ post.image.url }}" class="img-fluid mb-3" alt="Post image">
-                {% endif %}
-                <div class="d-flex justify-content-around border-top pt-3">
-
-                    <div class="text-center">
-                        <form id="like-form" action="{% url 'like_post' post.id %}" method="post">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-light like-btn" disabled>Like</button>
-                        </form>
-                        <div class="likes-count" id="likes-count">{{ post.likes }} Like</div>
-                    </div>
-
-                    <div class="text-center">
-                        <button class="btn btn-light comment-btn" disabled>Comment</button>
-                        <div class="comments-count">{{ post.comments }} 0 Comment</div>
-                    </div>
-                </div>
+  <!-- Posts List -->
+  <div class="tw-max-w-4xl tw-mx-auto tw-py-6" id="post-div">
+    <div id="posts-container" class="tw-space-y-6">
+      {% for post in posts %}
+      <div class="post tw-bg-white tw-rounded-lg tw-shadow tw-p-6 tw-relative">
+        <!-- Delete Button (visible only for staff users) -->
+        {% if user.is_staff %}
+        <form method="post" action="{% url 'delete_post' post.id %}" class="tw-absolute tw-top-2 tw-right-2">
+          {% csrf_token %}
+          <button type="submit" class="tw-text-red-500 hover:tw-text-red-700">
+            <i class="fas fa-trash"></i>
+          </button>
+        </form>
+        {% endif %}
+        <!-- Post Header -->
+        <div class="tw-flex tw-items-center tw-justify-between">
+          <div class="tw-flex tw-items-center">
+            <div class="tw-w-10 tw-h-10 tw-rounded-full tw-bg-gradient-to-br tw-from-blue-600 tw-to-blue-800 tw-flex tw-items-center tw-justify-center tw-text-white tw-font-bold tw-text-lg tw-mr-3">
+              <img src="https://api.dicebear.com/7.x/initials/svg?seed={{ post.author }}" alt="Avatar" class="tw-w-full tw-h-full tw-rounded-full">
             </div>
-        {% endfor %}
+            <div>
+              <div class="tw-font-bold tw-text-gray-800">{{ post.author }}</div>
+              <div class="tw-text-gray-500 tw-text-sm">{{ post.date }}</div>
+            </div>
+          </div>
+        </div>
+        <!-- Post Description with See More/See Less -->
+        <div class="description tw-mt-4 tw-mb-3 tw-text-gray-700">
+          {{ post.description|safe }}
+        </div>
+        <!-- Post Image (if available) -->
+        {% if post.image %}
+          <img src="{{ post.image.url }}" alt="Post image" class="tw-w-full tw-rounded tw-mb-3 tw-object-contain" style="max-height: 400px;">
+        {% endif %}
+        <!-- Post Actions -->
+        <div class="tw-flex tw-justify-around tw-border-t tw-pt-3">
+          <div class="tw-flex tw-flex-col tw-items-center">
+            <form id="like-form-{{ post.id }}" action="{% url 'like_post' post.id %}" method="post">
+              {% csrf_token %}
+              <button type="submit" class="tw-bg-gray-200 tw-text-gray-700 tw-px-4 tw-py-2 tw-rounded" disabled>Like</button>
+            </form>
+            <div class="tw-text-xs tw-text-gray-600 tw-mt-1">{{ post.likes }} Like</div>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-center">
+            <button class="tw-bg-gray-200 tw-text-gray-700 tw-px-4 tw-py-2 tw-rounded" disabled>Comment</button>
+            <div class="tw-text-xs tw-text-gray-600 tw-mt-1">{{ post.comments }} Comment</div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
     </div>
-</div>
-<script>
+  </div>
+
+  <!-- See More / See Less Script -->
+  <script>
     /**
-     * Tronquer par blocs, sans couper au milieu d'une balise.
-     * On arrête dès qu'ajouter un nouveau bloc ferait dépasser maxLength.
+     * Truncate HTML block-by-block without cutting in the middle of an element.
+     * Stops adding blocks when adding another would exceed maxLength.
      */
     function truncateHTMLByBlock(html, maxLength) {
-      // On parse le HTML pour récupérer un DOM dans doc.body
       const parser = new DOMParser();
       const doc = parser.parseFromString(html, 'text/html');
       const body = doc.body;
-    
-      // Nouveau conteneur qui va recevoir la version tronquée
       const truncatedBody = document.createElement('div');
-    
       let currentCount = 0;
-      // On parcourt les enfants directs du body
-      const children = Array.from(body.children); // h1, p, etc.
-    
+      const children = Array.from(body.children);
       for (let child of children) {
-        // Longueur textuelle de ce bloc
         const blockLength = child.textContent.trim().length;
-    
-        if (currentCount + blockLength > maxLength) {
-          // On dépasse la limite : on n'ajoute pas ce bloc.
-          // On peut insérer un "..." si on veut indiquer qu'il y a plus à voir
-          // Par exemple, on peut le faire juste après le dernier bloc valide
-          // Mais souvent on s'arrête net ici.
-          break;
-        }
-    
-        // Sinon, on ajoute ce bloc intégralement
+        if (currentCount + blockLength > maxLength) break;
         currentCount += blockLength;
         truncatedBody.appendChild(child.cloneNode(true));
       }
-    
-      // Retourner le HTML tronqué
       return truncatedBody.innerHTML;
     }
-    
+
     document.addEventListener('DOMContentLoaded', function() {
       const maxLength = 100;
-    
       document.querySelectorAll('.description').forEach(function(desc) {
-        // HTML complet déjà converti par la librairie Markdown
         const fullHTML = desc.innerHTML.trim();
-        // Texte brut pour savoir si on dépasse la limite
         const textContent = desc.textContent.trim();
-    
-        if (textContent.length <= maxLength) {
-          // Pas besoin de tronquer
-          return;
-        }
-    
-        // Tronquer proprement, bloc par bloc
+        if (textContent.length <= maxLength) return;
         const truncatedHTML = truncateHTMLByBlock(fullHTML, maxLength);
-    
-        // On insère :
-        // 1) Version tronquée visible par défaut
-        // 2) Version complète masquée
-        // 3) Bouton “Voir plus / Voir moins”
         desc.innerHTML = `
-          <div class="short-text">${truncatedHTML}...</div>
+          <div class="short-text tw-text-gray-700">${truncatedHTML}...</div>
           <div class="full-text" style="display: none;">${fullHTML}</div>
-          <button class="btn btn-link see-more-btn p-0" style="display: block; margin-top: 5px;">
+          <button class="see-more-btn tw-text-blue-500 tw-mt-2" style="display: block;">
               Show More
           </button>
         `;
-    
         const shortTextEl = desc.querySelector('.short-text');
         const fullTextEl  = desc.querySelector('.full-text');
         const btn         = desc.querySelector('.see-more-btn');
-    
         btn.addEventListener('click', function() {
           if (fullTextEl.style.display === 'none') {
             shortTextEl.style.display = 'none';
@@ -285,8 +187,53 @@
         });
       });
     });
-    </script>
-    
+  </script>
 
+  <!-- Create Post Form Script -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const postInput = document.getElementById('post-input');
+      const postButton = document.getElementById('post-button');
+      const imageUpload = document.getElementById('image-upload');
+      const imagePreviewContainer = document.getElementById('image-preview-container');
+      const imagePreview = document.getElementById('image-preview');
+      const cancelImage = document.getElementById('cancel-image');
+      const createPostForm = document.getElementById('create-post-form');
+
+      // Enable submit button only if description is nonempty.
+      function validateForm() {
+        postButton.disabled = postInput.value.trim().length === 0;
+      }
+      postInput.addEventListener('input', validateForm);
+      validateForm();
+
+      // Image Preview Handling
+      imageUpload.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function(evt) {
+            imagePreview.src = evt.target.result;
+            imagePreviewContainer.style.display = 'block';
+          }
+          reader.readAsDataURL(file);
+        }
+      });
+
+      // Cancel Image Import
+      cancelImage.addEventListener('click', function() {
+        imageUpload.value = '';
+        imagePreview.src = '';
+        imagePreviewContainer.style.display = 'none';
+      });
+
+      // Prevent accidental form submission via Enter key on non-textarea elements.
+      createPostForm.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') {
+          e.preventDefault();
+        }
+      });
+    });
+  </script>
 
 {% endblock %}
