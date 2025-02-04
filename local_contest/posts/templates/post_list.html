@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block banner %}{% endblock %}
 {% block content %}
 
@@ -50,6 +51,30 @@
 
   <!-- Left Column (Pinned Ranking), hidden on screens < lg -->
   <div class="tw-mt-6 tw-flex-col tw-bg-white tw-shadow tw-hidden lg:tw-flex tw-w-1/5 tw-h-screen tw-fixed tw-top-0 tw-overflow-auto tw-p-6 tw-pt-14">
+    <!-- Logo Section -->
+    <div class="tw-flex tw-justify-center tw-gap-4 tw-mb-6">
+      <!-- DSA Logo -->
+      <div class="tw-w-42 tw-h-42 tw-rounded-full tw-bg-gradient-to-r tw-from-blue-500 tw-to-teal-400 tw-p-1">
+          <div class="tw-w-full tw-h-full tw-rounded-full tw-overflow-hidden tw-bg-white">
+              <img src="{% static 'img/logo_DSA.jpg' %}" 
+                   alt="Logo DSA" 
+                   class="tw-w-full tw-h-full tw-object-cover">
+          </div>
+      </div>
+  
+      <!-- INSI Logo -->
+      <div class="tw-w-42 tw-h-42 tw-rounded-full tw-bg-gradient-to-r tw-from-blue-500 tw-to-teal-400 tw-p-1">
+          <div class="tw-w-full tw-h-full tw-rounded-full tw-overflow-hidden tw-bg-white">
+              <img src="{% static 'img/logo_INSI.jpg' %}" 
+                   alt="Logo INSI" 
+                   class="tw-w-full tw-h-full tw-object-cover">
+          </div>
+      </div>
+    </div>
+  
+  
+    
+    <!-- CONTEST Section -->
     <div class="tw-mb-6">
       <h2 class="tw-font-bold tw-text-lg tw-mb-2">TO WIN CONTEST</h2>
     
