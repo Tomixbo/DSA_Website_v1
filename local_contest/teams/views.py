@@ -82,7 +82,7 @@ def join_team(request, contest_id, team_id):
         return redirect('list_teams')
     
     # Vérifier si la team a de la place
-    if team.members.count() >= 5:
+    if team.members.count() >= contest.team_members_max:
         messages.error(request, "This team is already full!")
         return redirect("list_teams", contest_id=contest.id)
 
@@ -158,9 +158,21 @@ def accept_request(request, request_id):
     if join_request.status != "pending":
         messages.error(request, "This request has already been processed.")
         return redirect("list_teams", contest_id=join_request.team.contests.first().id)
+    
+    # Vérifier si la team a de la place
+    if join_request.team.members.count() >= join_request.team.contests.first().team_members_max:
+        messages.error(request, "This team is already full!")
+        return redirect("list_teams", contest_id=join_request.team.contests.first().id)
 
     # Add the user to the team and mark request as accepted
     join_request.accept()
+
+    # Delete all other pending join requests for this team when team is full
+    # Delete all other pending invitation made by this team
+    if join_request.team.members.count() >= join_request.team.contests.first().team_members_max:
+        JoinRequest.objects.filter(team=join_request.team, status="pending").delete()
+        Invitation.objects.filter(team=join_request.team, status="pending").delete()
+    
 
     # Retrieve contest_id for redirection
     contest_id = join_request.team.contests.first().id
@@ -169,7 +181,7 @@ def accept_request(request, request_id):
     Invitation.objects.filter(user=join_request.user, status="pending").delete()
 
     # Delete all other pending join requests made by this user
-    JoinRequest.objects.filter(user=join_request.user, status="pending").exclude(id=join_request.id).delete()
+    JoinRequest.objects.filter(user=join_request.user, status="pending").delete()
 
     messages.success(request, f"{join_request.user.username} has been added to the team {join_request.team.name}.")
 
@@ -244,9 +256,20 @@ def send_invitation(request, team_id, user_id):
 def accept_invite(request, invite_id):
     invite = get_object_or_404(Invitation, id=invite_id, user=request.user, status="pending")
     team = invite.team
+
+    # Vérifier si la team a de la place
+    if team.members.count() >= invite.team.contests.first().team_members_max:
+        messages.error(request, "This team is already full!")
+        return redirect("list_teams", contest_id=invite.team.contests.first().id)
     
     # Add the user to the team
     invite.accept()
+
+    # Delete all other pending join requests for this team when team is full
+    # Delete all other pending invitation made by this team
+    if invite.team.members.count() >= invite.team.contests.first().team_members_max:
+        JoinRequest.objects.filter(team=invite.team, status="pending").delete()
+        Invitation.objects.filter(team=invite.team, status="pending").delete()
 
     # Get the contest_id associated with the team
     contest_id = invite.team.contests.first().id

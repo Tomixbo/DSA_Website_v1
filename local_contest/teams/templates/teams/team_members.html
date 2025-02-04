@@ -5,30 +5,33 @@
     <div class="d-flex justify-content-between align-items-center text-white tw-font-semibold tw-text-2xl">
         <h2 class="text-white">MEMBERS OF TEAM : {{ team.name }}</h2>
         <div class="">
-        {% if is_member %}
-        <button id="notification-btn" type="button" class="btn btn-outline-warning" >
-            Notifications <span id="notification-count" class="badge bg-danger" style="display: none;"></span>
-        </button>
-        {% endif %}
-        {% if not contest.is_finished %}
-            <a href="{% url 'contest_detail' contest.id %}" class="btn btn-outline-light">Back to Contest</a>
-        {% else %}
-            <a href="{% url 'contest_list' %}" class="btn btn-outline-light">Back to Contest List</a>
-        {% endif %}
+            {% if is_member %}
+            <button id="notification-btn" type="button" class="btn btn-outline-warning" >
+                Notifications <span id="notification-count" class="badge bg-danger" style="display: none;"></span>
+            </button>
+            {% endif %}
+            {% if not contest.is_finished %}
+                <a href="{% url 'contest_detail' contest.id %}" class="btn btn-outline-light">Back to Contest</a>
+            {% else %}
+                <a href="{% url 'contest_list' %}" class="btn btn-outline-light">Back to Contest List</a>
+            {% endif %}
         
-    </div> 
+        </div> 
     </div>
+</div>
+
     {% if messages %}
-    {% for message in messages %}
-        <br/>
-        <div class="container-fluid px-3">
-            <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        {% for message in messages %}
+            <br/>
+            <div class="container-fluid px-3">
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
             </div>
-         </div>
-    {% endfor %}
-{% endif %}
+        {% endfor %}
+    {% endif %}
+    
         <!-- Modal des notifications -->
 <!-- Modal Background Overlay -->
 <div id="notificationModal" class="tw-fixed tw-inset-0 tw-bg-black tw-bg-opacity-50 tw-z-50 tw-flex tw-items-center tw-justify-center tw-hidden">
@@ -81,11 +84,11 @@
     </div>
 </div>
 <div class="container mt-4">
-
-    <table class="table table-bordered mt-3">
+    <p class="tw-text-base tw-font-semibold"> Maximum number of members allowed in a team in this contest: {{contest.team_members_max}} </p>
+    <table class="table table-bordered mt-3 ">
         <thead class="table-light">
             <tr>
-                <th scope="col">Member Name</th>
+                <th class="" scope="col">Member name</th>
             </tr>
         </thead>
         <tbody>
@@ -100,8 +103,9 @@
             {% endfor %}
         </tbody>
     </table>
+    
 </div>
-{% if is_member %}
+{% if is_member and team.members.count < contest.team_members_max %}
 <div class="container mt-5">
     <div class="card shadow-sm p-4 border-0 rounded">
         <h3 class="mb-3 text-center fw-semibold">Search for a User</h3>
@@ -120,7 +124,7 @@
             <h5 class="mb-3 fw-semibold">Found Users:</h5>
             <ul class="list-group rounded shadow-sm">
                 {% for user in search_results %}
-                    <li class="list-group-item d-flex justify-content-between align-items-center border-0 py-2 px-3">
+                    <li class="list-group-item d-flex justify-content-between align-items-center tw-border tw-border-t-2 py-2 px-3 hover:tw-bg-gray-300">
                         <span class="fw-medium">{{ user.username }}</span>
                         <form method="POST" action="{% url 'send_invite' team.id user.id %}" class="d-inline">
                             {% csrf_token %}

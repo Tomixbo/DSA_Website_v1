@@ -42,7 +42,7 @@
                     <td>{{ team.members.count }}</td>
                     <td>
                         <div class="tw-flex tw-space-x-2">
-                            {% if team.members.count < 5 and not user_team and not pending_requests %}
+                            {% if team.members.count < contest.team_members_max and not user_team and not pending_requests %}
                                 <!-- Join Team Form -->
                                 <form method="POST" action="{% url 'join_team' contest.id team.id %}" class="tw-w-1/2">    
                                     {% csrf_token %}
