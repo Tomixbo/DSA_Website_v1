@@ -80,40 +80,70 @@ def contest_detail(request, contest_id):
     contest = get_object_or_404(Contest, id=contest_id)
     user = request.user
 
-    # ✅ Vérifie si le contest est terminé
+    # Vérifie si le contest est terminé
     if contest.is_finished():
         return redirect('contest_inscription', contest_id=contest.id)
 
-    # ✅ Vérifie si l'utilisateur appartient à une équipe inscrite dans ce contest
-    user_team = contest.teams.filter(members=user).first()  # ✅ Récupération correcte de l'équipe
+    # Vérifie si l'utilisateur appartient à une équipe inscrite dans ce contest
+    user_team = contest.teams.filter(members=user).first()  # Récupération correcte de l'équipe
 
     if not user_team:
         return redirect('contest_inscription', contest_id=contest.id)
 
-    # ✅ Récupération des challenges associés au contest
+    # Définir la période valide du contest
+    contest_start = contest.start_date
+    contest_end = contest.end_date
+    
+    # Récupération des challenges associés au contest
     challenges = Challenge.objects.filter(contest_challenges__contest=contest).order_by('category', 'name')
 
-    # ✅ Calcul du progrès
+    # Compute total defined files per challenge
     defined_files_count = Challenge.objects.filter(
         pk=OuterRef('pk')
     ).annotate(
         count=Count('levels__defined_files')
     ).values('count')
 
+    # Compute resolved files count (by team, within contest period)
     resolved_files_count = Challenge.objects.filter(
         pk=OuterRef('pk')
     ).annotate(
-        count=Count('levels__defined_files', filter=Q(levels__defined_files__performance__user=user, levels__defined_files__performance__solved=True))
+        count=Count(
+            'levels__defined_files',
+            filter=Q(
+                levels__defined_files__performance__user__teams=user_team,
+                levels__defined_files__performance__solved=True,
+                levels__defined_files__performance__created_at__range=(contest_start, contest_end)
+            )
+        )
     ).values('count')
 
+    # Annotate challenges with computed fields
     challenges = challenges.annotate(
         num_defined_files=Subquery(defined_files_count),
         num_resolved_defined_files=Subquery(resolved_files_count)
     )
 
-    total_defined_files = sum(ch.num_defined_files or 0 for ch in challenges)
-    total_resolved_files = sum(ch.num_resolved_defined_files or 0 for ch in challenges)
-    progress_percent = (total_resolved_files / total_defined_files) * 100 if total_defined_files > 0 else 0
+
+    # Récupérer toutes les defined_files du contest
+    total_defined_files = DefinedFile.objects.filter(
+        level__challenge__contest_challenges__contest=contest
+    ).count() or 1  # Évite division par 0
+
+    
+
+
+    # Nombre de fichiers résolus par cette équipe dans la période du contest
+    solved_files = Performance.objects.filter(
+        definedfile__level__challenge__contest_challenges__contest=contest,
+        user__in=user_team.members.all(),
+        solved=True,
+        created_at__range=(contest_start, contest_end)
+    ).values("definedfile").distinct().count()
+
+
+    # Calcul du score
+    progress_percent = (solved_files / total_defined_files) * 100
 
     return render(request, 'contest/contest_detail.html', {
         'contest': contest,
