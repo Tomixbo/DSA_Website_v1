@@ -3,10 +3,11 @@
 {% load django_template_maths %}
 {% load custom_filters %}
 {% block rank_and_score %}
-    <a id="user-rank" class="tw-text-white tw-text-sm tw-opacity-75" href="{% url 'ranking' %}">
+
+    <a id="user-rank" class="tw-text-white tw-text-sm tw-opacity-75 hover:tw-underline hover:tw-text-yellow-300" href="{% url 'ranking' %}" title="Ranking">
         Your rank : <span class="tw-font-bold">{{ user.rank }}/{{ total_user }}</span>
     </a>
-    <a id="user-score" class="tw-text-white tw-text-sm tw-opacity-75" href="#">
+    <a id="user-score" class="tw-text-white tw-text-sm tw-opacity-75 tw-cursor-default" href="#">
         Your score : <span class="tw-font-bold">{{ user.score }}</span>
     </a>
 {% endblock rank_and_score %}
