@@ -15,4 +15,3 @@ APScheduler==3.11.0
 packaging==24.2
 tzlocal==5.2
 fontawesome_free
-gunicorn
