@@ -57,9 +57,6 @@ fi
 echo "Installing Tailwind..."
 python manage.py tailwind install
 
-echo "Initializing Tailwind..."
-echo "theme" | python manage.py tailwind init
-
 # Collect static files
 python manage.py collectstatic --noinput
 
