@@ -43,8 +43,11 @@ def create_team(request, contest_id):
 
         # ✅ Vérifier si une équipe avec ce nom existe DANS TOUTE LA BASE DE DONNÉES
         if Team.objects.filter(name=team_name).exists():
-            messages.error(request, "Ce nom de team existe déjà. Veuillez en choisir un autre.")
+            messages.error(request, "This team name already exists. Please choose another.")
             return redirect('create_team', contest_id=contest.id)  # ✅ Retourne sur la page de création
+
+        # ✅ Supprimer toutes les demandes d'adhésion en attente de cet utilisateur avant de créer l'équipe
+        JoinRequest.objects.filter(user=request.user, status='pending').delete()
 
         # ✅ Créer la team et ajouter l'utilisateur comme propriétaire et membre
         team = Team.objects.create(name=team_name, owner=request.user)
@@ -53,10 +56,11 @@ def create_team(request, contest_id):
         # ✅ Associer l'équipe au contest
         contest.teams.add(team)
 
-        messages.success(request, f"Votre équipe {team_name} a été créée avec succès !")
+        messages.success(request, f"Your team {team_name} has been created successfully!")
         return redirect('contest_detail', contest_id=contest.id)  # ✅ Redirige vers le contest
 
     return render(request, "teams/create_teams.html", {"contest": contest})
+
 
 
 @login_required

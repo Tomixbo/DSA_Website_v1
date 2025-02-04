@@ -65,6 +65,18 @@
     </div>
 </div>
 
+{% if messages %}
+        {% for message in messages %}
+            <br/>
+            <div class="tw-px-20">
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+             </div>
+            
+        {% endfor %}
+    {% endif %}
 
 <!-- Challenge List -->
 <div class="card my-3 p-3 tw-mx-20">

@@ -6,6 +6,19 @@
     <h1>{{ contest.name }}</h1>
 </div>
 
+{% if messages %}
+        {% for message in messages %}
+            <br/>
+            <div class="tw-px-10">
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+             </div>
+            
+        {% endfor %}
+    {% endif %}
+
 <div class="container px-3 mt-3">
     <div class="card">
         <div class="card-body">
