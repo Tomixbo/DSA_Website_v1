@@ -153,11 +153,11 @@
     </div>
   </div>
   <!-- Middle Column (Posts & Create-Post Form) -->
-  <div class="tw-flex-auto tw-max-w-2xl tw-mx-auto">
+  <div class="tw-flex-auto tw-max-w-2xl tw-mx-auto tw-mt-4">
 
     <!-- Create Post Form (visible only for admin users) -->
     {% if user.is_staff %}
-    <div class="tw-mt-8 tw-bg-white tw-shadow tw-rounded-lg tw-px-4 tw-py-6">
+    <div class="tw-mt-4 tw-bg-white tw-shadow tw-rounded-lg tw-px-4 tw-py-6">
       <h2 class="tw-text-xl tw-font-semibold tw-text-gray-800 tw-mb-4">Create a post</h2>
       <form id="create-post-form" action="{% url 'post_list' %}" method="post" enctype="multipart/form-data">
         {% csrf_token %}
@@ -199,7 +199,7 @@
       <div id="posts-container" class="tw-space-y-3">
 
         {% if pinned_post %}
-        <div class="tw-bg-yellow-100 tw-border-l-4 tw-border-yellow-500 tw-text-yellow-700 tw-p-4 tw-mb-4">
+        <div class="tw-bg-yellow-50 tw-border-l-4 tw-border-yellow-500 tw-text-yellow-700 tw-p-4 tw-mb-4">
             <div class="tw-flex tw-justify-between tw-items-center">
                 <h2 class="tw-font-bold">📌 Pinned Post</h2>
                 {% if user.is_staff %}
@@ -347,6 +347,7 @@
 
 </div>
 
+
 <!-- See More / See Less Script -->
 <script>
   function truncateHTMLByBlock(html, maxLength) {
@@ -443,5 +444,46 @@
     });
   });
 </script>
+
+{% if messages %}
+    <div class="tw-fixed tw-bottom-5 tw-right-5 tw-w-auto tw-space-y-2">
+      {% for message in messages %}
+          <div class="tw-flex tw-items-center tw-justify-between tw-px-4 tw-py-2 tw-bg-yellow-500 tw-text-white tw-rounded-lg tw-shadow-lg tw-opacity-100 tw-transition-all tw-duration-700 alert-box">
+              
+              <!-- Message -->
+              <span class="tw-flex-1 tw-pr-4">{{ message }}</span>
+
+              <!-- FontAwesome Close Button -->
+              <button type="button" class="tw-text-white tw-opacity-80 hover:tw-opacity-100 tw-transition tw-text-lg close-btn"
+                  aria-label="Close">
+                  <i class="fas fa-times"></i>
+              </button>
+          </div>
+      {% endfor %}
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const alerts = document.querySelectorAll(".alert-box");
+
+            alerts.forEach((alert, index) => {
+                // Auto-hide after 3 seconds
+                setTimeout(() => {
+                    alert.style.transform = "translateY(-20px)";
+                    alert.style.opacity = "0";
+                    setTimeout(() => alert.remove(), 700); // Remove after animation
+                }, 5000);
+
+                // Allow manual close
+                alert.querySelector(".close-btn").addEventListener("click", function () {
+                    alert.style.transform = "translateY(-20px)";
+                    alert.style.opacity = "0";
+                    setTimeout(() => alert.remove(), 700);
+                });
+            });
+        });
+    </script>
+{% endif %}
+
 
 {% endblock %}
