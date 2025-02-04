@@ -24,6 +24,7 @@
             <thead>
               <tr>
                 <th>Contest Name</th>
+                <th class="text-center">Max Members in Team</th>
                 <th class="text-center">Start Date</th>
                 <th class="text-center">End Date</th>
                 <th class="col-2 text-center">Status</th>
@@ -33,6 +34,7 @@
                 {% for contest in contests %}
                     <tr>
                         <td><a href="{% url 'contest_inscription' contest.id %}" class="list-group-item level-link">{{ contest.name }}</a></td>
+                        <td class="text-center">{{ contest.team_members_max }}</td>
                         <td class="text-center">{{ contest.start_date|date:"d M Y H:i" }}</td>
                         <td class="text-center">{{ contest.end_date|date:"d M Y H:i" }}</td>
                         <td class="text-center">

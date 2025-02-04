@@ -9,6 +9,9 @@ from django.utils import timezone
 from django.db.models import Max
 
 
+from django.db.models import Max
+from django.utils.timezone import make_aware
+
 @login_required
 def contest_leaderboard(request, contest_id):
     contest = get_object_or_404(Contest, id=contest_id)
@@ -16,24 +19,32 @@ def contest_leaderboard(request, contest_id):
 
     leaderboard_data = []
 
-    # ✅ Récupérer toutes les defined_files du contest
-    total_defined_files = DefinedFile.objects.filter(level__challenge__contest_challenges__contest=contest).count() or 1  # Évite division par 0
+    # Récupérer toutes les defined_files du contest
+    total_defined_files = DefinedFile.objects.filter(
+        level__challenge__contest_challenges__contest=contest
+    ).count() or 1  # Évite division par 0
+
+    # Définir la période valide du contest
+    contest_start = contest.start_date
+    contest_end = contest.end_date
 
     for team in teams:
-        # ✅ Nombre de fichiers résolus par cette équipe
+        # Nombre de fichiers résolus par cette équipe dans la période du contest
         solved_files = Performance.objects.filter(
             definedfile__level__challenge__contest_challenges__contest=contest,
             user__in=team.members.all(),
-            solved=True
+            solved=True,
+            created_at__range=(contest_start, contest_end)
         ).values("definedfile").distinct().count()
 
-        # ✅ Dernière soumission de l'équipe
+        # Dernière soumission de l'équipe dans la période du contest
         last_performance = Performance.objects.filter(
             user__in=team.members.all(),
-            solved=True
-        ).aggregate(last=Max("created_at"))["last"] or "2000-01-01"  # Eviter None
+            solved=True,
+            created_at__range=(contest_start, contest_end)
+        ).aggregate(last=Max("created_at"))["last"] or contest_start  # Evite None en mettant start_date du contest
 
-        # ✅ Calcul du score
+        # Calcul du score
         score = (solved_files / total_defined_files) * 100
 
         leaderboard_data.append({
@@ -42,10 +53,10 @@ def contest_leaderboard(request, contest_id):
             "last_performance": last_performance
         })
 
-    # ✅ Trier par score DESC et dernière soumission ASC (plus rapide = meilleur classement)
+    # Trier par score DESC et dernière soumission ASC (plus rapide = meilleur classement)
     leaderboard_data.sort(key=lambda x: (-x["score"], x["last_performance"]))
 
-    # ✅ Assignation des rangs stricts
+    # Assignation des rangs stricts
     for index, entry in enumerate(leaderboard_data):
         entry["rank"] = index + 1  # Chaque team a un rank unique
 
@@ -53,6 +64,7 @@ def contest_leaderboard(request, contest_id):
         "contest": contest,
         "leaderboard_data": leaderboard_data
     })
+
 
 
 
