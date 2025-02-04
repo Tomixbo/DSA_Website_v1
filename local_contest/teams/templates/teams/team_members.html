@@ -16,9 +16,19 @@
             <a href="{% url 'contest_list' %}" class="btn btn-outline-light">Back to Contest List</a>
         {% endif %}
         
-        
-        </div>
-
+    </div> 
+    </div>
+    {% if messages %}
+    {% for message in messages %}
+        <br/>
+        <div class="container-fluid px-3">
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+         </div>
+    {% endfor %}
+{% endif %}
         <!-- Modal des notifications -->
 <!-- Modal Background Overlay -->
 <div id="notificationModal" class="tw-fixed tw-inset-0 tw-bg-black tw-bg-opacity-50 tw-z-50 tw-flex tw-items-center tw-justify-center tw-hidden">

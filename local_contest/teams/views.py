@@ -30,10 +30,6 @@ def list_teams(request, contest_id):
         "pending_invitations": pending_invitations,
     })
 
-
-
-
-
 @login_required
 def create_team(request, contest_id):
     contest = get_object_or_404(Contest, id=contest_id)
@@ -41,25 +37,29 @@ def create_team(request, contest_id):
     if request.method == "POST":
         team_name = request.POST.get("name")
 
-        # Vérifier si une équipe avec ce nom existe DANS TOUTE LA BASE DE DONNÉES
+        # Check if the team name already exists
         if Team.objects.filter(name=team_name).exists():
             messages.error(request, "This team name already exists. Please choose another.")
-            return redirect('create_team', contest_id=contest.id)  # Retourne sur la page de création
+            return redirect('create_team', contest_id=contest.id)  # Return to the creation page
 
-        # Supprimer toutes les demandes d'adhésion en attente de cet utilisateur avant de créer l'équipe
+        # Delete all pending join requests the user has sent
         JoinRequest.objects.filter(user=request.user, status='pending').delete()
 
-        # Créer la team et ajouter l'utilisateur comme propriétaire et membre
+        # Delete all pending invitations the user has received
+        Invitation.objects.filter(user=request.user, status="pending").delete()
+
+        # Create the team and add the user as owner and member
         team = Team.objects.create(name=team_name, owner=request.user)
         team.members.add(request.user)
 
-        # Associer l'équipe au contest
+        # Associate the team with the contest
         contest.teams.add(team)
 
         messages.success(request, f"Your team {team_name} has been created successfully!")
-        return redirect('contest_detail', contest_id=contest.id)  # Redirige vers le contest
+        return redirect('contest_detail', contest_id=contest.id)  # Redirect to contest detail
 
     return render(request, "teams/create_teams.html", {"contest": contest})
+
 
 
 
@@ -148,45 +148,33 @@ def get_notifications(request):
     }
     return JsonResponse(data)
 
-@login_required
-def handle_join_request(request, request_id):
-    join_request = get_object_or_404(JoinRequest, id=request_id)
 
-    # Vérifier si l'utilisateur est membre de l'équipe
-    if request.user not in join_request.team.members.all():
-        messages.error(request, "You are not allowed to manage this request!")
-        return redirect('list_teams')
-
-    if request.method == "POST":
-        action = request.POST.get("action")
-
-        if action == "accept":
-            join_request.accept()
-            messages.success(request, f"{join_request.user.username} has been added to the team!")
-        elif action == "reject":
-            join_request.reject()
-            messages.info(request, f"{join_request.user.username}'s request has been rejected.")
-
-    return redirect('list_teams')
 
 @login_required
 def accept_request(request, request_id):
     join_request = get_object_or_404(JoinRequest, id=request_id)
 
-    # Vérifie que la demande est toujours en attente
-    if join_request.status != 'pending':
+    # Check that the request is still pending
+    if join_request.status != "pending":
         messages.error(request, "This request has already been processed.")
         return redirect("list_teams", contest_id=join_request.team.contests.first().id)
 
-    # Ajoute l'utilisateur à l'équipe et met à jour le statut
+    # Add the user to the team and mark request as accepted
     join_request.accept()
+
+    # Retrieve contest_id for redirection
+    contest_id = join_request.team.contests.first().id
+
+    # Delete all pending invitations for this user
+    Invitation.objects.filter(user=join_request.user, status="pending").delete()
+
+    # Delete all other pending join requests made by this user
+    JoinRequest.objects.filter(user=join_request.user, status="pending").exclude(id=join_request.id).delete()
 
     messages.success(request, f"{join_request.user.username} has been added to the team {join_request.team.name}.")
 
-    # Récupère le contest_id en accédant aux contests liés à l'équipe
-    contest_id = join_request.team.contests.first().id
-
     return redirect("team_members", contest_id=contest_id, team_id=join_request.team.id)
+
 
 
 @login_required
@@ -225,33 +213,6 @@ def send_join_request(request, team_id):
     
     return redirect('team_members', team_id=team.id)
 
-@login_required
-def send_invite_request(request, team_id, user_id):
-    team = get_object_or_404(Team, id=team_id)
-    user_to_invite = get_object_or_404(CustomUser, id=user_id)
-    # Vérifier si l'utilisateur fait déjà partie de l'équipe
-    if user_to_invite in team.members.all():
-        return JsonResponse({"status": "error", "message": "User is already in the team!"}, status=400)
-    # Vérifier si une demande est déjà en attente
-    existing_request = JoinRequest.objects.filter(user=user_to_invite, team=team, status='pending').exists()
-    if existing_request:
-        return JsonResponse({"status": "error", "message": "Request already sent!"}, status=400)
-    # Créer la demande d'adhésion
-    JoinRequest.objects.create(user=user_to_invite, team=team)
-    return JsonResponse({"status": "success", "message": "Invitation sent!"})
-
-@login_required
-def accept_invite(request, invite_id):
-    invite = get_object_or_404(Invitation, id=invite_id, user=request.user, status="pending")
-    team = invite.team
-    # Ajouter l'utilisateur à l'équipe
-    team.members.add(request.user)
-    invite.status = "accepted"
-    invite.save()
-    # Récupère le contest_id en accédant aux contests liés à l'équipe
-    contest_id = invite.team.contests.first().id
-
-    return redirect("team_members", contest_id=contest_id, team_id=invite.team.id)
 
 @login_required
 def send_invitation(request, team_id, user_id):
@@ -259,13 +220,16 @@ def send_invitation(request, team_id, user_id):
     invited_user = get_object_or_404(CustomUser, id=user_id)
     # Vérifier si l'utilisateur qui invite est bien membre ou propriétaire
     if request.user not in team.members.all() and request.user != team.owner:
-        return JsonResponse({"error": "Vous n'avez pas l'autorisation d'inviter quelqu'un"}, status=403)
+        messages.warning(request, "You don't have the authorization to invite member!")
+        return redirect("list_teams", contest_id=team.contests.first().id)
     # Vérifier si l'utilisateur est déjà dans l'équipe
     if invited_user in team.members.all():
-        return JsonResponse({"error": "Cet utilisateur est déjà membre de l'équipe"}, status=400)
+        messages.warning(request, f"{invited_user.username} is already in your team!")
+        return redirect("list_teams", contest_id=team.contests.first().id)
     # Vérifier si une invitation est déjà en attente
     if Invitation.objects.filter(user=invited_user, team=team, status='pending').exists():
-        return JsonResponse({"error": "Une invitation est déjà en attente"}, status=400)
+        messages.warning(request, f"You have already sent an invitation to {invited_user.username}!")
+        return redirect("list_teams", contest_id=team.contests.first().id)
     # Créer l'invitation
     invitation = Invitation.objects.create(user=invited_user, team=team, status="pending")
     # Créer une notification
@@ -273,30 +237,30 @@ def send_invitation(request, team_id, user_id):
         user=invited_user,
         message=f"Vous avez reçu une invitation pour rejoindre l'équipe {team.name}.",
     )
+    messages.success(request, f"Your invitation for {invited_user.username} to join your team has been sent!")
     return redirect("list_teams", contest_id=invitation.team.contests.first().id)
 
 @login_required
-def respond_to_invitation(request, invitation_id, response):
-    invitation = get_object_or_404(Invitation, id=invitation_id)
-    # Vérifier si l'utilisateur est bien l'invité
-    if request.user != invitation.user:
-        return JsonResponse({"error": "Vous ne pouvez pas répondre à cette invitation"}, status=403)
-    if response == 'accept':
-        invitation.status = "accepted"
-        invitation.team.members.add(invitation.user)
-        message = f"{request.user.username} a accepté l'invitation pour rejoindre l'équipe {invitation.team.name}."
-    elif response == 'reject':
-        invitation.status = "rejected"
-        message = f"{request.user.username} a refusé l'invitation pour rejoindre l'équipe {invitation.team.name}."
-    else:
-        return JsonResponse({"error": "Réponse invalide"}, status=400)
-    invitation.save()
-    # Envoyer une notification au propriétaire de l'équipe
-    Notification.objects.create(
-        user=invitation.team.owner,
-        message=message
-    )
-    return redirect('team_list')  # Rediriger vers la liste des équipes
+def accept_invite(request, invite_id):
+    invite = get_object_or_404(Invitation, id=invite_id, user=request.user, status="pending")
+    team = invite.team
+    
+    # Add the user to the team
+    invite.accept()
+
+    # Get the contest_id associated with the team
+    contest_id = invite.team.contests.first().id
+
+    # Delete all other pending invitations for this user
+    Invitation.objects.filter(user=request.user, status="pending").exclude(id=invite.id).delete()
+
+    # Delete all join requests the user has previously made
+    JoinRequest.objects.filter(user=request.user, status="pending").delete()
+
+    messages.success(request, f"You have joined the team '{team.name}'!")
+    
+    return redirect("team_members", contest_id=contest_id, team_id=team.id)
+
 
 @login_required
 def decline_invite(request, invite_id):

@@ -25,18 +25,17 @@ class JoinRequest(models.Model):
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
     
     def accept(self):
-        """Accepter la demande et ajouter l'utilisateur à l'équipe."""
-        self.status = 'accepted'
+        """Accepter la demande, ajouter l'utilisateur à l'équipe, puis supprimer la demande."""
         self.team.members.add(self.user)
-        self.save()
+        self.delete()  # ✅ Delete request after acceptance
 
     def reject(self):
-        """Rejeter la demande."""
-        self.status = 'rejected'
-        self.save()
+        """Rejeter la demande et la supprimer."""
+        self.delete()  # ✅ Delete request after rejection
 
     def __str__(self):
         return f"Request from {self.user.username} to join {self.team.name}"
+
 
 class Notification(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -54,3 +53,15 @@ class Invitation(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="invitations")
     team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name="invitations")
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
+
+    def accept(self):
+        """Accepter l'invitation, ajouter l'utilisateur à l'équipe, puis supprimer l'invitation."""
+        self.team.members.add(self.user)
+        self.delete()  # ✅ Delete invitation after acceptance
+
+    def reject(self):
+        """Rejeter l'invitation et la supprimer."""
+        self.delete()  # ✅ Delete invitation after rejection
+
+    def __str__(self):
+        return f"Invitation for {self.user.username} to join {self.team.name}"
