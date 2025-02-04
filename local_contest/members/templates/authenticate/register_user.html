@@ -5,7 +5,7 @@
 
 
     <div class="shadow  container-fluid  p-3 px-4 text-white text-white tw-font-semibold tw-text-2xl" style="background-color: #051934;">
-        <h2>Register</h2>
+        <h2>REGISTER</h2>
     </div>
     <div class="container">
         
@@ -30,7 +30,7 @@
                 {% csrf_token %}
                 {{ form.as_p_no_errors|safe }}
         
-                <button type="submit" class="btn btn-primary">Sign up</button>
+                <button type="submit" class="btn btn-primary mt-3">Sign up</button>
                 <div class="fs-6 mt-3">Already have an account,  
                     <a class="tw-text-blue-600 tw-underline tw-text-sm" href="{% url 'login' %}">sign-in here</a>
                 </div>

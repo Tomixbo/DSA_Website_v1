@@ -14,13 +14,17 @@ def breadcrumb_context(request):
         "contest_participate": {"name": "Contest Participation", "parent": "contest_detail"},
         "contest_leaderboard": {"name": "Contest Leaderboard", "parent": "contest_detail"},
         "ranking": {"name": "Ranking", "parent": None},
+        "validate_attendance": {"name": "Validate Attendance", "parent": None},
         "attendance_list": {"name": "Attendance Records", "parent": None},
         "display_code": {"name": "Attendance Code", "parent": None},
-        "validate_attendance": {"name": "Validate Attendance", "parent": None},
     }
 
-    if match.url_name in breadcrumb_map:
-        current_data = breadcrumb_map[match.url_name]
+    # Supprime l'espace de noms s'il existe pour correspondre aux clés du breadcrumb_map
+    url_name = f"{match.namespace}:{match.url_name}" if match.namespace else match.url_name
+
+    if url_name in breadcrumb_map or match.url_name in breadcrumb_map:
+        current_data = breadcrumb_map.get(url_name) or breadcrumb_map.get(match.url_name)
+
         parent_url_name = current_data.get("parent")
         
         # Génération de l'URL dynamique pour les vues qui nécessitent un ID
@@ -34,13 +38,13 @@ def breadcrumb_context(request):
         elif match.url_name == "challenge_detail" and "challenge_slug" in match.kwargs:
             current_url = reverse(match.url_name, kwargs={"challenge_slug": match.kwargs["challenge_slug"]})
         else:
-            current_url = reverse(match.url_name)
+            current_url = reverse(url_name)
 
         breadcrumbs.append({"name": current_data["name"], "url": current_url})
 
         # Ajout du parent s'il existe
         while parent_url_name:
-            parent_data = breadcrumb_map.get(parent_url_name)
+            parent_data = breadcrumb_map.get(f"{match.namespace}:{parent_url_name}") or breadcrumb_map.get(parent_url_name)
             if not parent_data:
                 break
             

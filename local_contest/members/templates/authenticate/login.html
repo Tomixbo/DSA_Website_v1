@@ -3,7 +3,7 @@
 {% block content %}
 
     <div class="shadow container-fluid  p-3 px-4 text-white text-white tw-font-semibold tw-text-2xl" style="background-color: #051934;">
-        <h2>Connexion</h2>
+        <h2>SIGN-IN</h2>
     </div>
     <div class="container">
         <br/>
@@ -30,7 +30,7 @@
         
                 <button type="submit" class="btn btn-primary">Sign in</button>
                 <div class="fs-6 mt-3">For new member, you can 
-                    <a href="{% url 'register' %}">register here</a>
+                    <a class="tw-text-blue-600 tw-underline tw-text-sm" href="{% url 'register' %}">register here</a>
                 </div>
                 <div class="fs-6 mt-3">You forgot your password, you can 
                     <a class="tw-text-blue-600 tw-underline tw-text-sm" href="{% url 'password_reset' %}">reset password here</a>

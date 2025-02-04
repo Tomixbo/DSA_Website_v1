@@ -132,7 +132,7 @@
 
     <!-- Create Post Form (visible only for admin users) -->
     {% if user.is_staff %}
-    <div class="tw-mt-6 tw-bg-white tw-shadow tw-rounded-lg tw-px-4 tw-py-6">
+    <div class="tw-mt-8 tw-bg-white tw-shadow tw-rounded-lg tw-px-4 tw-py-6">
       <h2 class="tw-text-xl tw-font-semibold tw-text-gray-800 tw-mb-4">Create a post</h2>
       <form id="create-post-form" action="{% url 'post_list' %}" method="post" enctype="multipart/form-data">
         {% csrf_token %}
