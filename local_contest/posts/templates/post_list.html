@@ -52,7 +52,7 @@
   <!-- Left Column (Pinned Ranking), hidden on screens < lg -->
   <div class="tw-mt-6 tw-flex-col tw-bg-white tw-shadow tw-hidden lg:tw-flex tw-w-1/5 tw-h-screen tw-fixed tw-top-0 tw-overflow-auto tw-p-6 tw-pt-14">
     <!-- Logo Section -->
-    <div class="tw-flex tw-justify-center tw-gap-4 tw-mb-6">
+    <div class="tw-flex tw-justify-center tw-gap-4 tw-mb-6 ">
       <!-- DSA Logo -->
       <div class="tw-w-42 tw-h-42 tw-rounded-full tw-bg-gradient-to-r tw-from-blue-500 tw-to-teal-400 tw-p-1">
           <div class="tw-w-full tw-h-full tw-rounded-full tw-overflow-hidden tw-bg-white">
@@ -80,10 +80,10 @@
     
       <div class="tw-overflow-x-auto tw-bg-white tw-rounded tw-shadow-sm tw-border tw-border-gray-200">
         <table class="tw-w-full tw-border-collapse tw-text-sm">
-          <thead class="tw-border-b tw-border-gray-200">
+          <thead class="tw-border-b tw-border-gray-200 tw-bg-[#13253f] tw-text-white">
             <tr>
-              <th class="tw-px-2 tw-py-2 tw-text-left tw-text-gray-500">Contest</th>
-              <th class="tw-px-2 tw-py-2 tw-text-left tw-text-gray-500">Starting Date</th>
+              <th class="tw-px-2 tw-py-2 tw-text-left ">Contest</th>
+              <th class="tw-px-2 tw-py-2 tw-text-left ">Starting Date</th>
             </tr>
           </thead>
           <tbody>
@@ -119,10 +119,10 @@
     
       <div class="tw-overflow-x-auto tw-bg-white tw-rounded tw-shadow-sm tw-border tw-border-gray-200">
         <table class="tw-w-full tw-border-collapse tw-text-sm">
-          <thead class="tw-border-b tw-border-gray-200">
+          <thead class="tw-border-b tw-border-gray-200 tw-bg-[#13253f] tw-text-white">
             <tr>
-              <th class="tw-px-2 tw-py-2 tw-text-left tw-text-gray-500">Challenge</th>
-              <th class="tw-px-2 tw-py-2 tw-text-left tw-text-gray-500">Category</th>
+              <th class="tw-px-2 tw-py-2 tw-text-left ">Challenge</th>
+              <th class="tw-px-2 tw-py-2 tw-text-left ">Category</th>
             </tr>
           </thead>
           <tbody>
@@ -317,17 +317,21 @@
       {% if ranking_users %}
         <div class="  tw-w-full tw-rounded-lg tw-p-4">
           <h5 class="tw-font-bold tw-mb-2 tw-text-lg">TOP 10 DSA-RANKING</h5>
-          <table class="table table-sm table-hover">
-            <thead>
-              <tr>
-                <th>Rank</th>
-                <th>User</th>
+
+
+          <div class="tw-overflow-x-auto tw-bg-white tw-rounded tw-shadow-sm tw-border tw-border-gray-200">       
+          <table class="tw-w-full tw-border-collapse tw-text-md">
+            <thead class="tw-border-b tw-border-gray-200 tw-bg-[#13253f] tw-text-white">
+              <tr >
+                <th class="tw-px-2 tw-py-2 tw-text-left ">Rank</th>
+                <th class="tw-px-2 tw-py-2 tw-text-left " >User</th>
               </tr>
             </thead>
             <tbody>
+
               {% for ruser in ranking_users %}
-              <tr>
-                <td>{{ ruser.rank }}{% if ruser.rank == 1%}<i class="bi-trophy-fill ms-2 text-warning">
+              <tr class="tw-border-b tw-border-gray-100 last:tw-border-0 hover:tw-bg-gray-50">
+                <td class="tw-px-2 tw-py-2">{{ ruser.rank }}{% if ruser.rank == 1%}<i class="bi-trophy-fill ms-2 text-warning">
                   {% elif ruser.rank == 2%}<i class="bi-trophy ms-2 text-secondary">
                   {% elif ruser.rank == 3%}<i class="bi-trophy ms-2" style="color: #b06311;">{%endif%}</td>
                 <td>{{ ruser.username }}</td>
@@ -335,11 +339,13 @@
               {% endfor %}
             </tbody>
           </table>
-  
+        </div>
           <!-- Link to Full Ranking Board -->
-          <a href="{% url 'ranking' %}" class="tw-text-blue-600 tw-underline tw-text-sm">
-            <i class="fas fa-hand-point-right tw-mr-2"></i> See the full ranking board here
-          </a>
+          <div class="tw-mt-2">
+            <a href="{% url 'ranking' %}" class="tw-text-blue-600 tw-underline tw-text-sm">
+              <i class="fas fa-hand-point-right tw-mr-2"></i> See the full ranking board here
+            </a>
+          </div>
         </div>
       {% endif %}
     </div>
