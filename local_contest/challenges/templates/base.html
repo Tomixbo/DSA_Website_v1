@@ -43,7 +43,7 @@
             {% if user.is_authenticated %}
                 {% block rank_and_score %}{% endblock %}
     
-                <a id="user-category" class="tw-text-white tw-text-sm tw-opacity-75" href="#">
+                <a id="user-category" class="tw-text-white tw-text-sm tw-opacity-75 tw-cursor-default" href="#" >
                     Your category: <span class="tw-font-bold">{{ user.category }}</span>
                 </a>
 
@@ -54,38 +54,38 @@
         <div class="tw-flex tw-justify-center tw-h-full ">
             {% if user.is_authenticated %}
             <a href="{% url 'post_list' %}" title="Home"
-                class="tw-text-white tw-text-3xl hover:tw-text-gray-300 tw-transition tw-w-32 tw-flex tw-justify-center tw-items-center
+                class="tw-text-white tw-text-3xl hover:tw-text-yellow-300 tw-transition tw-w-32 tw-flex tw-justify-center tw-items-center
                 {% if request.resolver_match.url_name == 'post_list' %} tw-text-yellow-400 tw-border-b-4 tw-border-yellow-400 {% endif %}">
                 <i class="fas fa-home"></i>
             </a>
     
             <a href="{% url 'challenge_list' %}" title="Challenges"
-                class="tw-text-white tw-text-3xl hover:tw-text-gray-300 tw-transition tw-w-32 tw-flex tw-justify-center tw-items-center
-                {% if request.resolver_match.url_name == 'challenge_list' %} tw-text-yellow-400 tw-border-b-4 tw-border-yellow-400 {% endif %}">
+                class="tw-text-white tw-text-3xl hover:tw-text-yellow-300 tw-transition tw-w-32 tw-flex tw-justify-center tw-items-center
+                {% if '/challenges/' in request.path %} tw-text-yellow-400 tw-border-b-4 tw-border-yellow-400 {% endif %}">
                 <i class="fas fa-code"></i>
             </a>
     
             <a href="{% url 'attendance:validate_attendance' %}" title="Attendance"
-                class="tw-text-white tw-text-3xl hover:tw-text-gray-300 tw-transition tw-w-32 tw-flex tw-justify-center tw-items-center
+                class="tw-text-white tw-text-3xl hover:tw-text-yellow-300 tw-transition tw-w-32 tw-flex tw-justify-center tw-items-center
                 {% if request.resolver_match.url_name == 'validate_attendance' %} tw-text-yellow-400 tw-border-b-4 tw-border-yellow-400 {% endif %}">
                 <i class="fas fa-calendar-check"></i>
             </a>
     
             <a href="{% url 'contest_list' %}" title="Contests"
-                class="tw-text-white tw-text-3xl hover:tw-text-gray-300 tw-transition tw-w-32 tw-flex tw-justify-center tw-items-center
-                {% if request.resolver_match.url_name == 'contest_list' %} tw-text-yellow-400 tw-border-b-4 tw-border-yellow-400 {% endif %}">
+                class="tw-text-white tw-text-3xl hover:tw-text-yellow-300 tw-transition tw-w-32 tw-flex tw-justify-center tw-items-center
+                {% if '/contest/' in request.path%} tw-text-yellow-400 tw-border-b-4 tw-border-yellow-400 {% endif %}">
                 <i class="fas fa-trophy"></i>
             </a>
             {% endif %}
             {% if user.is_superuser %}
                 <a href="{% url 'attendance:display_code' %}" title="Admin Code"
-                    class="tw-text-white tw-text-3xl hover:tw-text-gray-300 tw-transition tw-w-32 tw-flex tw-justify-center tw-items-center
+                    class="tw-text-white tw-text-3xl hover:tw-text-yellow-300 tw-transition tw-w-32 tw-flex tw-justify-center tw-items-center
                     {% if request.resolver_match.url_name == 'display_code' %} tw-text-yellow-400 tw-border-b-4 tw-border-yellow-400 {% endif %}">
                     <i class="fas fa-key"></i>
                 </a>
     
                 <a href="{% url 'attendance:attendance_list' %}" title="Attendance Records"
-                    class="tw-text-white tw-text-3xl hover:tw-text-gray-300 tw-transition tw-w-32 tw-flex tw-justify-center tw-items-center
+                    class="tw-text-white tw-text-3xl hover:tw-text-yellow-300 tw-transition tw-w-32 tw-flex tw-justify-center tw-items-center
                     {% if request.resolver_match.url_name == 'attendance_list' %} tw-text-yellow-400 tw-border-b-4 tw-border-yellow-400 {% endif %}">
                     <i class="fas fa-list"></i>
                 </a>
@@ -96,7 +96,7 @@
         <div class="tw-flex-1 tw-flex tw-justify-end tw-items-center tw-space-x-6">
             {% if user.is_authenticated %}
 
-                <a href="{% url 'profile' %}" class="tw-text-white tw-text-md hover:tw-text-gray-300 tw-transition">
+                <a href="{% url 'profile' %}" class="tw-text-white tw-text-md hover:tw-text-yellow-300 tw-transition">
 
                     <i class="fas fa-user-circle"></i>
                     <span id="username" class="tw-font-bold">
@@ -105,17 +105,17 @@
                 </a>
                 
     
-                <a href="{% url 'logout' %}" class="tw-text-white tw-text-xl hover:tw-text-gray-300 tw-transition">
+                <a href="{% url 'logout' %}" class="tw-text-white tw-text-xl hover:tw-text-yellow-300 tw-transition">
                     <i class="fas fa-sign-out-alt"></i>
                 </a>
             {% else %}
                 {% if request.resolver_match.url_name == 'login' %}
-                    <a href="{% url 'register' %}" class="tw-text-white tw-text-md hover:tw-text-gray-300 tw-transition">
+                    <a href="{% url 'register' %}" class="tw-text-white tw-text-md hover:tw-text-yellow-300 tw-transition">
                         <i class="fas fa-user-plus"></i>
                         <span class="tw-font-bold">Register</span>
                     </a>
                 {% elif request.resolver_match.url_name == 'register' %}
-                    <a href="{% url 'login' %}" class="tw-text-white tw-text-md hover:tw-text-gray-300 tw-transition">
+                    <a href="{% url 'login' %}" class="tw-text-white tw-text-md hover:tw-text-yellow-300 tw-transition">
                         <i class="fas fa-sign-in-alt"></i>
                         <span class="tw-font-bold">Sign-in</span>
                     </a>
