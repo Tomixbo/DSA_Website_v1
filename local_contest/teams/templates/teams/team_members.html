@@ -112,23 +112,26 @@
                 {% for user in search_results %}
                     <li class="list-group-item d-flex justify-content-between align-items-center border-0 py-2 px-3">
                         <span class="fw-medium">{{ user.username }}</span>
-
-                        {% if user not in team.members.all %}
-                            <form method="POST" action="{% url 'send_invite' team.id user.id %}" class="d-inline">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-outline-dark btn-sm px-3 rounded-pill">
-                                    Invite
-                                </button>
-                            </form>
-                        {% else %}
-                            <span class="text-muted">Already a Member</span>
-                        {% endif %}
+                        <form method="POST" action="{% url 'send_invite' team.id user.id %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-dark btn-sm px-3 rounded-pill">
+                                Invite
+                            </button>
+                        </form>
                     </li>
                 {% empty %}
-                    <p class="text-muted text-center mt-3">No users found.</p>
+                    <p class="text-muted text-center mt-3">
+                        No users found or they are already in another team.
+                    </p>
                 {% endfor %}
             </ul>
+        {% elif query %}
+            <!-- If a search was performed but returned no results -->
+            <p class="text-muted text-center mt-3">
+                No users found or they are already in another team.
+            </p>
         {% endif %}
+
     </div>
 </div>
 {% endif %}
@@ -145,7 +148,7 @@
             fetch("{% url 'get_notifications' %}") 
                 .then(response => response.json())
                 .then(data => {
-                    console.log(data);  // ✅ Debug: Vérifie si l'API renvoie bien des notifications
+                    console.log(data);  // Debug: Vérifie si l'API renvoie bien des notifications
                     if (data.notifications.length > 0) {
                         notificationCount.style.display = "inline-block";
                         notificationCount.textContent = data.notifications.length;
