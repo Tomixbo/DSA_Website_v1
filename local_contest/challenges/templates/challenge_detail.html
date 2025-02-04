@@ -143,33 +143,44 @@
     </script>
     
 
-    <div class="shadow container-fluid  p-3 px-4 text-white" style="background-color: #051934;">
-        <div class="d-flex ">
-            <div class="d-flex flex-grow-1 align-items-center text-white tw-font-semibold tw-text-2xl">
-                <h1>{{ challenge.name }}</h1>
-            </div>
-            <div class="d-flex align-items-center mx-3">
-                <h4>Category : {{ challenge.category }} </h4>
-            </div>
-            <div class="d-flex align-items-center mx-3">
-                <h4>Difficulty :</h4>
-            </div>
-            <div class="mx-2" >
-                <figure class="notation " style="margin-top: 5px; margin-bottom: -5px">
-                    <span role="img" style="width: {{ challenge.difficulty|mul:20 }}%" class=""></span>
-                </figure>
-            </div>
+    <div class="tw-shadow tw-px-10 tw-py-3 tw-text-white tw-bg-[#051934]">
+        <div class="tw-flex tw-items-center tw-justify-between">
             
+            <!-- Challenge Name -->
+            <h1 class="tw-font-semibold tw-text-2xl">
+                {{ challenge.name }}
+            </h1>
+    
+            <!-- Category & Difficulty (aligned bottom) -->
+            <div class="tw-flex tw-flex-row tw-items-end tw-space-x-5">
+                <!-- Category -->
+                <h4>Category: <span class="tw-font-bold">{{ challenge.category }}</span></h4>
+    
+                <!-- Difficulty with Star Notation -->
+                <div class="tw-flex tw-items-center tw-space-x-2">
+                    <h4>Difficulty:</h4>
+                    <div class="tw-flex tw-space-x-1">
+                        {% for i in "12345" %}
+                            {% if forloop.counter <= challenge.difficulty %}
+                                <i class="fas fa-star tw-text-yellow-500"></i>
+                            {% else %}
+                                <i class="far fa-star tw-text-gray-400"></i>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+    
         </div>
-        
     </div>
+    
 
     
     <!-- <p>{{ challenge.description | safe }}</p> -->
 
     
     
-    <div class="container-fluid">
+    <div class="tw-py-3 tw-px-20">
         <div class="row ">
             <div class="col-12 col-md-3 col-lg-2  p-1 ">
                 <div class="card m-3">

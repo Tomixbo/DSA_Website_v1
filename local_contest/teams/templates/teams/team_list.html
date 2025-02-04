@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 
-<div class="shadow container-fluid p-3 px-4 text-white" style="background-color: #051934;">
+<div class="shadow tw-px-10 tw-py-3 text-white" style="background-color: #051934;">
     <div class="d-flex justify-content-between align-items-center text-white tw-font-semibold tw-text-2xl">
         <h2 class="">LIST OF TEAMS IN : {{ contest.name }}</h2>
 
@@ -29,19 +29,33 @@
                     <td>{{ team.name }}</td>
                     <td>{{ team.members.count }}</td>
                     <td>
-                        <div class="d-flex">
+                        <div class="tw-flex tw-space-x-2">
                             {% if team.members.count < 5 and not user_team and not pending_requests %}
-                                <form method="POST" action="{% url 'join_team' contest.id team.id %}" class="d-flex col-6 mr-2">    
+                                <!-- Join Team Form -->
+                                <form method="POST" action="{% url 'join_team' contest.id team.id %}" class="tw-w-1/2">    
                                     {% csrf_token %}
-                                    <button type="submit" class="btn btn-outline-warning col-12">Join</button>
+                                    <button type="submit" class="tw-w-full tw-py-2 tw-border tw-border-yellow-500 tw-text-yellow-500 hover:tw-bg-yellow-500 hover:tw-text-white tw-font-semibold tw-rounded-lg tw-transition">
+                                        Join
+                                    </button>
                                 </form>
                             {% elif pending_requests %}
-                                <button type="button" class="btn btn-secondary col-6 mx-1" disabled>Request Sent</button>
+                                <!-- Request Sent (Disabled) -->
+                                <button type="button" class="tw-w-1/2 tw-py-2 tw-bg-gray-500 tw-text-white tw-rounded-lg tw-opacity-70 tw-cursor-not-allowed" disabled>
+                                    Request Sent
+                                </button>
                             {% else %}
-                                <button type="button" class="btn btn-secondary col-6 mx-1" disabled>Join</button>
+                                <!-- Already in Team (Disabled) -->
+                                <button type="button" class="tw-w-1/2 tw-py-2 tw-bg-gray-500 tw-text-white tw-rounded-lg tw-opacity-70 tw-cursor-not-allowed" disabled>
+                                    Join
+                                </button>
                             {% endif %}
-                            <a href="{% url 'team_members' contest.id team.id %}" class="btn btn-outline-primary col-6">Members</a>
+                        
+                            <!-- Members Button -->
+                            <a href="{% url 'team_members' contest.id team.id %}" class="tw-w-1/2 tw-py-2 tw-border tw-border-blue-500 tw-text-blue-500 hover:tw-bg-blue-500 hover:tw-text-white tw-font-semibold tw-rounded-lg tw-text-center tw-transition">
+                                Members
+                            </a>
                         </div>
+                        
                     </td>
                 </tr>
             {% empty %}
