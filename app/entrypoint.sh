@@ -53,9 +53,13 @@ if ! python manage.py migrate; then
     exit 1
 fi
 
-# Install and initialize Tailwind (with "theme" as default app name)
+# Install Tailwind 
 echo "Installing Tailwind..."
 python manage.py tailwind install
+
+# Build tailwind css
+echo "Build Tailwind..."
+python manage.py tailwind build
 
 # Collect static files
 python manage.py collectstatic --noinput
