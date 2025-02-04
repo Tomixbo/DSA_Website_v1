@@ -4,7 +4,7 @@
 
 
 
-    <div class="shadow  container-fluid  p-3 px-4 text-white" style="background-color: #051934;">
+    <div class="shadow  container-fluid  p-3 px-4 text-white text-white tw-font-semibold tw-text-2xl" style="background-color: #051934;">
         <h2>Your profile</h2>
     </div>
     <div class="container">
@@ -30,7 +30,7 @@
         </div>
 
         <div class="mb-3">
-            <label for="username" class="form-label">Username :</label>
+            <label for="username" class="form-label tw-font-semibold">Username :</label>
             <div class="row align-items-start">
                 <div class="col">
                     <span id="username" class="form-control">{{ user.username }}</span>
@@ -41,7 +41,7 @@
             </div>
         </div>
         <div class="mb-3">
-            <label for="first_name" class="form-label">Firstname :</label>
+            <label for="first_name" class="form-label tw-font-semibold">Firstname :</label>
             <div class="row align-items-start">
                 <div class="col">
                     <span id="first_name" class="form-control">{% if user.first_name %}{{ user.first_name }}{% else %}-{% endif %}</span>
@@ -52,7 +52,7 @@
             </div>
         </div>
         <div class="mb-3">
-            <label for="last_name" class="form-label">Lastname :</label>
+            <label for="last_name" class="form-label tw-font-semibold">Lastname :</label>
             <div class="row align-items-start">
                 <div class="col">
                     <span id="last_name" class="form-control">{% if user.last_name %}{{ user.last_name }}{% else %}-{% endif %}</span>
@@ -63,7 +63,7 @@
             </div>
         </div>
         <div class="mb-3">
-            <label for="email" class="form-label">Email :</label>
+            <label for="email" class="form-label tw-font-semibold">Email :</label>
             <div class="row align-items-start">
                 <div class="col">
                     <span id="email" class="form-control">{{ user.email }}</span>
@@ -75,7 +75,7 @@
         </div>
 
         <div class="mb-3">
-            <label for="graduation_field" class="form-label">Graduation Field :</label>
+            <label for="graduation_field" class="form-label tw-font-semibold">Graduation Field :</label>
             <div class="row align-items-start">
                 <div class="col">
                     <span id="graduation_field" class="form-control">{{ user.graduation_field }}</span>
@@ -87,9 +87,9 @@
         </div>
 
         <div class="mb-3">
-            <label for="password" class="form-label">Security :</label>
+            <label for="password" class="form-label tw-font-semibold">Security :</label>
             <div class="fs-6">To change your password 
-                <a href="{% url 'change_password' %}">click here</a>
+                <a class="tw-text-blue-600 tw-underline tw-text-sm" href="{% url 'change_password' %}">click here</a>
             </div>
         </div>
         

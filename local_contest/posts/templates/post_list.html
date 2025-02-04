@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
-
+{% block banner %}{% endblock %}
 {% block content %}
+
 <style>
     .post p {
         margin-bottom: 1em;
@@ -48,9 +49,9 @@
 
 
   <!-- Left Column (Pinned Ranking), hidden on screens < lg -->
-  <div class="tw-flex-col tw-bg-white tw-shadow tw-hidden lg:tw-flex tw-w-1/5 tw-h-screen tw-sticky tw-top-0 tw-overflow-auto tw-p-6 tw-pt-14">
+  <div class="tw-mt-6 tw-flex-col tw-bg-white tw-shadow tw-hidden lg:tw-flex tw-w-1/5 tw-h-screen tw-fixed tw-top-0 tw-overflow-auto tw-p-6 tw-pt-14">
     <div class="tw-mb-6">
-      <h2 class="tw-font-bold tw-text-lg tw-mb-2">WIN CONTEST</h2>
+      <h2 class="tw-font-bold tw-text-lg tw-mb-2">TO WIN CONTEST</h2>
     
       <div class="tw-overflow-x-auto tw-bg-white tw-rounded tw-shadow-sm tw-border tw-border-gray-200">
         <table class="tw-w-full tw-border-collapse tw-text-sm">
@@ -132,14 +133,14 @@
     <!-- Create Post Form (visible only for admin users) -->
     {% if user.is_staff %}
     <div class="tw-mt-6 tw-bg-white tw-shadow tw-rounded-lg tw-px-4 tw-py-6">
-      <h2 class="tw-text-xl tw-font-semibold tw-text-gray-800 tw-mb-4">Créer une publication</h2>
+      <h2 class="tw-text-xl tw-font-semibold tw-text-gray-800 tw-mb-4">Create a post</h2>
       <form id="create-post-form" action="{% url 'post_list' %}" method="post" enctype="multipart/form-data">
         {% csrf_token %}
         <div class="tw-relative">
           <!-- The textarea uses "description" as its name to match PostForm -->
           <textarea id="post-input" name="description"
             class="tw-w-full tw-p-3 tw-border tw-rounded-lg tw-text-gray-800 tw-bg-gray-100 focus:tw-ring-2 focus:tw-ring-blue-500 tw-resize-none"
-            placeholder="Que voulez-vous partager ?" rows="4">{{ form.description.value|default_if_none:"" }}</textarea>
+            placeholder="Write your text here..." rows="4">{{ form.description.value|default_if_none:"" }}</textarea>
           <!-- Embedded image upload button -->
           <label for="image-upload"
             class="tw-absolute tw-bottom-2 tw-right-2 tw-cursor-pointer tw-bg-gray-200 tw-text-gray-700 tw-p-1 tw-rounded hover:tw-bg-gray-300 tw-transition">
@@ -162,7 +163,7 @@
         <button type="submit" id="post-button"
           class="tw-mt-4 tw-w-full tw-bg-green-500 tw-text-white tw-font-medium tw-py-2 tw-rounded-lg tw-shadow-md hover:tw-bg-green-600 tw-transition"
           disabled>
-          Publier
+          Publish
         </button>
       </form>
     </div>
@@ -171,17 +172,77 @@
     <!-- Posts List -->
     <div class="tw-w-full tw-my-6" id="post-div">
       <div id="posts-container" class="tw-space-y-3">
+
+        {% if pinned_post %}
+        <div class="tw-bg-yellow-100 tw-border-l-4 tw-border-yellow-500 tw-text-yellow-700 tw-p-4 tw-mb-4">
+            <div class="tw-flex tw-justify-between tw-items-center">
+                <h2 class="tw-font-bold">📌 Pinned Post</h2>
+                {% if user.is_staff %}
+                <form method="post" action="{% url 'unpin_post' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="tw-text-red-500 tw-font-semibold hover:tw-text-red-700">
+                        Unpin <i class="fas fa-thumbtack"></i>
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+            <div class="post tw-mt-2">
+                <!-- Post Header -->
+                <div class="tw-flex tw-items-center tw-justify-between tw-px-4">
+                  <div class="tw-flex tw-items-center">
+                    <div class="tw-w-10 tw-h-10 tw-rounded-full tw-bg-gradient-to-br tw-from-blue-600 tw-to-blue-800 tw-flex tw-items-center tw-justify-center tw-text-white tw-font-bold tw-text-lg tw-mr-3">
+                      <img src="https://api.dicebear.com/9.x/initials/svg?seed={{ pinned_post.author }}" alt="Avatar" class="tw-w-full tw-h-full tw-rounded-full">
+                    </div>
+                    <div>
+                      <div class="tw-font-bold tw-text-gray-800">{{ pinned_post.author }}</div>
+                      <div class="tw-text-gray-500 tw-text-sm">{{ pinned_post.date }}</div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Post Description with See More/See Less -->
+                <div class="description tw-text-gray-700 tw-px-4 tw-pt-1">
+                  {{ pinned_post.description|safe }}
+                </div>
+                {% if pinned_post.image %}
+                <img src="{{ pinned_post.image.url }}" class="tw-w-full tw-rounded tw-mt-2">
+                {% endif %}
+            </div>
+            <!-- Post Actions -->
+          <div class="tw-flex tw-justify-around tw-border-t tw-pt-3">
+            <div class="tw-flex tw-flex-col tw-items-center">
+              <button type="submit" class="tw-bg-gray-200 tw-text-gray-700 tw-px-4 tw-py-2 tw-rounded" disabled>Like</button>
+              <div class="tw-text-xs tw-text-gray-600 tw-mt-1">0 Like</div>
+            </div>
+            <div class="tw-flex tw-flex-col tw-items-center">
+              <button class="tw-bg-gray-200 tw-text-gray-700 tw-px-4 tw-py-2 tw-rounded" disabled>Comment</button>
+              <div class="tw-text-xs tw-text-gray-600 tw-mt-1">0 Comment</div>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+
         {% for post in posts %}
         <div class="post tw-bg-white tw-rounded-lg tw-shadow tw-relative tw-py-3">
           <!-- Delete Button (visible only for staff users) -->
           {% if user.is_staff %}
-          <form method="post" action="{% url 'delete_post' post.id %}" class="tw-absolute tw-top-4 tw-right-4">
-            {% csrf_token %}
-            <button type="submit" class="tw-text-gray-500 tw-opacity-40 hover:tw-opacity-100 hover:tw-text-red-700 tw-text-lg">
-              <i class="fas fa-trash"></i>
-            </button>
-          </form>
-          {% endif %}
+            <div class="tw-absolute tw-top-4 tw-right-4 tw-flex tw-items-center tw-space-x-4">
+                <!-- Pin Button -->
+                <form method="post" action="{% url 'pin_post' post.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="tw-text-yellow-500 tw-opacity-60 hover:tw-opacity-100 tw-text-lg">
+                        <i class="fas fa-thumbtack"></i>
+                    </button>
+                </form>
+
+                <!-- Delete Button -->
+                <form method="post" action="{% url 'delete_post' post.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="tw-text-gray-500 tw-opacity-40 hover:tw-opacity-100 hover:tw-text-red-700 tw-text-lg">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </form>
+            </div>
+            {% endif %}
 
           <!-- Post Header -->
           <div class="tw-flex tw-items-center tw-justify-between tw-px-4">
@@ -227,7 +288,7 @@
 
     
     <!-- Right Column (Was Empty), hidden on screens < lg -->
-    <div class="tw-bg-white tw-shadow tw-hidden lg:tw-block tw-w-1/5 tw-h-screen tw-sticky tw-top-0 tw-overflow-auto tw-p-6 tw-pt-10">
+    <div class="tw-mt-6 tw-bg-white tw-shadow tw-hidden lg:tw-block tw-w-1/5 tw-h-screen tw-fixed tw-top-0 tw-right-0 tw-overflow-auto tw-p-6 tw-pt-10">
       {% if ranking_users %}
         <div class="  tw-w-full tw-rounded-lg tw-p-4">
           <h5 class="tw-font-bold tw-mb-2 tw-text-lg">TOP 10 DSA-RANKING</h5>
@@ -357,4 +418,5 @@
     });
   });
 </script>
+
 {% endblock %}

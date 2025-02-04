@@ -88,10 +88,34 @@
             {% endif %}
         </ul>
     </nav>
-    
+
+
+
 
     <div class="pb-3" style="background-color: #051934;">Feel free and by happy - Tomixbo</div>
-    <img src="{% static 'img/banner.jpg' %}" class=".bg-image" style="width:100%;" alt="DSA_image" >
+    {% block banner %}
+    <img src="{% static 'img/banner.jpg' %}" class="bg-image" style="width:100%;" alt="DSA_image">
+    {% endblock banner %}
+
+
+    {% if breadcrumbs and breadcrumbs|length > 1 %}
+        <nav class="tw-bg-gray-100 tw-text-gray-700 tw-text-sm tw-px-6 tw-py-2">
+            <ol class="tw-flex tw-space-x-2">
+                {% for breadcrumb in breadcrumbs %}
+                    <li>
+                        {% if not forloop.last %}
+                            <a href="{{ breadcrumb.url }}" class="tw-text-blue-600 hover:tw-underline">
+                                {{ breadcrumb.name }}
+                            </a>
+                            <span class="tw-text-gray-400 tw-mx-1">/</span>
+                        {% else %}
+                            <span class="tw-font-semibold tw-text-gray-900">{{ breadcrumb.name }}</span>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ol>
+        </nav>
+    {% endif %}
 
     {% block content %}
         
