@@ -160,7 +160,5 @@ cython_debug/
 #.idea/
 
 local_contest/media/post_images/
-local_contest//staticfiles/
-static/
 migrations/
 local_contest/media/

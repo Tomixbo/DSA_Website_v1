@@ -145,7 +145,8 @@ STATIC_ROOT = "/static/"
 STATIC_URL = "/static/"
 
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'challenges/static'),  # Pointe vers le dossier static de l'application challenges
+    os.path.join(BASE_DIR, 'challenges/static'),  # Pointe vers le dossier static de challenges
+    os.path.join(BASE_DIR, 'theme/static'),      # Ajoute les statics de Tailwind dans theme
 ]
 
 # Default primary key field type
