@@ -24,6 +24,10 @@ if ! python manage.py makemigrations; then
     echo "Failed to generate migrations. Exiting..."
     exit 1
 fi
+if ! python manage.py makemigrations challenges; then
+    echo "Failed to generate migrations. Exiting..."
+    exit 1
+fi
 if ! python manage.py makemigrations members; then
     echo "Failed to generate migrations. Exiting..."
     exit 1
