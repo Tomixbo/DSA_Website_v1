@@ -3,12 +3,13 @@
 {% load django_template_maths %}
 
 {% block content %}
-<div class="shadow container-fluid py-4 px-3 text-white " style="background-color: #051934;">
+
+<div class="shadow tw-px-10 tw-py-3 text-white " style="background-color: #051934;">
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-center">
         
         <!-- Left Section: Contest Name & Details -->
         <div>
-            <h2 class="mb-3 mx-3 text-left">{{ contest.name }}</h2>
+            <h2 class="mb-3 text-left text-white tw-font-semibold tw-text-2xl">{{ contest.name }}</h2>
             <div class="d-flex flex-column flex-md-row mb-3">
                 <p class="mb-1 mx-4"><i class="bi bi-calendar-event text-primary"></i> <strong>Start Date:</strong> {{ contest.start_date|date:"d M Y H:i" }}</p>
                 <p class="mb-1 mx-4"><i class="bi bi-calendar-check text-danger"></i> <strong>End Date:</strong> {{ contest.end_date|date:"d M Y H:i" }}</p>
@@ -26,7 +27,7 @@
 
             <!-- Third Line: Your Progress -->
             <div class="d-flex align-items-center">
-                <p class="mb-0 mx-4"><strong>Your Progress:</strong></p>
+                <p class="mb-2 mx-4"><strong>Your Progress:</strong></p>
                 <div class="progress" style="width: 300px; height: 25px; border-radius: 10px; overflow: hidden;">
                     <div class="progress-bar progress-bar-striped progress-bar-animated bg-success fw-bold text-center" 
                          role="progressbar" 
@@ -64,9 +65,21 @@
     </div>
 </div>
 
+{% if messages %}
+        {% for message in messages %}
+            <br/>
+            <div class="tw-px-20">
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+             </div>
+            
+        {% endfor %}
+    {% endif %}
 
 <!-- Challenge List -->
-<div class="card m-3 p-3">
+<div class="card my-3 p-3 tw-mx-20">
     <table class="table table-hover">
         <thead>
             <tr>

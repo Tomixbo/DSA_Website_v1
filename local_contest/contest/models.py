@@ -12,6 +12,7 @@ class Contest(models.Model):
     end_date = models.DateTimeField()
     created_at = models.DateTimeField(auto_now_add=True)
     teams = models.ManyToManyField(Team, related_name='contests', blank=True)
+    team_members_max = models.IntegerField(default=1)
 
     def save(self, *args, **kwargs):
         if not self.slug:

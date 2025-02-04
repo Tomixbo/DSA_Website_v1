@@ -3,18 +3,13 @@
 {% load django_template_maths %}
 {% load custom_filters %}
 {% block rank_and_score %}
-    <li class="nav-item">
-        <a id="user-rank" class="nav-link hover text-white" href="{% url 'ranking' %}">Your rank : {{ user.rank }}/{{ total_user }} <i class="bi-info-circle ms-1"></i></a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link disabled text-white" href="#">|</a>
-    </li>
-    <li class="nav-item">
-        <a id="user-score" class="nav-link disabled text-white" href="#">Your score : {{ user.score }}</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link disabled text-white" href="#">|</a>
-    </li>
+
+    <a id="user-rank" class="tw-text-white tw-text-sm tw-opacity-75 hover:tw-underline hover:tw-text-yellow-300" href="{% url 'ranking' %}" title="Ranking">
+        Your rank : <span class="tw-font-bold">{{ user.rank }}/{{ total_user }}</span>
+    </a>
+    <a id="user-score" class="tw-text-white tw-text-sm tw-opacity-75 tw-cursor-default" href="#">
+        Your score : <span class="tw-font-bold">{{ user.score }}</span>
+    </a>
 {% endblock rank_and_score %}
 {% block content %}
 <style>
@@ -31,159 +26,161 @@
 
 </style>
 <script src="{% static 'js/jquery.min.js' %}"></script>
-    <script>
-        $(document).ready(function () {
-            // Reset file input fields on page load
-            // $('.fileInput').val('');
-
-            // Function to compare files
-            function compareFiles(definedFileName, uploadedFile, resultSpan, compareBtn) {
-                var formData = new FormData();
-                formData.append('defined_file_name', definedFileName);
-                formData.append('uploaded_file', uploadedFile);
-
-                // Get CSRF token from the cookie
-                var csrftoken = getCookie('csrftoken');
-
-                $.ajax({
-                    url: '',
-                    type: 'POST',
-                    data: formData,
-                    processData: false,
-                    contentType: false,
-                    beforeSend: function (xhr) {
-                        xhr.setRequestHeader("X-CSRFToken", csrftoken);
-                    },
-                    success: function (data) {
-                        
-                        if (data.result=="VALID"){
-                            $(resultSpan).css('color', 'green');
-                            $(resultSpan).text(data.result);
-                            $(compareBtn).prop('disabled', true);
-                            $(compareBtn).css('text-decoration', 'line-through');
-                            $(compareBtn).addClass('btn-outline-secondary');
-                            // Attendre 1 seconde avant de déclencher la deuxième requête AJAX
-                            
-                        }
-                        else{
-                            $(resultSpan).css('color', 'red');
-                            $(resultSpan).text(data.result);
-                            
-                        }
-                        
-                    }
-                });
-                
-                setTimeout(function() {
-                    $.ajax({
-                        url: '/{ challenge.slug }/get_user_rank/', // URL de votre vue pour récupérer le rang de l'utilisateur
-                        type: 'GET',
-                        success: function(data) {
-                            $('#user-rank').html('Your rank : '+data.rank+'/'+data.total_user+' <i class="bi-info-circle ms-1"></i>');
-                            $('#user-score').text('Your score : ' + data.score);
-                            $('#user-category').html('Your category : <span class="ms-1 fw-bold">'+data.category+'</span>');
-                        },
-                        error: function(xhr, status, error) {
-                            console.error('Error fetching user rank:', error);
-                        }
-                    });
-                }, 1000);
-
-                
-            }
-
-            // Function to get CSRF token from cookies
-            function getCookie(name) {
-                var cookieValue = null;
-                if (document.cookie && document.cookie !== '') {
-                    var cookies = document.cookie.split(';');
-                    for (var i = 0; i < cookies.length; i++) {
-                        var cookie = cookies[i].trim();
-                        // Does this cookie string begin with the name we want?
-                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                            break;
-                        }
+<script>
+    $(document).ready(function () {
+        // 1) Unique localStorage key based on challenge slug
+        var challengeSlug = "{{ challenge.slug }}"; // from your template context
+        var localStoreKey = "lastLevelId-" + challengeSlug;
+    
+        // ----- COMPARE FILES -----
+        function compareFiles(definedFileName, uploadedFile, resultSpan, compareBtn) {
+            var formData = new FormData();
+            formData.append('defined_file_name', definedFileName);
+            formData.append('uploaded_file', uploadedFile);
+    
+            var csrftoken = getCookie('csrftoken');
+    
+            $.ajax({
+                url: '', // same page submission
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                },
+                success: function (data) {
+                    if (data.result === "VALID"){
+                        $(resultSpan).css('color', 'green').text(data.result);
+                        $(compareBtn).prop('disabled', true)
+                                     .css('text-decoration', 'line-through')
+                                     .addClass('btn-outline-secondary');
+                    } else {
+                        $(resultSpan).css('color', 'red').text(data.result);
                     }
                 }
-                return cookieValue;
+            });
+    
+            // After 1 second, refresh user rank via AJAX
+            setTimeout(function() {
+                $.ajax({
+                    url: '/{{ challenge.slug }}/get_user_rank/',
+                    type: 'GET',
+                    success: function(data) {
+                        $('#user-rank').html('Your rank : '+data.rank+'/'+data.total_user+' <i class="bi-info-circle ms-1"></i>');
+                        $('#user-score').text('Your score : ' + data.score);
+                        $('#user-category').html('Your category : <span class="ms-1 fw-bold">'+data.category+'</span>');
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error fetching user rank:', error);
+                    }
+                });
+            }, 1000);
+        }
+    
+        // ----- CSRF TOKEN -----
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
             }
-
-            // Click event handler for compare buttons
-            $('.compareBtn').on('click', function () {
-                var definedFileName = $(this).data('defined-file-name');
-                var uploadedFile = $(this).closest('.col').prev('.col-4').find('.fileInput')[0].files[0];
-                var resultSpan = $(this).closest('.col').next('.col').find('.result');
-                compareFiles(definedFileName, uploadedFile, resultSpan, this);
-            });
-            
-            
-
-            // Click event handler for level links
-            $('.level-link').on('click', function(e) {
-                e.preventDefault();
-                // Remove active class from all level links
-                $('.level-link').removeClass('active');
-                
-                // Add active class to the clicked level link
-                $(this).addClass('active');
-
-                var levelId = $(this).data('level-id');
-                //console.log('Clicked level with ID:', levelId);
-
-                $('.downloads').hide(); // Hide all defined files containers
-                $('.downloads[data-level-id="' + levelId + '"]').show(); // Show defined files for selected level
-
-                $('.defined-files-container').hide(); // Hide all defined files containers
-                $('.defined-files-container[data-level-id="' + levelId + '"]').show(); // Show defined files for selected level
-
-
-                // Store last selected level in local storage
-                localStorage.setItem('lastLevelId', levelId);
-            });
-
-            // Retrieve last selected level from local storage
-            var lastLevelId = localStorage.getItem('lastLevelId');
-            if (lastLevelId) {
-                $('.level-link[data-level-id="' + lastLevelId + '"]').click();
+            return cookieValue;
+        }
+    
+        // ----- COMPARE BUTTONS -----
+        $('.compareBtn').on('click', function () {
+            var definedFileName = $(this).data('defined-file-name');
+            var uploadedFile = $(this).closest('.col').prev('.col-4').find('.fileInput')[0].files[0];
+            var resultSpan = $(this).closest('.col').next('.col').find('.result');
+            compareFiles(definedFileName, uploadedFile, resultSpan, this);
+        });
+    
+        // ----- LEVEL CLICK HANDLER -----
+        $('.level-link').on('click', function(e) {
+            e.preventDefault();
+            // Remove active from all links
+            $('.level-link').removeClass('active');
+            // Activate this link
+            $(this).addClass('active');
+    
+            var levelId = $(this).data('level-id');
+    
+            // Show/hide relevant containers
+            $('.downloads').hide();
+            $('.downloads[data-level-id="' + levelId + '"]').show();
+    
+            $('.defined-files-container').hide();
+            $('.defined-files-container[data-level-id="' + levelId + '"]').show();
+    
+            // Store last selected level in local storage FOR THIS CHALLENGE
+            localStorage.setItem(localStoreKey, levelId);
+        });
+    
+        // ----- INITIAL LOAD -----
+        // If there's a saved level for this challenge, restore it
+        var lastLevelId = localStorage.getItem(localStoreKey);
+        if (lastLevelId) {
+            // If that level link exists, click it
+            var $savedLink = $('.level-link[data-level-id="' + lastLevelId + '"]');
+            if ($savedLink.length > 0) {
+                $savedLink.click();
             } else {
-                // If no last selected level, click on the first level link
+                // Fallback if that level was removed
                 $('.level-link:first').click();
             }
-
-
-        });
-
-   
+        } else {
+            // No localStorage => default to first level
+            $('.level-link:first').click();
+        }
+    });
     </script>
+    
 
-    <div class="shadow container-fluid  p-3 px-4 text-white" style="background-color: #051934;">
-        <div class="d-flex ">
-            <div class="d-flex flex-grow-1 align-items-center">
-                <h2>{{ challenge.name }}</h2>
-            </div>
-            <div class="d-flex align-items-center mx-3">
-                <h4>Category : {{ challenge.category }} </h4>
-            </div>
-            <div class="d-flex align-items-center mx-3">
-                <h4>Difficulty :</h4>
-            </div>
-            <div class="mx-2" >
-                <figure class="notation " style="margin-top: 5px; margin-bottom: -5px">
-                    <span role="img" style="width: {{ challenge.difficulty|mul:20 }}%" class=""></span>
-                </figure>
-            </div>
+    <div class="tw-shadow tw-px-10 tw-py-3 tw-text-white tw-bg-[#051934]">
+        <div class="tw-flex tw-items-center tw-justify-between">
             
+            <!-- Challenge Name -->
+            <h1 class="tw-font-semibold tw-text-2xl">
+                {{ challenge.name }}
+            </h1>
+    
+            <!-- Category & Difficulty (aligned bottom) -->
+            <div class="tw-flex tw-flex-row tw-items-end tw-space-x-5">
+                <!-- Category -->
+                <h4>Category: <span class="tw-font-bold">{{ challenge.category }}</span></h4>
+    
+                <!-- Difficulty with Star Notation -->
+                <div class="tw-flex tw-items-center tw-space-x-2">
+                    <h4>Difficulty:</h4>
+                    <div class="tw-flex tw-space-x-1">
+                        {% for i in "12345" %}
+                            {% if forloop.counter <= challenge.difficulty %}
+                                <i class="fas fa-star tw-text-yellow-500"></i>
+                            {% else %}
+                                <i class="far fa-star tw-text-gray-400"></i>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+    
         </div>
-        
     </div>
+    
 
     
     <!-- <p>{{ challenge.description | safe }}</p> -->
 
     
     
-    <div class="container-fluid">
+    <div class="tw-py-3 tw-px-20">
         <div class="row ">
             <div class="col-12 col-md-3 col-lg-2  p-1 ">
                 <div class="card m-3">
@@ -194,7 +191,7 @@
                         <ul class="list-group list-group-flush">
                             <!-- Render all levels in a list -->
                             {% for level in levels %}
-                                    <a href="#" class="list-group-item level-link list-group-item-action" data-level-id="{{ level.id }}">{{ level.name }}</a>
+                                    <a href="#" class="list-group-item level-link list-group-item-action " data-level-id="{{ level.id }}" >{{ level.name }}</a>
                             {% endfor %}
                         </ul>
                     </div>
@@ -211,7 +208,7 @@
         <div class="card-body">
             <div class="row">
                 <div class="col-6 col-lg-3">
-                    <h5>{{ level.name }} description</h5>
+                    <h5 class="tw-font-semibold tw-text-lg  tw-py-1">{{ level.name }} description</h5>
                     {% if level.description_file %}
                         <!-- Button to open modal -->
                         <a href="{{ level.description_file.url }}" target="_blank" class="btn btn-outline-dark">
@@ -231,7 +228,7 @@
                     {% endif %}
                 </div>
                 <div class="col-6 col-lg-3">
-                    <h5>Input files</h5>
+                    <h5 class="tw-font-semibold tw-text-lg tw-py-1">Input files</h5>
                     {% if level.input_file %}
                         <a href="{{ level.input_file.url }}" download>
                             <button type="button" class="btn btn-outline-dark">

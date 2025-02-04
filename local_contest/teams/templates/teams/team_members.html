@@ -1,63 +1,94 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="shadow container-fluid p-3 px-4" style="background-color: #051934;">
-    <div class="d-flex justify-content-between align-items-center">
-        <h2 class="text-white">{{ team.name }} - Members</h2>
+<div class="shadow tw-px-10 tw-py-3" style="background-color: #051934;">
+    <div class="d-flex justify-content-between align-items-center text-white tw-font-semibold tw-text-2xl">
+        <h2 class="text-white">MEMBERS OF TEAM : {{ team.name }}</h2>
         <div class="">
-        {% if is_member %}
-        <button id="notification-btn" type="button" class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#notificationModal">
-            Notifications <span id="notification-count" class="badge bg-danger" style="display: none;"></span>
-        </button>
-        {% endif %}
-        {% if not contest.is_finished %}
-            <a href="{% url 'contest_detail' contest.id %}" class="btn btn-outline-light">Back to Contest</a>
-        {% else %}
-            <a href="{% url 'contest_list' %}" class="btn btn-outline-light">Back to Contest List</a>
-        {% endif %}
+            {% if is_member %}
+            <button id="notification-btn" type="button" class="btn btn-outline-warning" >
+                Notifications <span id="notification-count" class="badge bg-danger" style="display: none;"></span>
+            </button>
+            {% endif %}
+            {% if not contest.is_finished %}
+                <a href="{% url 'contest_detail' contest.id %}" class="btn btn-outline-light">Back to Contest</a>
+            {% else %}
+                <a href="{% url 'contest_list' %}" class="btn btn-outline-light">Back to Contest List</a>
+            {% endif %}
         
-        
-        </div>
+        </div> 
+    </div>
+</div>
 
-        <!-- Modal des notifications -->
-        <div class="modal fade" id="notificationModal" tabindex="-1" aria-labelledby="notificationModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="notificationModalLabel">Notifications</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body d-flex">
-                        {% for request in pending_requests %}
-                            <div>
-                                
-                                    <p>{{ request.user.username }} has requested to join the team.</p>
-                                    <div class="d-flex">
-                                    <form method="POST" action="{% url 'accept_request' request.id %}">
-                                        {% csrf_token %}
-                                        <button type="submit" class="btn btn-success">Accept</button>
-                                    </form>
-                                    <form method="POST" action="{% url 'reject_request' request.id %}">
-                                        {% csrf_token %}
-                                        <button type="submit" class="btn btn-danger">Reject</button>
-                                    </form>
-                                </div>
-                            </div>
-                        {% empty %}
-                            <p>No pending requests.</p>
-                        {% endfor %}
-                    </div>
+    {% if messages %}
+        {% for message in messages %}
+            <br/>
+            <div class="container-fluid px-3">
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             </div>
+        {% endfor %}
+    {% endif %}
+    
+        <!-- Modal des notifications -->
+<!-- Modal Background Overlay -->
+<div id="notificationModal" class="tw-fixed tw-inset-0 tw-bg-black tw-bg-opacity-50 tw-z-50 tw-flex tw-items-center tw-justify-center tw-hidden">
+    
+    <!-- Modal Box -->
+    <div class="tw-bg-white tw-rounded-lg tw-shadow-lg tw-w-full sm:tw-w-1/3 tw-max-w-lg tw-relative tw-p-6 tw-z-50">
+        
+        <!-- Modal Header -->
+        <div class="tw-flex tw-justify-between tw-items-center tw-border-b tw-pb-3">
+            <h5 class="tw-text-lg tw-font-semibold tw-text-black">Notifications</h5>
+            <button onclick="closeModal()" class="tw-text-gray-500 hover:tw-text-red-500 tw-transition">
+                <i class="fas fa-times tw-text-lg"></i>
+            </button>
         </div>
+
+        <!-- Modal Body -->
+        <div class="tw-mt-4">
+            {% for request in pending_requests %}
+                <div class="tw-mb-4 tw-bg-gray-100 tw-p-4 tw-rounded-lg">
+                    <p class="tw-text-black tw-text-base">
+                        <span class="tw-font-bold">{{ request.user.username }}</span> has requested to join the team.
+                    </p>
+                    <div class="tw-flex tw-space-x-3 ">
+                        <!-- Accept Button -->
+                        <form method="POST" action="{% url 'accept_request' request.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="tw-px-2 tw-py-1 tw-text-sm tw-bg-green-500 tw-text-white tw-rounded-lg hover:tw-bg-green-600 tw-transition">
+                                Accept
+                            </button>
+                        </form>
+                        <!-- Reject Button -->
+                        <form method="POST" action="{% url 'reject_request' request.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="tw-px-2 tw-py-1 tw-text-sm tw-bg-red-500 tw-text-white tw-rounded-lg hover:tw-bg-red-600 tw-transition">
+                                Reject
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            {% empty %}
+                <p class="tw-text-black tw-text-sm tw-font-medium tw-text-center">No pending requests.</p>
+            {% endfor %}
+        </div>
+
+    </div>
+</div>
+
+
+
     </div>
 </div>
 <div class="container mt-4">
-
-    <table class="table table-bordered mt-3">
+    <p class="tw-text-base tw-font-semibold"> Maximum number of members allowed in a team in this contest: {{contest.team_members_max}} </p>
+    <table class="table table-bordered mt-3 ">
         <thead class="table-light">
             <tr>
-                <th scope="col">Member Name</th>
+                <th class="" scope="col">Member name</th>
             </tr>
         </thead>
         <tbody>
@@ -72,8 +103,9 @@
             {% endfor %}
         </tbody>
     </table>
+    
 </div>
-{% if is_member %}
+{% if is_member and team.members.count < contest.team_members_max %}
 <div class="container mt-5">
     <div class="card shadow-sm p-4 border-0 rounded">
         <h3 class="mb-3 text-center fw-semibold">Search for a User</h3>
@@ -92,25 +124,28 @@
             <h5 class="mb-3 fw-semibold">Found Users:</h5>
             <ul class="list-group rounded shadow-sm">
                 {% for user in search_results %}
-                    <li class="list-group-item d-flex justify-content-between align-items-center border-0 py-2 px-3">
+                    <li class="list-group-item d-flex justify-content-between align-items-center tw-border tw-border-t-2 py-2 px-3 hover:tw-bg-gray-300">
                         <span class="fw-medium">{{ user.username }}</span>
-
-                        {% if user not in team.members.all %}
-                            <form method="POST" action="{% url 'send_invite' team.id user.id %}" class="d-inline">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-outline-dark btn-sm px-3 rounded-pill">
-                                    Invite
-                                </button>
-                            </form>
-                        {% else %}
-                            <span class="text-muted">Already a Member</span>
-                        {% endif %}
+                        <form method="POST" action="{% url 'send_invite' team.id user.id %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-dark btn-sm px-3 rounded-pill">
+                                Invite
+                            </button>
+                        </form>
                     </li>
                 {% empty %}
-                    <p class="text-muted text-center mt-3">No users found.</p>
+                    <p class="text-muted text-center mt-3">
+                        No users found or they are already in another team.
+                    </p>
                 {% endfor %}
             </ul>
+        {% elif query %}
+            <!-- If a search was performed but returned no results -->
+            <p class="text-muted text-center mt-3">
+                No users found or they are already in another team.
+            </p>
         {% endif %}
+
     </div>
 </div>
 {% endif %}
@@ -121,12 +156,13 @@
     document.addEventListener("DOMContentLoaded", function () {
         const notificationBtn = document.getElementById("notification-btn");
         const notificationCount = document.getElementById("notification-count");
+        const modal = document.getElementById("notificationModal");
     
         function fetchNotificationCount() {
             fetch("{% url 'get_notifications' %}") 
                 .then(response => response.json())
                 .then(data => {
-                    console.log(data);  // ✅ Debug: Vérifie si l'API renvoie bien des notifications
+                    console.log(data);  // Debug: Vérifie si l'API renvoie bien des notifications
                     if (data.notifications.length > 0) {
                         notificationCount.style.display = "inline-block";
                         notificationCount.textContent = data.notifications.length;
@@ -143,7 +179,17 @@
     
         // Charger les notifications dès l'ouverture de la modale
         notificationBtn.addEventListener("click", fetchNotificationCount);
+
+        
+    
+        notificationBtn.addEventListener("click", function () {
+            
+            modal.classList.remove("tw-hidden");
+        });
     });
+    function closeModal() {
+        document.getElementById("notificationModal").classList.add("tw-hidden");
+    }
 </script>
 {% endif %}
 {% endblock %}

@@ -1,23 +1,27 @@
 {% load static %}
 {% load django_template_maths %}
+{% load static tailwind_tags %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <link href="{% static 'css/stars.css' %}" rel="stylesheet">
     <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
     <link rel="icon" type="image/ico" href="{% static 'img/favicon.ico' %}" rel="stylesheet">
-
     <!-- Bootstrap CSS -->
     <link  href="{% static 'css/bootstrap-icons.min.css' %}" rel="stylesheet"/>
-    
     <!-- Bootstrap Font Icon CSS -->
     <link  href="{% static 'css/bootstrap-icons.css' %}" rel="stylesheet"/>
-
-
-
     <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+
+    <!-- FontAwesome CDN -->
+    <!-- reference your installed Font Awesome Free package's files here -->
+    <script src="{% static 'fontawesome_free/js/all.min.js' %}"></script>
+    <link href="{% static 'fontawesome_free/css/all.min.css' %}" rel="stylesheet" type="text/css">
+
+    {% tailwind_css %}
     <title>DSA Website</title>
 </head>
 <style>
@@ -32,63 +36,121 @@
 
 </script>
 <body class="bg-light">
-    <nav class="shadow navbar fixed-top navbar-expand navbar-dark px-3 py-0" style="background-color: #01686f;">
-        <div class="flex-grow-1 d-flex align-items-center">
-            <a class="navbar-brand" href="{% url 'post_list' %}"> ⟵ Hello DSA</a>
+    <nav class="tw-fixed tw-top-0 tw-left-0 tw-w-full tw-h-14 tw-bg-teal-700 tw-shadow-md tw-flex tw-items-center tw-px-10 tw-z-50">
+
+        <!-- 📌 Div vide à gauche pour équilibrer -->
+        <div class="tw-flex-1 tw-flex tw-justify-start tw-items-center tw-space-x-6">
             {% if user.is_authenticated %}
-            <a class="navbar-brand" href="{% url 'challenge_list' %}" style="font-size: 1rem;">| CHALLENGES |</a>
-            <a class="navbar-brand" href="{% url 'attendance:validate_attendance' %}" style="font-size: 1rem;"> | ATTENDANCE |</a>
-            <a class="navbar-brand" href="{% url 'contest_list' %}" style="font-size: 1rem;">| CONTESTS |</a>
+                {% block rank_and_score %}{% endblock %}
+    
+                <a id="user-category" class="tw-text-white tw-text-sm tw-opacity-75 tw-cursor-default" href="#" >
+                    Your category: <span class="tw-font-bold">{{ user.category }}</span>
+                </a>
+
+            {% endif %}  
+        </div>
+    
+        <!-- 📌 Menu central (icônes principales) -->
+        <div class="tw-flex tw-justify-center tw-h-full ">
+            {% if user.is_authenticated %}
+            <a href="{% url 'post_list' %}" title="Home"
+                class="tw-text-white tw-text-3xl hover:tw-text-yellow-300 tw-transition tw-w-32 tw-flex tw-justify-center tw-items-center
+                {% if request.resolver_match.url_name == 'post_list' %} tw-text-yellow-400 tw-border-b-4 tw-border-yellow-400 {% endif %}">
+                <i class="fas fa-home"></i>
+            </a>
+    
+            <a href="{% url 'challenge_list' %}" title="Challenges"
+                class="tw-text-white tw-text-3xl hover:tw-text-yellow-300 tw-transition tw-w-32 tw-flex tw-justify-center tw-items-center
+                {% if '/challenges/' in request.path %} tw-text-yellow-400 tw-border-b-4 tw-border-yellow-400 {% endif %}">
+                <i class="fas fa-code"></i>
+            </a>
+
+            <a href="{% url 'contest_list' %}" title="Contests"
+                class="tw-text-white tw-text-3xl hover:tw-text-yellow-300 tw-transition tw-w-32 tw-flex tw-justify-center tw-items-center
+                {% if '/contest/' in request.path%} tw-text-yellow-400 tw-border-b-4 tw-border-yellow-400 {% endif %}">
+                <i class="fas fa-trophy"></i>
+            </a>
+            
+            <a href="{% url 'attendance:validate_attendance' %}" title="Attendance"
+                class="tw-text-white tw-text-3xl hover:tw-text-yellow-300 tw-transition tw-w-32 tw-flex tw-justify-center tw-items-center
+                {% if request.resolver_match.url_name == 'validate_attendance' %} tw-text-yellow-400 tw-border-b-4 tw-border-yellow-400 {% endif %}">
+                <i class="fas fa-calendar-check"></i>
+            </a>
             {% endif %}
             {% if user.is_superuser %}
-                <a class="navbar-brand" href="{% url 'attendance:display_code' %}" style="font-size: 1rem;">| A.CODE |</a>
-                <a class="navbar-brand" href="{% url 'attendance:attendance_list' %}" style="font-size: 1rem;">| A.RECORDS |</a>
-                <a class="navbar-brand" href="{% url 'create_post' %}" style="font-size: 1rem;">| CREATE POST |</a>
+                <a href="{% url 'attendance:display_code' %}" title="Admin Code"
+                    class="tw-text-white tw-text-3xl hover:tw-text-yellow-300 tw-transition tw-w-32 tw-flex tw-justify-center tw-items-center
+                    {% if request.resolver_match.url_name == 'display_code' %} tw-text-yellow-400 tw-border-b-4 tw-border-yellow-400 {% endif %}">
+                    <i class="fas fa-key"></i>
+                </a>
+    
+                <a href="{% url 'attendance:attendance_list' %}" title="Attendance Records"
+                    class="tw-text-white tw-text-3xl hover:tw-text-yellow-300 tw-transition tw-w-32 tw-flex tw-justify-center tw-items-center
+                    {% if request.resolver_match.url_name == 'attendance_list' %} tw-text-yellow-400 tw-border-b-4 tw-border-yellow-400 {% endif %}">
+                    <i class="fas fa-list"></i>
+                </a>
             {% endif %}
-
         </div>
-        <ul class="navbar-nav">
-            {% comment %} <li class="nav-item">
-                <a class="nav-link"></a>
-            </li> {% endcomment %}
+    
+        <!-- 📌 Menu de droite (profil + logout) -->
+        <div class="tw-flex-1 tw-flex tw-justify-end tw-items-center tw-space-x-6">
             {% if user.is_authenticated %}
-                <li class="nav-item">
-                    <a id="user-category" class="nav-link disabled text-white " href="#">Your category : <span class="ms-1 fw-bold">{{ user.category }}</span> </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link disabled text-white" href="#">|</a>
-                </li>
-                <!-- Bloc dynamique pour Your rank et Your score -->
-                {% block rank_and_score %}
-                {% endblock rank_and_score %}            
+
+                <a href="{% url 'profile' %}" class="tw-text-white tw-text-md hover:tw-text-yellow-300 tw-transition">
+
+                    <i class="fas fa-user-circle"></i>
+                    <span id="username" class="tw-font-bold">
+                        {{ user.username | capfirst }}
+                    </span>
+                </a>
                 
-                <li class="nav-item">
-                    <a class="nav-link hover text-white" href="{% url 'profile' %}">{{ user.username | capfirst }}<i class="bi-person-fill-gear ms-1"></i></a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link disabled text-white" href="#">|</a>
-                </li>
     
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'logout' %}">Logout</a>
-                </li>
+                <a href="{% url 'logout' %}" class="tw-text-white tw-text-xl hover:tw-text-yellow-300 tw-transition">
+                    <i class="fas fa-sign-out-alt"></i>
+                </a>
             {% else %}
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'register' %}">Register</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link disabled" href="#">|</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'login' %}">Sign-in</a>
-                </li>
+                {% if request.resolver_match.url_name == 'login' %}
+                    <a href="{% url 'register' %}" class="tw-text-white tw-text-md hover:tw-text-yellow-300 tw-transition">
+                        <i class="fas fa-user-plus"></i>
+                        <span class="tw-font-bold">Register</span>
+                    </a>
+                {% elif request.resolver_match.url_name == 'register' %}
+                    <a href="{% url 'login' %}" class="tw-text-white tw-text-md hover:tw-text-yellow-300 tw-transition">
+                        <i class="fas fa-sign-in-alt"></i>
+                        <span class="tw-font-bold">Sign-in</span>
+                    </a>
+                {% endif %}
+
+            
             {% endif %}
-        </ul>
-    </nav>
+        </div>
     
+    </nav>
 
     <div class="pb-3" style="background-color: #051934;">Feel free and by happy - Tomixbo</div>
-    <img src="{% static 'img/banner.jpg' %}" class=".bg-image" style="width:100%;" alt="DSA_image" >
+    {% block banner %}
+    <img src="{% static 'img/banner.jpg' %}" class="bg-image" style="width:100%;" alt="DSA_image">
+    {% endblock banner %}
+
+
+    {% if breadcrumbs and breadcrumbs|length > 1 %}
+        <nav class="tw-bg-[#051934] tw-text-white tw-text-sm tw-px-10 tw-pt-2">
+            <ol class="tw-flex tw-space-x-2">
+                {% for breadcrumb in breadcrumbs %}
+                    <li>
+                        {% if not forloop.last %}
+                            <a href="{{ breadcrumb.url }}" class="tw-text-teal-300 hover:tw-underline">
+                                {{ breadcrumb.name }}
+                            </a>
+                            <span class="tw-text-white tw-mx-1">/</span>
+                        {% else %}
+                            <span class="tw-font-semibold tw-text-white">{{ breadcrumb.name }}</span>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ol>
+        </nav>
+    {% endif %}
 
     {% block content %}
         

@@ -13,6 +13,7 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 load_dotenv()
+import sys
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -37,8 +38,9 @@ CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',')
 
 
 # Application definition
-
+sys.modules['fontawesome_free'] = __import__('fontawesome-free')
 INSTALLED_APPS = [
+    'theme',
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -46,6 +48,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     'django_template_maths',
+    'tailwind',
     'challenges',
     'members',
     'attendance',
@@ -53,6 +56,8 @@ INSTALLED_APPS = [
     'posts',
     'contest',
     'teams',
+    'fontawesome_free'
+    
 ]
 
 MIDDLEWARE = [
@@ -78,6 +83,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                'local_contest.context_processors.breadcrumb_context', 
             ],
         },
     },
@@ -179,3 +185,5 @@ LOGGING = {
 }
 
 X_FRAME_OPTIONS = 'SAMEORIGIN'
+TAILWIND_APP_NAME = 'theme'
+NPM_BIN_PATH = os.getenv('NPM_BIN_PATH')

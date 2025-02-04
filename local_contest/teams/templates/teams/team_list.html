@@ -1,9 +1,9 @@
 {% extends "base.html" %}
 {% block content %}
 
-<div class="shadow container-fluid p-3 px-4 text-white" style="background-color: #051934;">
-    <div class="d-flex justify-content-between align-items-center">
-        <h2 class="">Team List for {{ contest.name }}</h2>
+<div class="shadow tw-px-10 tw-py-3 text-white" style="background-color: #051934;">
+    <div class="d-flex justify-content-between align-items-center text-white tw-font-semibold tw-text-2xl">
+        <h2 class="">LIST OF TEAMS IN : {{ contest.name }}</h2>
 
         <!-- Vérifie si l'utilisateur a déjà une team dans CE contest -->
         {% if user_team %}
@@ -11,9 +11,21 @@
         {% else %}
             <a href="{% url 'create_team' contest.id %}" type="button" class="btn btn-outline-primary">Create team</a>
         {% endif %}
+
     </div>
 </div>
 
+{% if messages %}
+        {% for message in messages %}
+            <br/>
+            <div class="container-fluid px-3">
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+             </div>
+        {% endfor %}
+    {% endif %}
 <div class="container mt-4">
     <table class="table table-bordered">
         <thead class="table-light">
@@ -29,19 +41,33 @@
                     <td>{{ team.name }}</td>
                     <td>{{ team.members.count }}</td>
                     <td>
-                        <div class="d-flex">
-                            {% if team.members.count < 5 and not user_team and not pending_requests %}
-                                <form method="POST" action="{% url 'join_team' contest.id team.id %}" class="d-flex col-6 mr-2">    
+                        <div class="tw-flex tw-space-x-2">
+                            {% if team.members.count < contest.team_members_max and not user_team and not pending_requests %}
+                                <!-- Join Team Form -->
+                                <form method="POST" action="{% url 'join_team' contest.id team.id %}" class="tw-w-1/2">    
                                     {% csrf_token %}
-                                    <button type="submit" class="btn btn-outline-warning col-12">Join</button>
+                                    <button type="submit" class="tw-w-full tw-py-2 tw-border tw-border-yellow-500 tw-text-yellow-500 hover:tw-bg-yellow-500 hover:tw-text-white tw-font-semibold tw-rounded-lg tw-transition">
+                                        Join
+                                    </button>
                                 </form>
                             {% elif pending_requests %}
-                                <button type="button" class="btn btn-secondary col-6 mx-1" disabled>Request Sent</button>
+                                <!-- Request Sent (Disabled) -->
+                                <button type="button" class="tw-w-1/2 tw-py-2 tw-bg-gray-500 tw-text-white tw-rounded-lg tw-opacity-70 tw-cursor-not-allowed" disabled>
+                                    Request Sent
+                                </button>
                             {% else %}
-                                <button type="button" class="btn btn-secondary col-6 mx-1" disabled>Join</button>
+                                <!-- Already in Team (Disabled) -->
+                                <button type="button" class="tw-w-1/2 tw-py-2 tw-bg-gray-500 tw-text-white tw-rounded-lg tw-opacity-70 tw-cursor-not-allowed" disabled>
+                                    Join
+                                </button>
                             {% endif %}
-                            <a href="{% url 'team_members' contest.id team.id %}" class="btn btn-outline-primary col-6">Members</a>
+                        
+                            <!-- Members Button -->
+                            <a href="{% url 'team_members' contest.id team.id %}" class="tw-w-1/2 tw-py-2 tw-border tw-border-blue-500 tw-text-blue-500 hover:tw-bg-blue-500 hover:tw-text-white tw-font-semibold tw-rounded-lg tw-text-center tw-transition">
+                                Members
+                            </a>
                         </div>
+                        
                     </td>
                 </tr>
             {% empty %}
@@ -55,21 +81,21 @@
 
 {% if pending_invitations %}
 <div class="container mt-4">
-    <h4 class="text-primary">📩 Invitations received
-    </h4>
+    <h3 class="tw-text-xl tw-text-semibold tw-mb-4">📩 Invitations received
+    </h3>
     <ul class="list-group">
         {% for invite in pending_invitations %}
             {% if invite.sender != request.user %}  {# Vérifie que ce n'est pas l'utilisateur qui a envoyé l'invitation #}
                 <li class="list-group-item d-flex justify-content-between align-items-center">
                     <span><strong>{{ invite.team.name }}</strong> vous a invité</span>
-                    <div>
+                    <div class="tw-flex-row tw-space-x-2">
                         <form method="POST" action="{% url 'accept_invite' invite.id %}" class="d-inline">
                             {% csrf_token %}
-                            <button type="submit" class="btn btn-success btn-sm">✅ Accept</button>
+                            <button type="submit" class="btn btn-success btn-sm"> Accept</button>
                         </form>
                         <form method="POST" action="{% url 'decline_invite' invite.id %}" class="d-inline">
                             {% csrf_token %}
-                            <button type="submit" class="btn btn-danger btn-sm">❌ Cancel</button>
+                            <button type="submit" class="btn btn-danger btn-sm"> Cancel</button>
                         </form>
                     </div>
                 </li>

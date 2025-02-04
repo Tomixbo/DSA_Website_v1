@@ -1,8 +1,11 @@
 {% extends "base.html" %}
 
 {% block content %}
+<div class="shadow tw-px-10 tw-py-3 text-white tw-font-semibold tw-text-2xl " style="background-color: #051934;">
+    <h1>ATTENDANCE LIST FOR TODAY</h1>
+</div>
 <div class="container mt-5">
-    <h2>Attendance List for Today</h2>
+    
     <table class="table table-striped">
         <thead>
             <tr>
@@ -24,7 +27,7 @@
                 </tr>
             {% empty %}
                 <tr>
-                    <td colspan="4" class="text-center">No attendance records found for today.</td>
+                    <td colspan="5" class="text-center">No attendance records found for today.</td>
                 </tr>
             {% endfor %}
         </tbody>

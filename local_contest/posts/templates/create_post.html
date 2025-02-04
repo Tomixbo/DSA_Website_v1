@@ -1,72 +1,95 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<!-- <form action="" method="post">
-    {% csrf_token %}
-    <div class="container py-4">
-        <div class="post-box">
-            <textarea class="form-control mb-3 post-input" placeholder="Que voulez-vous partager?"></textarea>
-            <input type="file" class="form-control image-upload d-none" accept="image/*" id="image-upload">
-            <label class="btn btn-light mb-3" for="image-upload">📷 Ajouter une photo</label>
-            <button type="submit" class="btn btn-primary w-100 post-button">Publier</button>
+<div class="tw-max-w-2xl tw-mx-auto tw-p-6 tw-bg-white tw-shadow-lg tw-rounded-lg tw-mt-6">
+    <h2 class="tw-text-xl tw-font-semibold tw-text-gray-800 tw-mb-4">Créer une publication</h2>
+    
+    <!-- Affichage des erreurs du formulaire -->
+    {% if form.errors %}
+    <div class="tw-mb-4 tw-text-red-500">
+        <ul>
+            {% for field in form %}
+                {% for error in field.errors %}
+                    <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+                {% endfor %}
+            {% endfor %}
+            {% for error in form.non_field_errors %}
+                <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <form action="{% url 'create_post' %}" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <!-- Conteneur du textarea avec bouton d'import intégré -->
+        <div class="tw-relative">
+            <!-- Utilisez name="description" pour correspondre au champ de PostForm -->
+            <textarea id="post-input" name="description"
+                class="tw-w-full tw-p-3 tw-border tw-rounded-lg tw-text-gray-800 tw-bg-gray-100 focus:tw-ring-2 focus:tw-ring-blue-500 tw-resize-none"
+                placeholder="Que voulez-vous partager ?" rows="4">{{ form.description.value|default_if_none:"" }}</textarea>
+            <!-- Bouton d'import intégré dans le même conteneur -->
+            <label for="image-upload"
+                class="tw-absolute tw-bottom-2 tw-right-2 tw-cursor-pointer tw-bg-gray-200 tw-text-gray-700 tw-px-3 tw-py-1 tw-rounded hover:tw-bg-gray-300 tw-transition">
+                📷
+            </label>
         </div>
-    </div>
-</form> -->
 
+        <!-- Input de fichier caché avec name="image" -->
+        <input type="file" id="image-upload" name="image" accept="image/*" class="tw-hidden">
 
-    <div class="container py-4">
-        <form action="{% url 'create_post' %}" method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit" class="btn btn-primary w-100 post-button">Publier</button>
-        </form>
-    </div>
+        <!-- Conteneur d'aperçu de l'image -->
+        <div id="image-preview-container" class="tw-mt-4 tw-relative" style="display: none;">
+            <img id="image-preview" src="" alt="Aperçu de l'image" class="tw-w-full tw-rounded">
+            <button type="button" id="cancel-image"
+                class="tw-absolute tw-top-2 tw-right-2 tw-bg-red-500 tw-text-white tw-rounded-full tw-p-1 hover:tw-bg-red-600 tw-transition">
+                ✕
+            </button>
+        </div>
 
-    <script>
-        // code JavaScript spécifique à cette page
-        const postInput = document.querySelector('.post-input');
-        const postButton = document.querySelector('.post-button');
-        const imageUpload = document.querySelector('.image-upload');
-        let selectedImage = null;
+        <!-- Bouton de soumission -->
+        <button type="submit" id="post-button"
+            class="tw-mt-4 tw-w-full tw-bg-green-500 tw-text-white tw-font-medium tw-py-2 tw-rounded-lg tw-shadow-md hover:tw-bg-green-600 tw-transition">
+            Publier
+        </button>
+    </form>
+</div>
 
-        imageUpload.addEventListener('change', function (e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onloadend = function () {
-                    selectedImage = reader.result;
-                };
-                reader.readAsDataURL(file);
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const imageUpload = document.getElementById('image-upload');
+    const imagePreviewContainer = document.getElementById('image-preview-container');
+    const imagePreview = document.getElementById('image-preview');
+    const cancelImage = document.getElementById('cancel-image');
+
+    // Affichage de l'aperçu de l'image
+    imageUpload.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                imagePreview.src = evt.target.result;
+                imagePreviewContainer.style.display = 'block';
             }
-        });
+            reader.readAsDataURL(file);
+        }
+    });
 
-        postButton.addEventListener('click', function () {
-            const content = postInput.value.trim();
-            if (content) {
-                // créer un nouveau post
-                const formData = new FormData();
-                formData.append('content', content);
-                formData.append('image', imageUpload.files[0]);
-                fetch('/create_post_ajax/', {
-                    method: 'POST',
-                    body: formData,
-                })
-               .then(response => response.json())
-               .then(data => {
-                    console.log(data.message);
-                    postInput.value = '';
-                    selectedImage = null;
-                    imageUpload.value = '';
-                })
-               .catch(error => console.error(error));
-            }
-        });
+    // Bouton pour annuler l'import de l'image
+    cancelImage.addEventListener('click', function() {
+        imageUpload.value = '';
+        imagePreview.src = '';
+        imagePreviewContainer.style.display = 'none';
+    });
 
-        postInput.addEventListener('keydown', function (e) {
-            if (e.key === 'Enter' &&!e.shiftKey) {
-                e.preventDefault();
-                postButton.click();
-            }
-        });
-    </script>
+    // Intercepter la touche "Enter" sur tout le formulaire sauf le textarea
+    const form = document.querySelector('form');
+    form.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') {
+            e.preventDefault();
+        }
+    });
+});
+</script>
 {% endblock %}

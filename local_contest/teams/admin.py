@@ -36,3 +36,27 @@ class InvitationAdmin(admin.ModelAdmin):
         return obj.user.username
     get_user_name.short_description = "Utilisateur"
 
+from django.contrib import admin
+from .models import JoinRequest
+
+@admin.register(JoinRequest)
+class JoinRequestAdmin(admin.ModelAdmin):
+    list_display = ("user", "team", "status", "created_at")  # ✅ Show these fields in the admin panel
+    list_filter = ("status", "team")  # ✅ Filter by status and team
+    search_fields = ("user__username", "team__name")  # ✅ Search by username or team name
+    ordering = ("-created_at",)  # ✅ Sort by newest requests first
+    actions = ["accept_requests", "reject_requests"]  # ✅ Bulk actions
+
+    # ✅ Custom Admin Actions for Bulk Approving or Rejecting
+    @admin.action(description="Accept selected join requests")
+    def accept_requests(self, request, queryset):
+        for join_request in queryset.filter(status="pending"):
+            join_request.accept()
+        self.message_user(request, "Selected requests have been accepted.")
+
+    @admin.action(description="Reject selected join requests")
+    def reject_requests(self, request, queryset):
+        for join_request in queryset.filter(status="pending"):
+            join_request.reject()
+        self.message_user(request, "Selected requests have been rejected.")
+

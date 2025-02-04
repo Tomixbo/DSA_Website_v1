@@ -1,8 +1,11 @@
 {% extends "base.html" %}
 
 {% block content %}
+<div class="shadow tw-px-10 tw-py-3 text-white tw-font-semibold tw-text-2xl " style="background-color: #051934;">
+    <h1>VALIDATE YOUR ATTENDANCE</h1>
+</div>
 <div class="container mt-5">
-    <h1>Validate Your Attendance</h1>
+    
 
     <!-- Display Messages -->
     {% if messages %}
@@ -21,7 +24,7 @@
     <form method="post">
         {% csrf_token %}
         <div class="mb-3">
-            <label for="code" class="form-label">Enter the attendance code:</label>
+            <label for="code" class="form-label">Enter the attendance code</label>
             <input type="text" name="code" id="code" class="form-control" required>
         </div>
         <button type="submit" class="btn btn-primary">Submit</button>

@@ -2,25 +2,10 @@
 {% load static %}
 {% load django_template_maths %}
 
-{% block rank_and_score %}
-    <li class="nav-item">
-        <a id="user-rank" class="nav-link hover text-white" href="{% url 'ranking' %}">Your rank : {{ user.rank }}/{{ total_user }} <i class="bi-info-circle ms-1"></i></a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link disabled text-white" href="#">|</a>
-    </li>
-    <li class="nav-item">
-        <a id="user-score" class="nav-link disabled text-white" href="#">Your score : {{ user.score }}</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link disabled text-white" href="#">|</a>
-    </li>
-{% endblock rank_and_score %}
-
 {% block content %}
-    <div class="shadow container-fluid p-3 px-4 text-white" style="background-color: #051934;">
-        <h2>Contest List</h2>
-    </div>
+<div class="shadow tw-px-10 tw-py-3 text-white tw-font-semibold tw-text-2xl " style="background-color: #051934;">
+    <h1>LIST OF CONTESTS</h1>
+</div>
 
     {% if messages %}
         {% for message in messages %}
@@ -34,11 +19,12 @@
         {% endfor %}
     {% endif %}
 
-    <div class="card m-3 p-3">
+    <div class="card my-3 p-3 tw-mx-20">
         <table class="table table-hover">
             <thead>
               <tr>
                 <th>Contest Name</th>
+                <th class="text-center">Max Members in Team</th>
                 <th class="text-center">Start Date</th>
                 <th class="text-center">End Date</th>
                 <th class="col-2 text-center">Status</th>
@@ -48,6 +34,7 @@
                 {% for contest in contests %}
                     <tr>
                         <td><a href="{% url 'contest_inscription' contest.id %}" class="list-group-item level-link">{{ contest.name }}</a></td>
+                        <td class="text-center">{{ contest.team_members_max }}</td>
                         <td class="text-center">{{ contest.start_date|date:"d M Y H:i" }}</td>
                         <td class="text-center">{{ contest.end_date|date:"d M Y H:i" }}</td>
                         <td class="text-center">

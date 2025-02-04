@@ -8,7 +8,7 @@ class ContestChallengeInline(admin.TabularInline):
 
 @admin.register(Contest)
 class ContestAdmin(admin.ModelAdmin):
-    list_display = ('name', 'start_date', 'end_date', 'is_active', 'is_finished')
+    list_display = ('name', 'start_date', 'end_date', 'is_active', 'is_finished', 'team_members_max')
     list_filter = ('start_date', 'end_date')
     search_fields = ('name',)
     inlines = [ContestChallengeInline]  # ✅ Allows adding/removing challenges

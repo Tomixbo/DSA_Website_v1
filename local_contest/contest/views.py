@@ -9,6 +9,9 @@ from django.utils import timezone
 from django.db.models import Max
 
 
+from django.db.models import Max
+from django.utils.timezone import make_aware
+
 @login_required
 def contest_leaderboard(request, contest_id):
     contest = get_object_or_404(Contest, id=contest_id)
@@ -16,24 +19,32 @@ def contest_leaderboard(request, contest_id):
 
     leaderboard_data = []
 
-    # ✅ Récupérer toutes les defined_files du contest
-    total_defined_files = DefinedFile.objects.filter(level__challenge__contest_challenges__contest=contest).count() or 1  # Évite division par 0
+    # Récupérer toutes les defined_files du contest
+    total_defined_files = DefinedFile.objects.filter(
+        level__challenge__contest_challenges__contest=contest
+    ).count() or 1  # Évite division par 0
+
+    # Définir la période valide du contest
+    contest_start = contest.start_date
+    contest_end = contest.end_date
 
     for team in teams:
-        # ✅ Nombre de fichiers résolus par cette équipe
+        # Nombre de fichiers résolus par cette équipe dans la période du contest
         solved_files = Performance.objects.filter(
             definedfile__level__challenge__contest_challenges__contest=contest,
             user__in=team.members.all(),
-            solved=True
+            solved=True,
+            created_at__range=(contest_start, contest_end)
         ).values("definedfile").distinct().count()
 
-        # ✅ Dernière soumission de l'équipe
+        # Dernière soumission de l'équipe dans la période du contest
         last_performance = Performance.objects.filter(
             user__in=team.members.all(),
-            solved=True
-        ).aggregate(last=Max("created_at"))["last"] or "2000-01-01"  # Eviter None
+            solved=True,
+            created_at__range=(contest_start, contest_end)
+        ).aggregate(last=Max("created_at"))["last"] or contest_start  # Evite None en mettant start_date du contest
 
-        # ✅ Calcul du score
+        # Calcul du score
         score = (solved_files / total_defined_files) * 100
 
         leaderboard_data.append({
@@ -42,10 +53,10 @@ def contest_leaderboard(request, contest_id):
             "last_performance": last_performance
         })
 
-    # ✅ Trier par score DESC et dernière soumission ASC (plus rapide = meilleur classement)
+    # Trier par score DESC et dernière soumission ASC (plus rapide = meilleur classement)
     leaderboard_data.sort(key=lambda x: (-x["score"], x["last_performance"]))
 
-    # ✅ Assignation des rangs stricts
+    # Assignation des rangs stricts
     for index, entry in enumerate(leaderboard_data):
         entry["rank"] = index + 1  # Chaque team a un rank unique
 
@@ -53,6 +64,7 @@ def contest_leaderboard(request, contest_id):
         "contest": contest,
         "leaderboard_data": leaderboard_data
     })
+
 
 
 
@@ -68,40 +80,70 @@ def contest_detail(request, contest_id):
     contest = get_object_or_404(Contest, id=contest_id)
     user = request.user
 
-    # ✅ Vérifie si le contest est terminé
+    # Vérifie si le contest est terminé
     if contest.is_finished():
         return redirect('contest_inscription', contest_id=contest.id)
 
-    # ✅ Vérifie si l'utilisateur appartient à une équipe inscrite dans ce contest
-    user_team = contest.teams.filter(members=user).first()  # ✅ Récupération correcte de l'équipe
+    # Vérifie si l'utilisateur appartient à une équipe inscrite dans ce contest
+    user_team = contest.teams.filter(members=user).first()  # Récupération correcte de l'équipe
 
     if not user_team:
         return redirect('contest_inscription', contest_id=contest.id)
 
-    # ✅ Récupération des challenges associés au contest
+    # Définir la période valide du contest
+    contest_start = contest.start_date
+    contest_end = contest.end_date
+    
+    # Récupération des challenges associés au contest
     challenges = Challenge.objects.filter(contest_challenges__contest=contest).order_by('category', 'name')
 
-    # ✅ Calcul du progrès
+    # Compute total defined files per challenge
     defined_files_count = Challenge.objects.filter(
         pk=OuterRef('pk')
     ).annotate(
         count=Count('levels__defined_files')
     ).values('count')
 
+    # Compute resolved files count (by team, within contest period)
     resolved_files_count = Challenge.objects.filter(
         pk=OuterRef('pk')
     ).annotate(
-        count=Count('levels__defined_files', filter=Q(levels__defined_files__performance__user=user, levels__defined_files__performance__solved=True))
+        count=Count(
+            'levels__defined_files',
+            filter=Q(
+                levels__defined_files__performance__user__teams=user_team,
+                levels__defined_files__performance__solved=True,
+                levels__defined_files__performance__created_at__range=(contest_start, contest_end)
+            )
+        )
     ).values('count')
 
+    # Annotate challenges with computed fields
     challenges = challenges.annotate(
         num_defined_files=Subquery(defined_files_count),
         num_resolved_defined_files=Subquery(resolved_files_count)
     )
 
-    total_defined_files = sum(ch.num_defined_files or 0 for ch in challenges)
-    total_resolved_files = sum(ch.num_resolved_defined_files or 0 for ch in challenges)
-    progress_percent = (total_resolved_files / total_defined_files) * 100 if total_defined_files > 0 else 0
+
+    # Récupérer toutes les defined_files du contest
+    total_defined_files = DefinedFile.objects.filter(
+        level__challenge__contest_challenges__contest=contest
+    ).count() or 1  # Évite division par 0
+
+    
+
+
+    # Nombre de fichiers résolus par cette équipe dans la période du contest
+    solved_files = Performance.objects.filter(
+        definedfile__level__challenge__contest_challenges__contest=contest,
+        user__in=user_team.members.all(),
+        solved=True,
+        created_at__range=(contest_start, contest_end)
+    ).values("definedfile").distinct().count()
+
+
+    # Calcul du score
+    progress_percent = (solved_files / total_defined_files) * 100
 
     return render(request, 'contest/contest_detail.html', {
         'contest': contest,

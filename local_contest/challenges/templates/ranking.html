@@ -3,14 +3,14 @@
 {% load django_template_maths %}
 {% block content %}
 
-    <div class="shadow container-fluid  p-3 px-4 text-white" style="background-color: #051934;">
-        <h2>Ranking</h2>
+    <div class="shadow tw-px-10 tw-py-3 text-white tw-font-semibold tw-text-2xl " style="background-color: #051934;">
+        <h1>RANKING</h1>
     </div>
     
     {% if messages %}
         {% for message in messages %}
             <br/>
-            <div class="container-fluid px-3">
+            <div class="tw-px-10">
                 <div class="alert alert-warning alert-dismissible fade show" role="alert">
                     {{ message }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -19,7 +19,7 @@
             
         {% endfor %}
     {% endif %}
-    <div class="card m-3 p-3">
+    <div class="card my-3 tw-mx-20 p-3">
         <table class="table table-hover">
             <thead>
               <tr>

@@ -1,292 +1,495 @@
 {% extends 'base.html' %}
-
+{% load static %}
+{% block banner %}{% endblock %}
 {% block content %}
+
 <style>
-    body {
-        background: #f0f2f5;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    }
-
-   .post-box {
-        background: white;
-        border-radius: 12px;
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-        padding: 20px;
-        margin-bottom: 20px;
-    }
-
-   .avatar {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, #1877f2, #2851A3);
-        margin-right: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-weight: bold;
-        font-size: 16px;
-    }
-
-   .post {
-        background: white;
-        border-radius: 12px;
-        padding: 20px;
-        margin-bottom: 20px;
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-        position: relative;
-    }
-
-   .post.btn-close {
-        position: absolute;
-        top: 12px;
-        right: 12px;
-        font-size: 0.8rem;
-        opacity: 0.6;
-        padding: 6px;
-    }
-
-   .post.btn-close:hover {
-        opacity: 1;
-    }
-
-   .modal-content {
-        border-radius: 12px;
-        border: none;
-    }
-
-   .modal-header {
-        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-        padding: 15px 20px;
-    }
-
-   .modal-body {
-        padding: 20px;
-    }
-
-   .comment {
-        background: #f0f2f5;
-        padding: 12px;
-        border-radius: 12px;
-        margin-bottom: 12px;
-    }
-
-   .btn-light {
-        background: #f0f2f5;
-        border: none;
-        padding: 8px 16px;
-        font-weight: 500;
-    }
-
-   .btn-light:hover {
-        background: #e4e6e9;
-    }
-
-   .btn-primary {
-        background: #1877f2;
-        border: none;
-        font-weight: 500;
-    }
-
-   .btn-primary:hover {
-        background: #166fe5;
-    }
-
-   .form-control {
-        border-radius: 8px;
-        border: 1px solid rgba(0, 0, 0, 0.1);
-        padding: 12px;
-    }
-
-   .form-control:focus {
-        box-shadow: none;
-        border-color: #1877f2;
-    }
-
-   .post img {
-        max-height: 400px;
-        object-fit: contain;
-        width: 100%;
-        border-radius: 8px;
-    }
-
-   .comments-count,
-   .likes-count {
-        color: #65676b;
-        font-size: 13px;
-        margin-top: 4px;
-    }
-
-   .post.liked {
-        color: #1877f2;
-        background: #e7f3ff;
-    }
-
     .post p {
         margin-bottom: 1em;
         line-height: 1.6;
     }
-
-    .post h1, .post h2, .post h3, .post h4, .post h5, .post h6 {
+    .post h1 {
+        margin: 0.5em 0 0.5em;
+        font-weight: bold;
+        font-size: 30px;
+    }
+    .post h2 {
+        margin: 0.5em 0 0.5em;
+        font-weight: bold;
+        font-size: 20px;
+    }
+    .post h3, .post h4, .post h5, .post h6 {
         margin: 1em 0 0.5em;
         font-weight: bold;
     }
-
     .post ul {
         padding-left: 1.5em;
         margin-bottom: 1em;
     }
-
     .post a {
         color: #1877f2;
         text-decoration: none;
     }
-
     .post a:hover {
         text-decoration: underline;
     }
-
     .post blockquote {
         border-left: 4px solid #dfe2e5;
         padding-left: 1em;
         color: #6a737d;
         margin: 1em 0;
     }
-    #post-div {
-        max-width:650px;
-    }
 </style>
 
-<div class="container p-4" id="post-div">
-    <div id="posts-container">
-        <!-- liste des posts -->
-        {% for post in posts %}
-            <div class="post">
-                
-                <div class="d-flex align-items-center justify-content-between">
-                    <div class="d-flex align-items-center">
-                        <div class="avatar">
-                            <img  src="https://api.dicebear.com/7.x/initials/svg?seed=A" alt="Avatar">
+<!-- 3-Column Layout:
+     - Left: 1/4 width (pinned ranking), hidden below lg
+     - Center: auto (posts, tw-max-w-2xl)
+     - Right: 1/4 empty, hidden below lg
+  -->
+<div class="tw-flex tw-flex-row tw-gap-4 tw-w-full">
 
-                        </div>
-                        <div>
-                            <div class="fw-bold">{{ post.author }}</div>
-                            <div class="text-muted small">{{ post.date }}</div>
-                        </div>
-                    </div>
-                    {% comment %} <button class="btn-close"></button> {% endcomment %}
-                </div>
-                <div class="description mb-3">{{ post.description|safe }}</div>
-                {% if post.image %}
-                    <img src="{{ post.image.url }}" class="img-fluid mb-3" alt="Post image">
-                {% endif %}
-                <div class="d-flex justify-content-around border-top pt-3">
 
-                    <div class="text-center">
-                        <form id="like-form" action="{% url 'like_post' post.id %}" method="post">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-light like-btn" disabled>Like</button>
-                        </form>
-                        <div class="likes-count" id="likes-count">{{ post.likes }} Like</div>
-                    </div>
-
-                    <div class="text-center">
-                        <button class="btn btn-light comment-btn" disabled>Comment</button>
-                        <div class="comments-count">{{ post.comments }} 0 Comment</div>
-                    </div>
-                </div>
-            </div>
-        {% endfor %}
+  <!-- Left Column (Pinned Ranking), hidden on screens < lg -->
+  <div class="tw-mt-6 tw-flex-col tw-bg-white tw-shadow tw-hidden lg:tw-flex tw-w-1/5 tw-h-screen tw-fixed tw-top-0 tw-overflow-auto tw-p-10 tw-pt-14">
+    <!-- Logo Section -->
+    <div class="tw-flex tw-justify-center tw-gap-4 tw-mb-6 ">
+      <!-- DSA Logo -->
+      <div class="tw-w-42 tw-h-42 tw-rounded-full tw-bg-gradient-to-r tw-from-blue-500 tw-to-teal-400 tw-p-1">
+          <div class="tw-w-full tw-h-full tw-rounded-full tw-overflow-hidden tw-bg-white">
+              <img src="{% static 'img/logo_DSA.jpg' %}" 
+                   alt="Logo DSA" 
+                   class="tw-w-full tw-h-full tw-object-cover">
+          </div>
+      </div>
+  
+      <!-- INSI Logo -->
+      <div class="tw-w-42 tw-h-42 tw-rounded-full tw-bg-gradient-to-r tw-from-blue-500 tw-to-teal-400 tw-p-1">
+          <div class="tw-w-full tw-h-full tw-rounded-full tw-overflow-hidden tw-bg-white">
+              <img src="{% static 'img/logo_INSI.jpg' %}" 
+                   alt="Logo INSI" 
+                   class="tw-w-full tw-h-full tw-object-cover">
+          </div>
+      </div>
     </div>
-</div>
-<script>
-    /**
-     * Tronquer par blocs, sans couper au milieu d'une balise.
-     * On arrête dès qu'ajouter un nouveau bloc ferait dépasser maxLength.
-     */
-    function truncateHTMLByBlock(html, maxLength) {
-      // On parse le HTML pour récupérer un DOM dans doc.body
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(html, 'text/html');
-      const body = doc.body;
+  
+  
     
-      // Nouveau conteneur qui va recevoir la version tronquée
-      const truncatedBody = document.createElement('div');
+    <!-- CONTEST Section -->
+    <div class="tw-mb-6">
+      <h2 class="tw-font-bold tw-text-lg tw-mb-2">TO WIN CONTEST</h2>
     
-      let currentCount = 0;
-      // On parcourt les enfants directs du body
-      const children = Array.from(body.children); // h1, p, etc.
+      <div class="tw-overflow-x-auto tw-bg-white tw-rounded-xl tw-shadow-sm tw-border tw-border-gray-200">
+        <table class="tw-w-full tw-border-collapse tw-text-sm">
+          <thead class="tw-border-b tw-border-gray-200 tw-bg-[#13253f] tw-text-white">
+            <tr>
+              <th class="tw-px-2 tw-py-2 tw-text-left ">Contest</th>
+              <th class="tw-px-2 tw-py-2 tw-text-left ">Starting Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for contest in contests %}
+            <tr class="tw-border-b tw-border-gray-100 last:tw-border-0 hover:tw-bg-gray-50">
+              <td class="tw-px-2 tw-py-2">
+                <!-- Clickable link to contest detail (update if you have a detail view) -->
+                <a href="{% url 'contest_list' %}" 
+                  class="tw-text-blue-600 tw-underline tw-font-semibold">
+                  {{ contest.name }}
+                </a>
+              </td>
+              <td class="tw-px-2 tw-py-2 tw-text-gray-500">
+                {{ contest.start_date }}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
     
-      for (let child of children) {
-        // Longueur textuelle de ce bloc
-        const blockLength = child.textContent.trim().length;
+      <!-- Link to see full contest list -->
+      <div class="tw-mt-2">
+        <a href="{% url 'contest_list' %}" class="tw-text-blue-600 tw-underline tw-text-sm">
+          <i class="fas fa-hand-point-right tw-mr-2"></i>See all contests
+        </a>
+      </div>
+    </div>
     
-        if (currentCount + blockLength > maxLength) {
-          // On dépasse la limite : on n'ajoute pas ce bloc.
-          // On peut insérer un "..." si on veut indiquer qu'il y a plus à voir
-          // Par exemple, on peut le faire juste après le dernier bloc valide
-          // Mais souvent on s'arrête net ici.
-          break;
-        }
+    <!-- 2) Show 5 random challenges in a table -->
+    <div class="tw-mb-6">
+      <h2 class="tw-font-bold tw-text-lg tw-mb-2">PRACTICE ALGO & DATA STRUCTURES</h2>
     
-        // Sinon, on ajoute ce bloc intégralement
-        currentCount += blockLength;
-        truncatedBody.appendChild(child.cloneNode(true));
-      }
+      <div class="tw-overflow-x-auto tw-bg-white tw-rounded-xl tw-shadow-sm tw-border tw-border-gray-200">
+        <table class="tw-w-full tw-border-collapse tw-text-sm">
+          <thead class="tw-border-b tw-border-gray-200 tw-bg-[#13253f] tw-text-white">
+            <tr>
+              <th class="tw-px-2 tw-py-2 tw-text-left ">Challenge</th>
+              <th class="tw-px-2 tw-py-2 tw-text-left ">Category</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for c in random_challenges %}
+            <tr class="tw-border-b tw-border-gray-100 last:tw-border-0 hover:tw-bg-gray-50">
+              <td class="tw-px-2 tw-py-2">
+                <!-- Clickable link to challenge detail (example route) -->
+                <a href="{% url 'challenge_detail' challenge_slug=c.slug %}"
+                  class="tw-text-blue-600 tw-underline tw-font-semibold">
+                  {{ c.name }}
+                </a>
+              </td>
+              <td class="tw-px-2 tw-py-2 tw-text-gray-500">
+                {{ c.category }}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
     
-      // Retourner le HTML tronqué
-      return truncatedBody.innerHTML;
-    }
-    
-    document.addEventListener('DOMContentLoaded', function() {
-      const maxLength = 100;
-    
-      document.querySelectorAll('.description').forEach(function(desc) {
-        // HTML complet déjà converti par la librairie Markdown
-        const fullHTML = desc.innerHTML.trim();
-        // Texte brut pour savoir si on dépasse la limite
-        const textContent = desc.textContent.trim();
-    
-        if (textContent.length <= maxLength) {
-          // Pas besoin de tronquer
-          return;
-        }
-    
-        // Tronquer proprement, bloc par bloc
-        const truncatedHTML = truncateHTMLByBlock(fullHTML, maxLength);
-    
-        // On insère :
-        // 1) Version tronquée visible par défaut
-        // 2) Version complète masquée
-        // 3) Bouton “Voir plus / Voir moins”
-        desc.innerHTML = `
-          <div class="short-text">${truncatedHTML}...</div>
-          <div class="full-text" style="display: none;">${fullHTML}</div>
-          <button class="btn btn-link see-more-btn p-0" style="display: block; margin-top: 5px;">
-              Show More
+      <!-- Link to see full challenge list -->
+      <div class="tw-mt-2 ">
+        <a href="{% url 'challenge_list' %}" class="tw-text-blue-600 tw-underline tw-text-sm ">
+          <i class="fas fa-hand-point-right tw-mr-2"></i>See all challenges
+        </a>
+      </div>
+    </div>
+  </div>
+  <!-- Middle Column (Posts & Create-Post Form) -->
+  <div class="tw-flex-auto tw-max-w-2xl tw-mx-auto tw-mt-4">
+
+    <!-- Create Post Form (visible only for admin users) -->
+    {% if user.is_staff %}
+    <div class="tw-mt-4 tw-bg-white tw-shadow tw-rounded-lg tw-px-4 tw-py-6">
+      <h2 class="tw-text-xl tw-font-semibold tw-text-gray-800 tw-mb-4">Create a post</h2>
+      <form id="create-post-form" action="{% url 'post_list' %}" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="tw-relative">
+          <!-- The textarea uses "description" as its name to match PostForm -->
+          <textarea id="post-input" name="description"
+            class="tw-w-full tw-p-3 tw-border tw-rounded-lg tw-text-gray-800 tw-bg-gray-100 focus:tw-ring-2 focus:tw-ring-blue-500 tw-resize-none"
+            placeholder="Write your text here..." rows="4">{{ form.description.value|default_if_none:"" }}</textarea>
+          <!-- Embedded image upload button -->
+          <label for="image-upload"
+            class="tw-absolute tw-bottom-2 tw-right-2 tw-cursor-pointer tw-bg-gray-200 tw-text-gray-700 tw-p-1 tw-rounded hover:tw-bg-gray-300 tw-transition">
+            <i class="fas fa-image"></i>
+          </label>
+        </div>
+        <!-- Hidden file input -->
+        <input type="file" id="image-upload" name="image" accept="image/*" class="tw-hidden">
+
+        <!-- Image Preview Container -->
+        <div id="image-preview-container" class="tw-mt-4 tw-relative" style="display: none;">
+          <img id="image-preview" src="" alt="Aperçu de l'image" class="tw-w-full tw-rounded">
+          <button type="button" id="cancel-image"
+            class="tw-absolute tw-top-2 tw-right-2 tw-bg-red-500 tw-text-white tw-rounded-full tw-p-1 hover:tw-bg-red-600 tw-transition">
+            <i class="fas fa-times"></i>
           </button>
-        `;
+        </div>
+
+        <!-- Submit Button (disabled until form is valid) -->
+        <button type="submit" id="post-button"
+          class="tw-mt-4 tw-w-full tw-bg-green-500 tw-text-white tw-font-medium tw-py-2 tw-rounded-lg tw-shadow-md hover:tw-bg-green-600 tw-transition"
+          disabled>
+          Publish
+        </button>
+      </form>
+    </div>
+    {% endif %}
+
+    <!-- Posts List -->
+    <div class="tw-w-full tw-my-6" id="post-div">
+      <div id="posts-container" class="tw-space-y-3">
+
+        {% if pinned_post %}
+        <div class="tw-bg-yellow-50 tw-border-l-4 tw-border-yellow-500 tw-text-yellow-700 tw-p-4 tw-mb-4">
+            <div class="tw-flex tw-justify-between tw-items-center">
+                <h2 class="tw-font-bold">📌 Pinned Post</h2>
+                {% if user.is_staff %}
+                <form method="post" action="{% url 'unpin_post' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="tw-text-red-500 tw-font-semibold hover:tw-text-red-700">
+                        Unpin <i class="fas fa-thumbtack"></i>
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+            <div class="post tw-mt-2">
+                <!-- Post Header -->
+                <div class="tw-flex tw-items-center tw-justify-between tw-px-4">
+                  <div class="tw-flex tw-items-center">
+                    <div class="tw-w-10 tw-h-10 tw-rounded-full tw-bg-gradient-to-br tw-from-blue-600 tw-to-blue-800 tw-flex tw-items-center tw-justify-center tw-text-white tw-font-bold tw-text-lg tw-mr-3">
+                      <img src="https://api.dicebear.com/9.x/initials/svg?seed={{ pinned_post.author }}" alt="Avatar" class="tw-w-full tw-h-full tw-rounded-full">
+                    </div>
+                    <div>
+                      <div class="tw-font-bold tw-text-gray-800">{{ pinned_post.author }}</div>
+                      <div class="tw-text-gray-500 tw-text-sm">{{ pinned_post.date }}</div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Post Description with See More/See Less -->
+                <div class="description tw-text-gray-700 tw-px-4 tw-pt-1">
+                  {{ pinned_post.description|safe }}
+                </div>
+                {% if pinned_post.image %}
+                <img src="{{ pinned_post.image.url }}" class="tw-w-full tw-rounded tw-mt-2">
+                {% endif %}
+            </div>
+            <!-- Post Actions -->
+          <div class="tw-flex tw-justify-around tw-border-t tw-pt-3">
+            <div class="tw-flex tw-flex-col tw-items-center">
+              <button type="submit" class="tw-bg-gray-200 tw-text-gray-700 tw-px-4 tw-py-2 tw-rounded" disabled>Like</button>
+              <div class="tw-text-xs tw-text-gray-600 tw-mt-1">0 Like</div>
+            </div>
+            <div class="tw-flex tw-flex-col tw-items-center">
+              <button class="tw-bg-gray-200 tw-text-gray-700 tw-px-4 tw-py-2 tw-rounded" disabled>Comment</button>
+              <div class="tw-text-xs tw-text-gray-600 tw-mt-1">0 Comment</div>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+
+        {% for post in posts %}
+        <div class="post tw-bg-white tw-rounded-lg tw-shadow tw-relative tw-py-3">
+          <!-- Delete Button (visible only for staff users) -->
+          {% if user.is_staff %}
+            <div class="tw-absolute tw-top-4 tw-right-4 tw-flex tw-items-center tw-space-x-4">
+                <!-- Pin Button -->
+                <form method="post" action="{% url 'pin_post' post.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="tw-text-yellow-500 tw-opacity-60 hover:tw-opacity-100 tw-text-lg">
+                        <i class="fas fa-thumbtack"></i>
+                    </button>
+                </form>
+
+                <!-- Delete Button -->
+                <form method="post" action="{% url 'delete_post' post.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="tw-text-gray-500 tw-opacity-40 hover:tw-opacity-100 hover:tw-text-red-700 tw-text-lg">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </form>
+            </div>
+            {% endif %}
+
+          <!-- Post Header -->
+          <div class="tw-flex tw-items-center tw-justify-between tw-px-4">
+            <div class="tw-flex tw-items-center">
+              <div class="tw-w-10 tw-h-10 tw-rounded-full tw-bg-gradient-to-br tw-from-blue-600 tw-to-blue-800 tw-flex tw-items-center tw-justify-center tw-text-white tw-font-bold tw-text-lg tw-mr-3">
+                <img src="https://api.dicebear.com/9.x/initials/svg?seed={{ post.author }}" alt="Avatar" class="tw-w-full tw-h-full tw-rounded-full">
+              </div>
+              <div>
+                <div class="tw-font-bold tw-text-gray-800">{{ post.author }}</div>
+                <div class="tw-text-gray-500 tw-text-sm">{{ post.date }}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Post Description with See More/See Less -->
+          <div class="description tw-text-gray-700 tw-px-4 tw-pt-1">
+            {{ post.description|safe }}
+          </div>
+
+          <!-- Post Image (if available) -->
+          {% if post.image %}
+            <img src="{{ post.image.url }}" alt="Post image" class="tw-w-full tw-rounded tw-mb-3 tw-object-cover tw-max-h-[700px]">
+          {% endif %}
+
+          <!-- Post Actions -->
+          <div class="tw-flex tw-justify-around tw-border-t tw-pt-3">
+            <div class="tw-flex tw-flex-col tw-items-center">
+              <button type="submit" class="tw-bg-gray-200 tw-text-gray-700 tw-px-4 tw-py-2 tw-rounded" disabled>Like</button>
+              <div class="tw-text-xs tw-text-gray-600 tw-mt-1">{{ post.likes }} Like</div>
+            </div>
+            <div class="tw-flex tw-flex-col tw-items-center">
+              <button class="tw-bg-gray-200 tw-text-gray-700 tw-px-4 tw-py-2 tw-rounded" disabled>Comment</button>
+              <div class="tw-text-xs tw-text-gray-600 tw-mt-1">{{ post.comments }} Comment</div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+
+
     
-        const shortTextEl = desc.querySelector('.short-text');
-        const fullTextEl  = desc.querySelector('.full-text');
-        const btn         = desc.querySelector('.see-more-btn');
-    
-        btn.addEventListener('click', function() {
-          if (fullTextEl.style.display === 'none') {
-            shortTextEl.style.display = 'none';
-            fullTextEl.style.display = 'block';
-            btn.textContent = 'Show Less';
-          } else {
-            shortTextEl.style.display = 'block';
-            fullTextEl.style.display = 'none';
-            btn.textContent = 'Show More';
-          }
-        });
+    <!-- Right Column (Was Empty), hidden on screens < lg -->
+    <div class="tw-mt-6 tw-bg-white tw-shadow tw-hidden lg:tw-block tw-w-1/5 tw-h-screen tw-fixed tw-top-0 tw-right-0 tw-overflow-auto tw-p-6 tw-pt-10">
+      {% if ranking_users %}
+        <div class="  tw-w-full tw-rounded-lg tw-p-4">
+          <h5 class="tw-font-bold tw-mb-2 tw-text-lg">TOP 10 DSA-RANKING</h5>
+
+
+          <div class="tw-overflow-x-auto tw-bg-white tw-rounded-xl tw-shadow-sm tw-border tw-border-gray-200">       
+          <table class="tw-w-full tw-border-collapse tw-text-md">
+            <thead class="tw-border-b tw-border-gray-200 tw-bg-[#13253f] tw-text-white">
+              <tr >
+                <th class="tw-px-2 tw-py-2 tw-text-left ">Rank</th>
+                <th class="tw-px-2 tw-py-2 tw-text-left " >User</th>
+              </tr>
+            </thead>
+            <tbody>
+
+              {% for ruser in ranking_users %}
+              <tr class="tw-border-b tw-border-gray-100 last:tw-border-0 hover:tw-bg-gray-50">
+                <td class="tw-px-2 tw-py-2">{{ ruser.rank }}{% if ruser.rank == 1%}<i class="bi-trophy-fill ms-2 text-warning">
+                  {% elif ruser.rank == 2%}<i class="bi-trophy ms-2 text-secondary">
+                  {% elif ruser.rank == 3%}<i class="bi-trophy ms-2" style="color: #b06311;">{%endif%}</td>
+                <td>{{ ruser.username }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+          <!-- Link to Full Ranking Board -->
+          <div class="tw-mt-2">
+            <a href="{% url 'ranking' %}" class="tw-text-blue-600 tw-underline tw-text-sm">
+              <i class="fas fa-hand-point-right tw-mr-2"></i> See the full ranking board here
+            </a>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+
+
+</div>
+
+
+<!-- See More / See Less Script -->
+<script>
+  function truncateHTMLByBlock(html, maxLength) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    const body = doc.body;
+    const truncatedBody = document.createElement('div');
+    let currentCount = 0;
+    const children = Array.from(body.children);
+    for (let child of children) {
+      const blockLength = child.textContent.trim().length;
+      if (currentCount + blockLength > maxLength) break;
+      currentCount += blockLength;
+      truncatedBody.appendChild(child.cloneNode(true));
+    }
+    return truncatedBody.innerHTML;
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const maxLength = 100;
+    document.querySelectorAll('.description').forEach(function(desc) {
+      const fullHTML = desc.innerHTML.trim();
+      const textContent = desc.textContent.trim();
+      if (textContent.length <= maxLength) return;
+      const truncatedHTML = truncateHTMLByBlock(fullHTML, maxLength);
+      desc.innerHTML = `
+        <div class="short-text tw-text-gray-700">${truncatedHTML}...</div>
+        <div class="full-text" style="display: none;">${fullHTML}</div>
+        <button class="see-more-btn tw-text-blue-500 tw-mt-2" style="display: block;">
+            Show More
+        </button>
+      `;
+      const shortTextEl = desc.querySelector('.short-text');
+      const fullTextEl  = desc.querySelector('.full-text');
+      const btn         = desc.querySelector('.see-more-btn');
+      btn.addEventListener('click', function() {
+        if (fullTextEl.style.display === 'none') {
+          shortTextEl.style.display = 'none';
+          fullTextEl.style.display = 'block';
+          btn.textContent = 'Show Less';
+        } else {
+          shortTextEl.style.display = 'block';
+          fullTextEl.style.display = 'none';
+          btn.textContent = 'Show More';
+        }
       });
     });
+  });
+</script>
+
+<!-- Create Post Form Script -->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const postInput = document.getElementById('post-input');
+    const postButton = document.getElementById('post-button');
+    const imageUpload = document.getElementById('image-upload');
+    const imagePreviewContainer = document.getElementById('image-preview-container');
+    const imagePreview = document.getElementById('image-preview');
+    const cancelImage = document.getElementById('cancel-image');
+    const createPostForm = document.getElementById('create-post-form');
+
+    // Enable submit button only if description is nonempty.
+    function validateForm() {
+      postButton.disabled = (postInput.value.trim().length === 0);
+    }
+    postInput.addEventListener('input', validateForm);
+    validateForm();
+
+    // Image Preview
+    imageUpload.addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          imagePreview.src = evt.target.result;
+          imagePreviewContainer.style.display = 'block';
+        }
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Cancel Image Import
+    cancelImage.addEventListener('click', function() {
+      imageUpload.value = '';
+      imagePreview.src = '';
+      imagePreviewContainer.style.display = 'none';
+    });
+
+    // Prevent accidental form submission if Enter is pressed outside <textarea>.
+    createPostForm.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') {
+        e.preventDefault();
+      }
+    });
+  });
+</script>
+
+{% if messages %}
+    <div class="tw-fixed tw-bottom-5 tw-right-5 tw-w-auto tw-space-y-2">
+      {% for message in messages %}
+          <div class="tw-flex tw-items-center tw-justify-between tw-px-4 tw-py-2 tw-bg-yellow-500 tw-text-white tw-rounded-lg tw-shadow-lg tw-opacity-100 tw-transition-all tw-duration-700 alert-box">
+              
+              <!-- Message -->
+              <span class="tw-flex-1 tw-pr-4">{{ message }}</span>
+
+              <!-- FontAwesome Close Button -->
+              <button type="button" class="tw-text-white tw-opacity-80 hover:tw-opacity-100 tw-transition tw-text-lg close-btn"
+                  aria-label="Close">
+                  <i class="fas fa-times"></i>
+              </button>
+          </div>
+      {% endfor %}
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const alerts = document.querySelectorAll(".alert-box");
+
+            alerts.forEach((alert, index) => {
+                // Auto-hide after 3 seconds
+                setTimeout(() => {
+                    alert.style.transform = "translateY(-20px)";
+                    alert.style.opacity = "0";
+                    setTimeout(() => alert.remove(), 700); // Remove after animation
+                }, 5000);
+
+                // Allow manual close
+                alert.querySelector(".close-btn").addEventListener("click", function () {
+                    alert.style.transform = "translateY(-20px)";
+                    alert.style.opacity = "0";
+                    setTimeout(() => alert.remove(), 700);
+                });
+            });
+        });
     </script>
-    
+{% endif %}
 
 
 {% endblock %}

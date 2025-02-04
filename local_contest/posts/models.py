@@ -23,3 +23,19 @@ class Like(models.Model):
 
     def __str__(self):
         return f"{self.user.username} a liké {self.post.description}"
+
+class PinnedPost(models.Model):
+    post = models.OneToOneField('Post', on_delete=models.CASCADE, related_name='pinned_entry', null=True, blank=True)
+
+    def __str__(self):
+        return f"Pinned Post: {self.post.id if self.post else 'None'}"
+
+    @classmethod
+    def set_pinned(cls, post):
+        pinned_post, created = cls.objects.get_or_create(id=1)
+        pinned_post.post = post
+        pinned_post.save()
+
+    @classmethod
+    def get_pinned(cls):
+        return cls.objects.first().post if cls.objects.exists() else None
