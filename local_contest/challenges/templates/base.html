@@ -64,17 +64,17 @@
                 {% if '/challenges/' in request.path %} tw-text-yellow-400 tw-border-b-4 tw-border-yellow-400 {% endif %}">
                 <i class="fas fa-code"></i>
             </a>
-    
-            <a href="{% url 'attendance:validate_attendance' %}" title="Attendance"
-                class="tw-text-white tw-text-3xl hover:tw-text-yellow-300 tw-transition tw-w-32 tw-flex tw-justify-center tw-items-center
-                {% if request.resolver_match.url_name == 'validate_attendance' %} tw-text-yellow-400 tw-border-b-4 tw-border-yellow-400 {% endif %}">
-                <i class="fas fa-calendar-check"></i>
-            </a>
-    
+
             <a href="{% url 'contest_list' %}" title="Contests"
                 class="tw-text-white tw-text-3xl hover:tw-text-yellow-300 tw-transition tw-w-32 tw-flex tw-justify-center tw-items-center
                 {% if '/contest/' in request.path%} tw-text-yellow-400 tw-border-b-4 tw-border-yellow-400 {% endif %}">
                 <i class="fas fa-trophy"></i>
+            </a>
+            
+            <a href="{% url 'attendance:validate_attendance' %}" title="Attendance"
+                class="tw-text-white tw-text-3xl hover:tw-text-yellow-300 tw-transition tw-w-32 tw-flex tw-justify-center tw-items-center
+                {% if request.resolver_match.url_name == 'validate_attendance' %} tw-text-yellow-400 tw-border-b-4 tw-border-yellow-400 {% endif %}">
+                <i class="fas fa-calendar-check"></i>
             </a>
             {% endif %}
             {% if user.is_superuser %}
