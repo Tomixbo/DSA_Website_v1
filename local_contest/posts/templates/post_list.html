@@ -49,9 +49,9 @@
 <div class="tw-flex tw-flex-row tw-gap-4 tw-w-full">
 
   <!-- Left Column (Pinned Ranking), hidden on screens < lg -->
-  <div class="tw-mt-6 tw-flex-col tw-bg-white tw-shadow tw-hidden lg:tw-flex tw-w-1/4 2xl:tw-w-1/5 tw-h-screen tw-fixed tw-top-0 tw-overflow-auto tw-p-10 tw-pt-14 tw-z-10">
+  <div class="tw-mt-6 tw-flex-col tw-hidden lg:tw-flex tw-w-1/4 2xl:tw-w-1/5 tw-h-screen tw-fixed tw-top-0 tw-overflow-auto tw-py-10 tw-pt-14 tw-z-10">
     <!-- Logo Section -->
-    <div class="tw-flex tw-justify-center tw-gap-4 tw-mb-6 ">
+    <div class="tw-flex tw-justify-center tw-gap-4 tw-mb-6 tw-pl-10">
       <!-- DSA Logo -->
       <div class="tw-w-42 tw-h-42 tw-rounded-full tw-bg-gradient-to-r tw-from-blue-500 tw-to-teal-400 tw-p-1">
           <div class="tw-w-full tw-h-full tw-rounded-full tw-overflow-hidden tw-bg-white">
@@ -72,7 +72,7 @@
     </div>
 
     <!-- CONTEST Section -->
-    <div class="tw-mb-6 tw-text-sm">
+    <div class="tw-mb-6 tw-text-sm tw-border-t-2 tw-pl-10 tw-pt-5">
       <h2 class="tw-font-bold tw-text-base 2xl:tw-text-lg  tw-mb-2">TO WIN CONTEST</h2>
     
       <div class="tw-overflow-x-auto tw-bg-white tw-rounded-xl tw-shadow-sm tw-border tw-border-gray-200">
@@ -89,7 +89,7 @@
               <td class="tw-px-2 tw-py-1 2xl:tw-py-2">
                 <!-- Clickable link to contest detail (update if you have a detail view) -->
                 <a href="{% url 'contest_list' %}" 
-                  class="tw-text-blue-600 tw-underline tw-font-semibold">
+                  class="tw-text-teal-800 hover:tw-text-teal-500 hover:tw-underline tw-font-semibold">
                   {{ contest.name }}
                 </a>
               </td>
@@ -104,14 +104,14 @@
     
       <!-- Link to see full contest list -->
       <div class="tw-mt-2">
-        <a href="{% url 'contest_list' %}" class="tw-text-blue-600 tw-underline tw-text-sm">
+        <a href="{% url 'contest_list' %}" class="tw-text-blue-600 hover:tw-underline tw-text-sm">
           <i class="fas fa-hand-point-right tw-mr-2"></i>See all contests
         </a>
       </div>
     </div>
     
     <!-- 2) Show 5 random challenges in a table -->
-    <div class="tw-mb-6">
+    <div class="tw-mb-6 tw-text-sm tw-border-t-2 tw-pl-10 tw-pt-5">
       <h2 class="tw-font-bold tw-text-base 2xl:tw-text-lg tw-mb-2">PRACTICE ALGO & DATA STRUCTURES</h2>
     
       <div class="tw-overflow-x-auto tw-bg-white tw-rounded-xl tw-shadow-sm tw-border tw-border-gray-200">
@@ -128,7 +128,7 @@
               <td class="tw-px-2 tw-py-1 2xl:tw-py-2 ">
                 <!-- Clickable link to challenge detail (example route) -->
                 <a href="{% url 'challenge_detail' challenge_slug=c.slug %}"
-                  class="tw-text-blue-600 tw-underline tw-font-semibold">
+                  class="tw-text-teal-800 hover:tw-text-teal-500 hover:tw-underline tw-font-semibold">
                   {{ c.name }}
                 </a>
               </td>
@@ -143,14 +143,14 @@
     
       <!-- Link to see full challenge list -->
       <div class="tw-mt-2 ">
-        <a href="{% url 'challenge_list' %}" class="tw-text-blue-600 tw-underline tw-text-sm ">
+        <a href="{% url 'challenge_list' %}" class="tw-text-blue-600 hover:tw-underline tw-text-sm ">
           <i class="fas fa-hand-point-right tw-mr-2"></i>See all challenges
         </a>
       </div>
     </div>
   </div>
   <!-- Middle Column (Posts & Create-Post Form) -->
-  <div class="tw-flex-auto tw-max-w-xl 2xl:tw-max-w-2xl tw-mx-auto 2xl:tw-mt-4 tw-z-0">
+  <div class="tw-flex-auto tw-max-w-lg xl:tw-max-w-xl 2xl:tw-max-w-2xl tw-mx-auto 2xl:tw-mt-4 tw-z-0">
 
     <!-- Create Post Form (visible only for admin users) -->
     {% if user.is_staff %}
@@ -307,9 +307,9 @@
   </div>
 
   <!-- Right Column (Was Empty), hidden on screens < lg -->
-  <div class="tw-mt-6 tw-bg-white tw-shadow tw-hidden lg:tw-block tw-w-1/4 2xl:tw-w-1/5 tw-h-screen tw-fixed tw-top-0 tw-right-0 tw-overflow-auto tw-p-6 tw-pt-10 tw-z-10">
+  <div class="tw-mt-6  tw-hidden lg:tw-block tw-w-1/4 2xl:tw-w-1/5 tw-h-screen tw-fixed tw-top-0 tw-right-0 tw-overflow-auto tw-py-6 tw-pt-10 tw-z-10">
     {% if ranking_users %}
-      <div class="  tw-w-full tw-rounded-lg tw-p-4">
+      <div class="tw-pr-10  tw-w-full tw-rounded-lg tw-py-4">
         <h5 class="tw-font-bold tw-mb-2 tw-text-base 2xl:tw-text-lg">TOP 10 DSA-RANKING</h5>
 
 
@@ -336,8 +336,8 @@
       </div>
         <!-- Link to Full Ranking Board -->
         <div class="tw-mt-2">
-          <a href="{% url 'ranking' %}" class="tw-text-blue-600 tw-underline tw-text-sm">
-            <i class="fas fa-hand-point-right tw-mr-2"></i> See the full ranking board here
+          <a href="{% url 'ranking' %}" class="tw-text-blue-600 hover:tw-underline tw-text-sm">
+            <i class="fas fa-hand-point-right tw-mr-2"></i> See the full ranking board
           </a>
         </div>
       </div>
