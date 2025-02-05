@@ -102,8 +102,14 @@
         // ----- COMPARE BUTTONS -----
         $('.compareBtn').on('click', function () {
             var definedFileName = $(this).data('defined-file-name');
-            var uploadedFile = $(this).closest('.col').prev('.col-4').find('.fileInput')[0].files[0];
-            var resultSpan = $(this).closest('.col').next('.col').find('.result');
+        
+            // Select the uploaded file within the flex container
+            var uploadedFile = $(this).closest('.tw-flex-row').find('.tw-flex-2 .fileInput')[0].files[0];
+        
+            // Select the result span within the flex container
+            var resultSpan = $(this).closest('.tw-flex-row').find('.tw-flex-1.tw-flex.tw-justify-center .result');
+        
+            // Call the compare function
             compareFiles(definedFileName, uploadedFile, resultSpan, this);
         });
     
@@ -182,11 +188,11 @@
 
     
     
-    <div class="tw-py-3 tw-px-20">
+    <div class="tw-py-3 tw-px-10">
         <div class="row">
-            <!-- ✅ Section des niveaux -->
-            <div class="col-12 col-md-3 col-lg-2 p-1">
-                <div class="card m-3">
+            <!-- Section des niveaux -->
+            <div class="col-12 col-md-3 col-lg-3 p-1">
+                <div class="card my-3">
                     <div class="card-header">
                         <h3>Levels</h3>
                     </div>
@@ -200,7 +206,7 @@
                 </div>
     
                 <!-- ✅ Ajout du Mini Leaderboard en bas de la section Levels -->
-                <div class="card m-3">
+                <div class="card my-3">
                     <div class="card-header bg-dark text-white text-center">
                         <h5>🏆 Top 5 Teams</h5>
                     </div>
@@ -216,54 +222,52 @@
                     </ul>
                 </div>
             </div>        
-            
+            <!-- Section description -->
             <div class="col p-1 ">
                 {% for level in levels %}
-                <div class="downloads card m-3" data-level-id="{{ level.id }}" style="display: none;">
-                        <div class="card-header">
-                            <h3>Downloads</h3>
-                        </div>
-                        
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-6 col-lg-3">
-                                    <h5 class="tw-font-semibold tw-text-lg  tw-py-1">{{ level.name }} description</h5>
-                                    {% if level.description_file %}
-                                        <!-- Button to open modal -->
-                                        <a href="{{ level.description_file.url }}" target="_blank" class="btn btn-outline-dark">
-                                            <i class="bi-file-earmark-text me-1"></i> See Description
-                                        </a>
-                                        
-                                        <!-- Download icon button -->
-                                        <a href="{{ level.description_file.url }}" download>
-                                            <button type="button" class="btn btn-outline-dark ms-2">
-                                                <i class="bi-download"></i>
-                                            </button>
-                                        </a>
-                                        
-                                        
-                                    {% else %}
-                                        <p>No description file available.</p>
-                                    {% endif %}
-                                </div>
-                                <div class="col-6 col-lg-3">
-                                    <h5 class="tw-font-semibold tw-text-lg  tw-py-1">Input files</h5> 
-                                    {% if level.input_file %}
-                                        <a href="{{ level.input_file.url }}" download>
-                                            <button type="button" class="btn btn-outline-dark"><i class="bi-file-zip me-1"></i>Download Input Files</button>
-                                        </a>
-                                    {% else %}
-                                        <p>No input file available.</p>
-                                    {% endif %}
-                                </div>   
+                    <div class="downloads card my-3" data-level-id="{{ level.id }}" style="display: none;">
+                            <div class="card-header">
+                                <h3>Downloads</h3>
                             </div>
-   
                             
-                        </div>
-                          
-                </div>
+                            <div class="card-body">
+                                <div class="tw-flex tw-flex-row">
+                                    <div class="tw-flex-1">
+                                        <h5 class="tw-font-semibold tw-text-lg  tw-py-1">{{ level.name }} description</h5>
+                                        {% if level.description_file %}
+                                            <!-- Button to open modal -->
+                                            <a href="{{ level.description_file.url }}" target="_blank" class="btn btn-outline-dark">
+                                                <i class="bi-file-earmark-text me-1"></i> See Description
+                                            </a>
+                                            
+                                            <!-- Download icon button -->
+                                            <a href="{{ level.description_file.url }}" download>
+                                                <button type="button" class="btn btn-outline-dark ms-2">
+                                                    <i class="bi-download"></i>
+                                                </button>
+                                            </a>
+                                            
+                                            
+                                        {% else %}
+                                            <p>No description file available.</p>
+                                        {% endif %}
+                                    </div>
+                                    <div class="tw-flex-1">
+                                        <h5 class="tw-font-semibold tw-text-lg  tw-py-1">Input files</h5> 
+                                        {% if level.input_file %}
+                                            <a href="{{ level.input_file.url }}" download>
+                                                <button type="button" class="btn btn-outline-dark"><i class="bi-file-zip me-1"></i>Download Input Files</button>
+                                            </a>
+                                        {% else %}
+                                            <p>No input file available.</p>
+                                        {% endif %}
+                                    </div>   
+                                </div>
+                            </div>   
+                    </div>
                 {% endfor %}
-                <div class="solutions card m-3">
+
+                <div class="solutions card my-3">
                     <div class="card-header">
                         <h3>Solution submit</h3>
                     </div>
@@ -278,8 +282,8 @@
                             <div class="defined-files-container list-group " data-level-id="{{ level.id }}" style="display: none;">
                                 {% for defined_file in level.defined_files.all|dictsort:"name" %}
                                     <div class="defined-file list-group-item">
-                                        <div class="row">
-                                            <div class="col-lg-2 col-md-3 col-4">
+                                        <div class="tw-flex tw-flex-row tw-items-center">
+                                            <div class="tw-flex-1">
                                                 {% if defined_file.input_file %}
                                                     <a href="{{ defined_file.input_file.url }}" download type="button" class="btn btn-outline-dark">
                                                         <i class="bi-file-text me-1"></i>{{ defined_file.filename }}
@@ -288,13 +292,13 @@
                                                     <p>No input file available.</p>
                                                 {% endif %}  
                                             </div>
-                                            <div class="col-4" >
-                                                <input  class="form-control fileInput mx-3" type="file" name="uploaded_file" accept=".txt">
+                                            <div class="tw-flex-2" >
+                                                <input  class="fileInput mx-3" type="file" name="uploaded_file" accept=".txt">
                                             </div>
-                                            <div class="col">
+                                            <div class="tw-flex-1">
                                                 <button  type="button " class="compareBtn btn btn-success {% if test_results|get_item:defined_file.id == 'VALID' %}btn-outline-secondary{% endif %}" data-defined-file-name="{{ defined_file.name }}" {% if test_results|get_item:defined_file.id == 'VALID' %}style="text-decoration : line-through;" disabled{% endif %}>Test {{ defined_file.name }}</button>
                                             </div>
-                                            <div class="col">
+                                            <div class="tw-flex-1 tw-flex tw-justify-center">
                                                 <span class="result {% if test_results|get_item:defined_file.id == 'VALID' %}valid{% else %}unknown{% endif %}">{{ test_results|get_item:defined_file.id }}</span>
                                             </div>
                                             
