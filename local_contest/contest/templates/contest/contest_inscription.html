@@ -37,7 +37,7 @@
                 </li>
             </ul>
 
-            <!-- ✅ Countdown Timer (Before and During Contest) -->
+            <!-- Countdown Timer (Before and During Contest) -->
             <div class="d-flex justify-content-center align-items-center my-2">
                 <div class="countdown-container text-center">
                     <h3 id="countdown" class="fw-bold text-light"></h3>
@@ -50,7 +50,7 @@
                 <div>
                     {% if button_state == 'enabled' %}
                         {% if method == 'POST' %}
-                            <!-- ✅ Wrap the button in a form to send a POST request -->
+                            <!-- Wrap the button in a form to send a POST request -->
                             <form method="POST" action="{% url redirect_url contest.id %}">
                                 {% csrf_token %}
                                 <button type="submit" class="btn btn-primary">
@@ -59,7 +59,7 @@
                                 </button>
                             </form>
                         {% else %}
-                            <!-- ✅ If method is GET, use a regular button -->
+                            <!-- If method is GET, use a regular button -->
                             <button type="button" class="btn btn-primary" onclick="handleButtonClick('{{ redirect_url }}', {{ contest.id }})">
                                 <i class="bi bi-check-circle-fill mr-2"></i>
                                 {{ button_message }}
@@ -77,7 +77,7 @@
     </div>
 </div>
 
-<!-- ✅ JavaScript for Countdown Timer -->
+<!-- JavaScript for Countdown Timer -->
 <script>
     function handleButtonClick(redirectUrl, id) {
         if (redirectUrl === 'contest_participate') {
@@ -92,7 +92,7 @@
         }
     }
 
-    // ✅ Pass Django context variable into JavaScript variables
+    // Pass Django context variable into JavaScript variables
     const currentTime = new Date("{{ current_time|date:'Y-m-d H:i:s' }}").getTime();
     const contestStartTime = new Date("{{ contest.start_date|date:'Y-m-d H:i:s' }}").getTime();
     const contestEndTime = new Date("{{ contest.end_date|date:'Y-m-d H:i:s' }}").getTime();
@@ -131,7 +131,7 @@
     }
 </script>
 
-<!-- ✅ Countdown Styling -->
+<!-- Countdown Styling -->
 <style>
     .countdown-container {
         font-size: 1.5rem;
