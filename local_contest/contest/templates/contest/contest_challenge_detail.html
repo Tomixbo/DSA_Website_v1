@@ -206,13 +206,20 @@
                 </div>
     
                 <!-- ✅ Ajout du Mini Leaderboard en bas de la section Levels -->
-                <div class="card my-3">
-                    <div class="card-header bg-dark text-white text-center">
-                        <h5>🏆 Top 5 Teams</h5>
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <div class="tw-flex tw-flex-row tw-justify-between tw-items-center">
+                            <h3 class="tw-font-semibold">🏆 Top 5 Teams</h3>
+                            <div class="tw-text-center">
+                                <a href="{% url 'contest_leaderboard'  contest.id%}" class="tw-text-blue-600 hover:tw-underline tw-text-sm ">
+                                    <i class="bi bi-bar-chart-fill"></i> Leaderboard
+                                </a>
+                            </div>
+                        </div>
                     </div>
                     <ul class="list-group list-group-flush">
                         {% for entry in top_teams %}
-                            <li class="list-group-item d-flex justify-content-between">
+                            <li class="list-group-item d-flex justify-content-between {% if entry.team == user_team %}tw-bg-yellow-200{% endif %}">
                                 <span>#{{ entry.rank }} {{ entry.team.name }}</span>
                                 <span>{{ entry.progress }}</span>
                             </li>
@@ -221,6 +228,8 @@
                         {% endfor %}
                     </ul>
                 </div>
+                <!-- Link to Full Ranking Board -->
+                
             </div>        
             <!-- Section description -->
             <div class="col p-1 ">

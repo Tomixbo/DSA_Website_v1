@@ -16,6 +16,8 @@ from django.utils.timezone import make_aware
 def contest_leaderboard(request, contest_id):
     contest = get_object_or_404(Contest, id=contest_id)
     teams = contest.teams.all()
+    user = request.user
+    user_team = contest.teams.filter(members=user).first()
 
     leaderboard_data = []
 
@@ -62,7 +64,8 @@ def contest_leaderboard(request, contest_id):
 
     return render(request, 'contest/leaderboard.html', {
         "contest": contest,
-        "leaderboard_data": leaderboard_data
+        "leaderboard_data": leaderboard_data,
+        "user_team": user_team,
     })
 
 
