@@ -48,9 +48,8 @@
   -->
 <div class="tw-flex tw-flex-row tw-gap-4 tw-w-full">
 
-
   <!-- Left Column (Pinned Ranking), hidden on screens < lg -->
-  <div class="tw-mt-6 tw-flex-col tw-bg-white tw-shadow tw-hidden lg:tw-flex tw-w-1/5 tw-h-screen tw-fixed tw-top-0 tw-overflow-auto tw-p-10 tw-pt-14">
+  <div class="tw-mt-6 tw-flex-col tw-bg-white tw-shadow tw-hidden lg:tw-flex tw-w-1/4 2xl:tw-w-1/5 tw-h-screen tw-fixed tw-top-0 tw-overflow-auto tw-p-10 tw-pt-14 tw-z-10">
     <!-- Logo Section -->
     <div class="tw-flex tw-justify-center tw-gap-4 tw-mb-6 ">
       <!-- DSA Logo -->
@@ -71,33 +70,31 @@
           </div>
       </div>
     </div>
-  
-  
-    
+
     <!-- CONTEST Section -->
-    <div class="tw-mb-6">
-      <h2 class="tw-font-bold tw-text-lg tw-mb-2">TO WIN CONTEST</h2>
+    <div class="tw-mb-6 tw-text-sm">
+      <h2 class="tw-font-bold tw-text-base 2xl:tw-text-lg  tw-mb-2">TO WIN CONTEST</h2>
     
       <div class="tw-overflow-x-auto tw-bg-white tw-rounded-xl tw-shadow-sm tw-border tw-border-gray-200">
-        <table class="tw-w-full tw-border-collapse tw-text-sm">
-          <thead class="tw-border-b tw-border-gray-200 tw-bg-[#13253f] tw-text-white">
+        <table class="tw-w-full tw-border-collapse tw-text-sm 2xl:tw-text-base">
+          {% comment %} <thead class="tw-border-b tw-border-gray-200 tw-bg-[#13253f] tw-text-white">
             <tr>
               <th class="tw-px-2 tw-py-2 tw-text-left ">Contest</th>
-              <th class="tw-px-2 tw-py-2 tw-text-left ">Starting Date</th>
+              <th class="tw-px-2 tw-py-2 tw-text-left ">On</th>
             </tr>
-          </thead>
+          </thead> {% endcomment %}
           <tbody>
             {% for contest in contests %}
             <tr class="tw-border-b tw-border-gray-100 last:tw-border-0 hover:tw-bg-gray-50">
-              <td class="tw-px-2 tw-py-2">
+              <td class="tw-px-2 tw-py-1 2xl:tw-py-2">
                 <!-- Clickable link to contest detail (update if you have a detail view) -->
                 <a href="{% url 'contest_list' %}" 
                   class="tw-text-blue-600 tw-underline tw-font-semibold">
                   {{ contest.name }}
                 </a>
               </td>
-              <td class="tw-px-2 tw-py-2 tw-text-gray-500">
-                {{ contest.start_date }}
+              <td class="tw-px-2 tw-py-1 2xl:tw-py-2 tw-text-gray-500">
+                {{ contest.start_date|date:"d/m/y H:i" }}
               </td>
             </tr>
             {% endfor %}
@@ -115,27 +112,27 @@
     
     <!-- 2) Show 5 random challenges in a table -->
     <div class="tw-mb-6">
-      <h2 class="tw-font-bold tw-text-lg tw-mb-2">PRACTICE ALGO & DATA STRUCTURES</h2>
+      <h2 class="tw-font-bold tw-text-base 2xl:tw-text-lg tw-mb-2">PRACTICE ALGO & DATA STRUCTURES</h2>
     
       <div class="tw-overflow-x-auto tw-bg-white tw-rounded-xl tw-shadow-sm tw-border tw-border-gray-200">
-        <table class="tw-w-full tw-border-collapse tw-text-sm">
-          <thead class="tw-border-b tw-border-gray-200 tw-bg-[#13253f] tw-text-white">
+        <table class="tw-w-full tw-border-collapse tw-text-sm 2xl:tw-text-base">
+          {% comment %} <thead class="tw-border-b tw-border-gray-200 tw-bg-[#13253f] tw-text-white">
             <tr>
               <th class="tw-px-2 tw-py-2 tw-text-left ">Challenge</th>
               <th class="tw-px-2 tw-py-2 tw-text-left ">Category</th>
             </tr>
-          </thead>
+          </thead> {% endcomment %}
           <tbody>
             {% for c in random_challenges %}
             <tr class="tw-border-b tw-border-gray-100 last:tw-border-0 hover:tw-bg-gray-50">
-              <td class="tw-px-2 tw-py-2">
+              <td class="tw-px-2 tw-py-1 2xl:tw-py-2 ">
                 <!-- Clickable link to challenge detail (example route) -->
                 <a href="{% url 'challenge_detail' challenge_slug=c.slug %}"
                   class="tw-text-blue-600 tw-underline tw-font-semibold">
                   {{ c.name }}
                 </a>
               </td>
-              <td class="tw-px-2 tw-py-2 tw-text-gray-500">
+              <td class="tw-px-2 tw-py-1 2xl:tw-py-2 tw-text-gray-500">
                 {{ c.category }}
               </td>
             </tr>
@@ -153,7 +150,7 @@
     </div>
   </div>
   <!-- Middle Column (Posts & Create-Post Form) -->
-  <div class="tw-flex-auto tw-max-w-2xl tw-mx-auto tw-mt-4">
+  <div class="tw-flex-auto tw-max-w-xl 2xl:tw-max-w-2xl tw-mx-auto 2xl:tw-mt-4 tw-z-0">
 
     <!-- Create Post Form (visible only for admin users) -->
     {% if user.is_staff %}
@@ -309,47 +306,43 @@
     </div>
   </div>
 
+  <!-- Right Column (Was Empty), hidden on screens < lg -->
+  <div class="tw-mt-6 tw-bg-white tw-shadow tw-hidden lg:tw-block tw-w-1/4 2xl:tw-w-1/5 tw-h-screen tw-fixed tw-top-0 tw-right-0 tw-overflow-auto tw-p-6 tw-pt-10 tw-z-10">
+    {% if ranking_users %}
+      <div class="  tw-w-full tw-rounded-lg tw-p-4">
+        <h5 class="tw-font-bold tw-mb-2 tw-text-base 2xl:tw-text-lg">TOP 10 DSA-RANKING</h5>
 
 
-    
-    <!-- Right Column (Was Empty), hidden on screens < lg -->
-    <div class="tw-mt-6 tw-bg-white tw-shadow tw-hidden lg:tw-block tw-w-1/5 tw-h-screen tw-fixed tw-top-0 tw-right-0 tw-overflow-auto tw-p-6 tw-pt-10">
-      {% if ranking_users %}
-        <div class="  tw-w-full tw-rounded-lg tw-p-4">
-          <h5 class="tw-font-bold tw-mb-2 tw-text-lg">TOP 10 DSA-RANKING</h5>
+        <div class="tw-overflow-x-auto tw-bg-white tw-rounded-xl tw-shadow-sm tw-border tw-border-gray-200 tw-text-base 2xl:tw-text-lg">       
+        <table class="tw-w-full tw-border-collapse tw-text-sm 2xl:tw-text-base">
+          <thead class="tw-border-b tw-border-gray-200 tw-bg-[#13253f] tw-text-white">
+            <tr >
+              <th class="tw-px-2 tw-py-2 tw-text-left ">Rank</th>
+              <th class="tw-px-2 tw-py-2 tw-text-left " >User</th>
+            </tr>
+          </thead>
+          <tbody>
 
-
-          <div class="tw-overflow-x-auto tw-bg-white tw-rounded-xl tw-shadow-sm tw-border tw-border-gray-200">       
-          <table class="tw-w-full tw-border-collapse tw-text-md">
-            <thead class="tw-border-b tw-border-gray-200 tw-bg-[#13253f] tw-text-white">
-              <tr >
-                <th class="tw-px-2 tw-py-2 tw-text-left ">Rank</th>
-                <th class="tw-px-2 tw-py-2 tw-text-left " >User</th>
-              </tr>
-            </thead>
-            <tbody>
-
-              {% for ruser in ranking_users %}
-              <tr class="tw-border-b tw-border-gray-100 last:tw-border-0 hover:tw-bg-gray-50">
-                <td class="tw-px-2 tw-py-2">{{ ruser.rank }}{% if ruser.rank == 1%}<i class="bi-trophy-fill ms-2 text-warning">
-                  {% elif ruser.rank == 2%}<i class="bi-trophy ms-2 text-secondary">
-                  {% elif ruser.rank == 3%}<i class="bi-trophy ms-2" style="color: #b06311;">{%endif%}</td>
-                <td>{{ ruser.username }}</td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
+            {% for ruser in ranking_users %}
+            <tr class="tw-border-b tw-border-gray-100 last:tw-border-0 hover:tw-bg-gray-50">
+              <td class="tw-px-2 tw-py-1 2xl:tw-py-2">{{ ruser.rank }}{% if ruser.rank == 1%}<i class="bi-trophy-fill ms-2 text-warning">
+                {% elif ruser.rank == 2%}<i class="bi-trophy ms-2 text-secondary">
+                {% elif ruser.rank == 3%}<i class="bi-trophy ms-2" style="color: #b06311;">{%endif%}</td>
+              <td>{{ ruser.username }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+        <!-- Link to Full Ranking Board -->
+        <div class="tw-mt-2">
+          <a href="{% url 'ranking' %}" class="tw-text-blue-600 tw-underline tw-text-sm">
+            <i class="fas fa-hand-point-right tw-mr-2"></i> See the full ranking board here
+          </a>
         </div>
-          <!-- Link to Full Ranking Board -->
-          <div class="tw-mt-2">
-            <a href="{% url 'ranking' %}" class="tw-text-blue-600 tw-underline tw-text-sm">
-              <i class="fas fa-hand-point-right tw-mr-2"></i> See the full ranking board here
-            </a>
-          </div>
-        </div>
-      {% endif %}
-    </div>
-
+      </div>
+    {% endif %}
+  </div>
 
 </div>
 
