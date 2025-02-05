@@ -38,7 +38,7 @@
             </ul>
 
             <!-- ✅ Countdown Timer (Before and During Contest) -->
-            <div class="d-flex justify-content-center align-items-center my-3">
+            <div class="d-flex justify-content-center align-items-center my-2">
                 <div class="countdown-container text-center">
                     <h3 id="countdown" class="fw-bold text-light"></h3>
                 </div>
@@ -102,15 +102,15 @@
         let timeLeft, message;
 
         if (now < contestStartTime) {
-            // ✅ Before contest starts: Countdown to start time
+            // Before contest starts: Countdown to start time
             timeLeft = contestStartTime - now;
             message = "Starts in ";
         } else if (now >= contestStartTime && now < contestEndTime) {
-            // ✅ During contest: Countdown to end time
+            // During contest: Countdown to end time
             timeLeft = contestEndTime - now;
             message = "Time Remaining: ";
         } else {
-            // ✅ After contest: Display finished message
+            // After contest: Display finished message
             document.getElementById("countdown").innerHTML = "Contest has ended!";
             clearInterval(countdownInterval);
             return;
@@ -134,7 +134,7 @@
 <!-- ✅ Countdown Styling -->
 <style>
     .countdown-container {
-        font-size: 2.5rem;
+        font-size: 1.5rem;
         font-weight: bold;
         background: rgba(1, 104, 111, 0.7);
         padding: 15px 25px;
