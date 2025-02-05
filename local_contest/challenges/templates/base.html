@@ -38,7 +38,7 @@
 <body class="bg-light">
     <nav class="tw-fixed tw-top-0 tw-left-0 tw-w-full tw-h-14 tw-bg-teal-700 tw-shadow-md tw-flex tw-items-center tw-px-10 tw-z-50">
 
-        <!-- 📌 Div vide à gauche pour équilibrer -->
+        <!-- Div vide à gauche pour équilibrer -->
         <div class="tw-flex-1 tw-flex tw-justify-start tw-items-center tw-space-x-6">
             {% if user.is_authenticated %}
                 {% block rank_and_score %}{% endblock %}
@@ -50,7 +50,7 @@
             {% endif %}  
         </div>
     
-        <!-- 📌 Menu central (icônes principales) -->
+        <!-- Menu central (icônes principales) -->
         <div class="tw-flex tw-justify-center tw-h-full ">
             {% if user.is_authenticated %}
             <a href="{% url 'post_list' %}" title="Home"
@@ -67,7 +67,7 @@
 
             <a href="{% url 'contest_list' %}" title="Contests"
                 class="tw-text-white tw-text-2xl 2xl:tw-text-3xl hover:tw-text-yellow-300 tw-transition tw-w-20 2xl:tw-w-32 tw-flex tw-justify-center tw-items-center
-                {% if '/contest/' in request.path%} tw-text-yellow-400 tw-border-b-4 tw-border-yellow-400 {% endif %}">
+                {% if '/contest/' in request.path or '/teams/' in request.path %} tw-text-yellow-400 tw-border-b-4 tw-border-yellow-400 {% endif %}">
                 <i class="fas fa-trophy"></i>
             </a>
             
@@ -92,7 +92,7 @@
             {% endif %}
         </div>
     
-        <!-- 📌 Menu de droite (profil + logout) -->
+        <!-- Menu de droite (profil + logout) -->
         <div class="tw-flex-1 tw-flex tw-justify-end tw-items-center tw-space-x-6">
             {% if user.is_authenticated %}
 
