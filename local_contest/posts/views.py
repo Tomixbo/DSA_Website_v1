@@ -39,12 +39,12 @@ def post_list(request):
     # Get the TOP 10 ranking users
     ranking_users = CustomUser.objects.order_by('rank')[:10]
 
-    # 1) Fetch the 3 most recent contests
-    contests = Contest.objects.all().order_by('-start_date')[:3]
+    # 1) Fetch the 2 most recent contests
+    contests = Contest.objects.all().order_by('-start_date')[:2]
 
     # 2) Fetch 5 random published challenges
     excluded_challenges = ContestChallenge.objects.values_list('challenge_id', flat=True)
-    random_challenges = Challenge.objects.exclude(id__in=excluded_challenges).filter(published=True).order_by('?')[:5]
+    random_challenges = Challenge.objects.exclude(id__in=excluded_challenges).filter(published=True).order_by('?')[:3]
 
     return render(request, 'post_list.html', {
         'form': form,

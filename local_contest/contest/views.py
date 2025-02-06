@@ -16,6 +16,8 @@ from django.utils.timezone import make_aware
 def contest_leaderboard(request, contest_id):
     contest = get_object_or_404(Contest, id=contest_id)
     teams = contest.teams.all()
+    user = request.user
+    user_team = contest.teams.filter(members=user).first()
 
     leaderboard_data = []
 
@@ -62,7 +64,8 @@ def contest_leaderboard(request, contest_id):
 
     return render(request, 'contest/leaderboard.html', {
         "contest": contest,
-        "leaderboard_data": leaderboard_data
+        "leaderboard_data": leaderboard_data,
+        "user_team": user_team,
     })
 
 
@@ -158,53 +161,54 @@ def contest_challenge_detail(request, contest_id, challenge_slug):
     user = request.user  # Current user
     contest = get_object_or_404(Contest, id=contest_id)
 
-    # ✅ Vérifier si le contest est terminé
+    # Vérifier si le contest est terminé
     if contest.is_finished():
         return redirect('contest_inscription', contest_id=contest.id)
 
-    # ✅ Vérifier si l'utilisateur appartient à une équipe inscrite au contest
+    # Vérifier si l'utilisateur appartient à une équipe inscrite au contest
     user_team = contest.teams.filter(members=user).first()
     if not user_team:
         return redirect('contest_inscription', contest_id=contest.id)
 
-    # ✅ Vérifier si le challenge appartient bien au contest
+    # Vérifier si le challenge appartient bien au contest
     challenge = get_object_or_404(Challenge, slug=challenge_slug, contest_challenges__contest=contest)
 
-    # ✅ Récupérer les niveaux et fichiers définis
+    # Récupérer les niveaux et fichiers définis
     levels = Level.objects.filter(challenge=challenge).order_by('name')
     defined_files = DefinedFile.objects.filter(level__challenge=challenge).order_by('name')
 
-    # ✅ Récupérer les membres de l'équipe
+    # Récupérer les membres de l'équipe
     team_members = user_team.members.all()
     
-    # ✅ Générer les résultats des tests pour l'utilisateur
+    # Générer les résultats des tests pour l'utilisateur
     test_results = {}
     for df in defined_files:
         # Vérifie si au moins un membre de l'équipe a validé ce fichier
         is_solved = Performance.objects.filter(definedfile=df, user__in=team_members, solved=True).exists()
-        test_results[df.id] = "VALID" if is_solved else "INVALID"
-    # ✅ Mini Leaderboard (Top 5 équipes)
+        test_results[df.id] = "VALID" if is_solved else "?"
+    
+    # Mini Leaderboard (Top 5 équipes)
     teams = contest.teams.all()
     leaderboard_data = []
 
-    # ✅ Total des fichiers définis du contest
+    # Total des fichiers définis du contest
     total_defined_files = DefinedFile.objects.filter(level__challenge__contest_challenges__contest=contest).count() or 1
 
     for team in teams:
-        # ✅ Nombre de fichiers résolus par l'équipe
+        # Nombre de fichiers résolus par l'équipe
         solved_files = Performance.objects.filter(
             definedfile__level__challenge__contest_challenges__contest=contest,
             user__in=team.members.all(),
             solved=True
         ).values("definedfile").distinct().count()
 
-        # ✅ Dernière soumission
+        # Dernière soumission
         last_performance = Performance.objects.filter(
             user__in=team.members.all(),
             solved=True
         ).aggregate(last=Max("created_at"))["last"] or "2000-01-01"
 
-        # ✅ Calcul du score
+        # Calcul du score
         score = (solved_files / total_defined_files) * 100
 
         leaderboard_data.append({
@@ -214,14 +218,14 @@ def contest_challenge_detail(request, contest_id, challenge_slug):
             "last_performance": last_performance
         })
 
-    # ✅ Trier par score DESC et date ASC
+    # Trier par score DESC et date ASC
     leaderboard_data.sort(key=lambda x: (-x["score"], x["last_performance"]))
 
-    # ✅ Assignation du rang
+    # Assignation du rang
     for index, entry in enumerate(leaderboard_data):
         entry["rank"] = index + 1
 
-    # ✅ Sélectionner uniquement le Top 5
+    # Sélectionner uniquement le Top 5
     top_teams = leaderboard_data[:5]
 
     result = 'Upload your file first'

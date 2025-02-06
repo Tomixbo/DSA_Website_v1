@@ -17,6 +17,9 @@ def breadcrumb_context(request):
         "validate_attendance": {"name": "Validate Attendance", "parent": None},
         "attendance_list": {"name": "Attendance Records", "parent": None},
         "display_code": {"name": "Attendance Code", "parent": None},
+        "team_members": {"name": "Team Members", "parent": "contest_detail"},
+        "list_teams": {"name": "Teams", "parent": "contest_detail"},
+        "create_team": {"name": "Create Team", "parent": "contest_detail"},
     }
 
     # Supprime l'espace de noms s'il existe pour correspondre aux clés du breadcrumb_map
@@ -37,6 +40,19 @@ def breadcrumb_context(request):
             })
         elif match.url_name == "challenge_detail" and "challenge_slug" in match.kwargs:
             current_url = reverse(match.url_name, kwargs={"challenge_slug": match.kwargs["challenge_slug"]})
+        elif match.url_name == "team_members" and "contest_id" in match.kwargs and "team_id" in match.kwargs:
+            current_url = reverse(match.url_name, kwargs={
+                "contest_id": match.kwargs["contest_id"],
+                "team_id": match.kwargs["team_id"]
+            })
+        elif match.url_name == "list_teams" and "contest_id" in match.kwargs:
+            current_url = reverse(match.url_name, kwargs={
+                "contest_id": match.kwargs["contest_id"]
+            })
+        elif match.url_name == "create_team" and "contest_id" in match.kwargs:
+            current_url = reverse(match.url_name, kwargs={
+                "contest_id": match.kwargs["contest_id"]
+            })
         else:
             current_url = reverse(url_name)
 

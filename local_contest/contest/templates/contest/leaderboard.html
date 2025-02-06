@@ -28,7 +28,7 @@
         </thead>
         <tbody>
             {% for entry in leaderboard_data %}
-                <tr class="{% if entry.team in user_team %}table-success{% endif %}">
+                <tr class="{% if entry.team == user_team %}table-success{% endif %}">
                     <td>
                         {{ entry.rank }}
                         {% if entry.rank == 1%}<i class="bi-trophy-fill ms-2 text-warning"></i>
