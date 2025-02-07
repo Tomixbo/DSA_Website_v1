@@ -11,26 +11,6 @@ from django.db.models import Max
 
 from django.db.models import Max
 from django.utils.timezone import make_aware
-from datetime import datetime
-
-def force_datetime(dt_value, fmt="%Y-%m-%d %H:%M:%S"):
-    """
-    Try to convert dt_value (which might be a string or a datetime) to a datetime.
-    If dt_value is already a datetime, just return it.
-    If dt_value is a string but doesn't match the format, return datetime.now().
-    """
-    if isinstance(dt_value, datetime):
-        return dt_value  # It’s already a datetime; just return it
-
-    if isinstance(dt_value, str):
-        try:
-            return datetime.strptime(dt_value, fmt)
-        except (ValueError, TypeError):
-            # Couldn’t parse the string with the given format
-            return datetime.now()
-    
-    # If it's neither a datetime nor a string, fallback:
-    return datetime.now()
     
 @login_required
 def contest_leaderboard(request, contest_id):
@@ -47,8 +27,8 @@ def contest_leaderboard(request, contest_id):
     ).count() or 1  # Évite division par 0
 
     # Définir la période valide du contest
-    contest_start = force_datetime(contest.start_date)
-    contest_end = force_datetime(contest.end_date)
+    contest_start = contest.start_date
+    contest_end = contest.end_date
 
     for team in teams:
         # Nombre de fichiers résolus par cette équipe dans la période du contest
