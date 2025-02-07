@@ -83,6 +83,10 @@ def contest_detail(request, contest_id):
     contest = get_object_or_404(Contest, id=contest_id)
     user = request.user
 
+    # Vérifie si le contest n’a pas encore commencé
+    if timezone.now() < contest.start_date:
+        return redirect('contest_inscription', contest_id=contest.id)
+
     # Vérifie si le contest est terminé
     if contest.is_finished():
         return redirect('contest_inscription', contest_id=contest.id)
@@ -194,6 +198,9 @@ def contest_challenge_detail(request, contest_id, challenge_slug):
     # Total des fichiers définis du contest
     total_defined_files = DefinedFile.objects.filter(level__challenge__contest_challenges__contest=contest).count() or 1
 
+    # Définir la période valide du contest
+    contest_start = contest.start_date
+
     for team in teams:
         # Nombre de fichiers résolus par l'équipe
         solved_files = Performance.objects.filter(
@@ -206,7 +213,7 @@ def contest_challenge_detail(request, contest_id, challenge_slug):
         last_performance = Performance.objects.filter(
             user__in=team.members.all(),
             solved=True
-        ).aggregate(last=Max("created_at"))["last"] or "2000-01-01"
+        ).aggregate(last=Max("created_at"))["last"] or contest_start
 
         # Calcul du score
         score = (solved_files / total_defined_files) * 100
