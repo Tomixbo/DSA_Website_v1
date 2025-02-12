@@ -13,7 +13,12 @@
 {% block content %}
 
     <div class="shadow tw-px-10 tw-py-3 text-white tw-font-semibold tw-text-2xl" style="background-color: #051934;">
-        <h1>LIST OF CHALLENGES</h1>
+        <div class="d-flex justify-content-between align-items-center text-white tw-font-semibold tw-text-2xl">
+            <h1>LIST OF CHALLENGES</h1>
+            {% if user.is_superuser %}
+                <a href="{% url 'create_challenge'%}" class="btn btn-outline-light">Create challenge</a>
+            {% endif %}
+        </div>
     </div>
     
     {% if messages %}
