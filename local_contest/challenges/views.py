@@ -6,6 +6,8 @@ from django.db.models import Count, Subquery, OuterRef, Q
 from django.contrib.auth.decorators import login_required
 from .utils import calculate_rank, calculate_score, update_ranks, update_score, update_category
 from contest.models import ContestChallenge
+from django.utils.text import slugify
+from django.shortcuts import render, redirect
 
 
 
@@ -87,7 +89,7 @@ def challenge_list(request):
     user = request.user
     update_category(user)
 
-    # ✅ Exclure les challenges liés à un contest
+    # Exclure les challenges liés à un contest
     excluded_challenges = ContestChallenge.objects.values_list('challenge_id', flat=True)
 
     # Sous-requête pour compter tous les fichiers définis pour chaque challenge
@@ -104,7 +106,7 @@ def challenge_list(request):
         count=Count('levels__defined_files', filter=Q(levels__defined_files__performance__user=user, levels__defined_files__performance__solved=True))
     ).values('count')
 
-    # ✅ Appliquer le filtre pour exclure les challenges des contests
+    # Appliquer le filtre pour exclure les challenges des contests
     challenges = Challenge.objects.exclude(id__in=excluded_challenges).order_by('category', 'name').filter(published=True).annotate(
         num_defined_files=Subquery(defined_files_count),
         num_resolved_defined_files=Subquery(resolved_files_count)
@@ -132,3 +134,76 @@ def ranking(request):
     score = calculate_score(user)
     users = CustomUser.objects.order_by('rank').all()
     return render(request, 'ranking.html', {'user': user, 'users': users, 'rank': rank, 'total_user': total_user, 'score': score})
+
+@login_required
+def create_challenge(request):
+    if request.method == "POST":
+        # Débogage : Vérifier toutes les données envoyées
+        print("Data reçue dans POST:", request.POST)
+        print("Fichiers reçus dans FILES:", request.FILES)
+
+        # Récupérer les infos du challenge
+        name = request.POST.get("name")
+        description = request.POST.get("description")
+        author = request.POST.get("author")
+        category = request.POST.get("category")
+        difficulty = request.POST.get("difficulty")
+        published = request.POST.get("published") == "on"
+
+        # Créer et enregistrer le challenge
+        challenge = Challenge.objects.create(
+            name=name,
+            slug=slugify(name),
+            description=description,
+            author=author,
+            category=category,
+            difficulty=difficulty,
+            published=published
+        )
+
+        # Récupérer les levels
+        level_count = int(request.POST.get("level_count", 0))
+        print(f"Nombre de levels détectés : {level_count}")
+
+        for i in range(1, level_count + 1):
+            level_name = f"Level{i}"
+            level_description = f"Level {i} for {name}"
+            description_file = request.FILES.get(f"description_file_{i}")
+            input_file = request.FILES.get(f"input_file_{i}")
+
+            level = Level.objects.create(
+                name=level_name,
+                description=level_description,
+                challenge=challenge,
+                description_file=description_file,
+                input_file=input_file
+            )
+
+            # Vérifions si le nombre de defined files est bien récupéré
+            defined_file_count = int(request.POST.get(f"defined_file_count_{i}", 0))
+            print(f"Level {i}: {defined_file_count} defined files détectés.")
+
+            for j in range(1, defined_file_count + 1):
+                defined_file_name = f"output{i}_{j}"
+                input_file = request.FILES.get(f"defined_input_file_{i}_{j}")
+                output_file = request.FILES.get(f"defined_output_file_{i}_{j}")
+
+                # Débogage : Vérifier si les fichiers sont bien récupérés
+                print(f"Tentative de création: {defined_file_name}")
+                print(f"   ↳ input_file: {input_file}")
+                print(f"   ↳ output_file: {output_file}")
+
+                if input_file and output_file:
+                    DefinedFile.objects.create(
+                        name=defined_file_name,
+                        level=level,
+                        input_file=input_file,
+                        output_file=output_file
+                    )
+                    print(f"DefinedFile {defined_file_name} créé avec succès.")
+                else:
+                    print(f"ERREUR: Les fichiers pour {defined_file_name} sont manquants!")
+
+        return redirect("challenge_list")
+
+    return render(request, "create_challenge.html")

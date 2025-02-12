@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="tw-container tw-mx-auto tw-mt-10 tw-max-w-4xl">
+    <h1 class="tw-text-3xl tw-font-bold tw-mb-6">Créer un Challenge</h1>
+    <form method="POST" enctype="multipart/form-data" class="tw-bg-white tw-p-6 tw-rounded-lg tw-shadow-md">
+        {% csrf_token %}
+
+        <!-- Informations du Challenge -->
+        <div class="tw-mb-4">
+            <label class="tw-block tw-font-semibold">Nom du Challenge</label>
+            <input type="text" name="name" class="tw-w-full tw-border tw-border-gray-300 tw-rounded-md tw-px-3 tw-py-2" required>
+        </div>
+
+        <div class="tw-mb-4">
+            <label class="tw-block tw-font-semibold">Description</label>
+            <textarea name="description" class="tw-w-full tw-border tw-border-gray-300 tw-rounded-md tw-px-3 tw-py-2"></textarea>
+        </div>
+
+        <div class="tw-mb-4">
+            <label class="tw-block tw-font-semibold">Auteur</label>
+            <input type="text" name="author" class="tw-w-full tw-border tw-border-gray-300 tw-rounded-md tw-px-3 tw-py-2">
+        </div>
+
+        <div class="tw-mb-4">
+            <label class="tw-block tw-font-semibold">Catégorie</label>
+            <select name="category" class="tw-w-full tw-border tw-border-gray-300 tw-rounded-md tw-px-3 tw-py-2">
+                <option value="Alpha">Alpha</option>
+                <option value="Beta">Beta</option>
+                <option value="Gamma">Gamma</option>
+                <option value="Omega">Omega</option>
+            </select>
+        </div>
+
+        <div class="tw-mb-4">
+            <label class="tw-block tw-font-semibold">Difficulté</label>
+            <select name="difficulty" class="tw-w-full tw-border tw-border-gray-300 tw-rounded-md tw-px-3 tw-py-2">
+                {% for i in "12345" %}
+                    <option value="{{ i }}">{{ i }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="tw-mb-4">
+            <label class="tw-inline-flex tw-items-center">
+                <input type="checkbox" name="published" class="tw-h-4 tw-w-4 tw-text-blue-600 tw-border-gray-300">
+                <span class="tw-ml-2 tw-font-semibold">Publié</span>
+            </label>
+        </div>
+
+        <!-- Zone pour ajouter les Levels -->
+        <h3 class="tw-text-xl tw-font-bold tw-mt-6">Levels</h3>
+        <div id="levels-container"></div>
+        <button type="button" class="tw-bg-blue-600 tw-text-white tw-py-2 tw-px-4 tw-rounded-md tw-mt-3" onclick="addLevel()">Ajouter un Level</button>
+
+        <br><br>
+        <button type="submit" class="tw-bg-green-600 tw-text-white tw-py-2 tw-px-4 tw-rounded-md tw-mt-6">Créer le Challenge</button>
+    </form>
+</div>
+
+<script>
+    let levels = new Set();
+
+    function addLevel() {
+        let levelNumber = 1;
+        while (levels.has(levelNumber)) {
+            levelNumber++;
+        }
+        levels.add(levelNumber);
+    
+        const container = document.getElementById("levels-container");
+    
+        const levelDiv = document.createElement("div");
+        levelDiv.classList.add("tw-border", "tw-p-4", "tw-mb-4", "tw-bg-gray-100", "tw-rounded-md");
+        levelDiv.setAttribute("id", `level-${levelNumber}`);
+    
+        levelDiv.innerHTML = `
+            <div class="tw-flex tw-justify-between tw-items-center">
+                <h4 class="tw-font-bold tw-text-lg">Level ${levelNumber}</h4>
+                <button type="button" class="tw-bg-red-600 tw-text-white tw-py-1 tw-px-3 tw-rounded-md" onclick="removeLevel(${levelNumber})">Supprimer</button>
+            </div>
+            <input type="hidden" name="level_count" value="${levels.size}">
+            <label class="tw-block tw-font-semibold">Description File</label>
+            <input type="file" name="description_file_${levelNumber}" class="tw-w-full tw-border tw-border-gray-300 tw-rounded-md tw-px-3 tw-py-2">
+            <label class="tw-block tw-font-semibold">Input File</label>
+            <input type="file" name="input_file_${levelNumber}" class="tw-w-full tw-border tw-border-gray-300 tw-rounded-md tw-px-3 tw-py-2">
+    
+            <h5 class="tw-font-semibold tw-mt-4">Defined Files</h5>
+            <input type="hidden" name="defined_file_count_${levelNumber}" value="0" id="defined_file_count_${levelNumber}">
+            <div id="defined-files-${levelNumber}"></div>
+            <button type="button" class="tw-bg-gray-600 tw-text-white tw-py-1 tw-px-3 tw-rounded-md tw-mt-2" onclick="addDefinedFile(${levelNumber})">Ajouter un Defined File</button>
+        `;
+    
+        container.appendChild(levelDiv);
+    }
+    
+    function removeLevel(levelNumber) {
+        const levelDiv = document.getElementById(`level-${levelNumber}`);
+        if (levelDiv) {
+            levelDiv.remove();
+            levels.delete(levelNumber);
+            console.log(`Level ${levelNumber} supprimé.`);
+        }
+    }
+    
+    function addDefinedFile(levelNumber) {
+        const definedFilesContainer = document.getElementById(`defined-files-${levelNumber}`);
+        const definedFileCountInput = document.getElementById(`defined_file_count_${levelNumber}`);
+    
+        if (!definedFileCountInput) {
+            console.error(`L'input hidden defined_file_count_${levelNumber} est introuvable !`);
+            return;
+        }
+    
+        let definedFileCount = parseInt(definedFileCountInput.value);
+        definedFileCount++;
+        definedFileCountInput.value = definedFileCount;
+    
+        const definedFileName = `output${levelNumber}_${definedFileCount}`;
+    
+        const fileDiv = document.createElement("div");
+        fileDiv.classList.add("tw-mt-2", "tw-flex", "tw-items-center", "tw-justify-between");
+        fileDiv.setAttribute("id", `defined-file-${levelNumber}-${definedFileCount}`);
+    
+        fileDiv.innerHTML = `
+            <div>
+                <h6 class="tw-font-bold">${definedFileName}</h6>
+                <label class="tw-block tw-font-semibold ">Input File</label>
+                <input type="file" name="defined_input_file_${levelNumber}_${definedFileCount}" class="tw-w-full tw-border tw-border-gray-300 tw-rounded-md tw-px-3 tw-py-2">
+                <label class="tw-block tw-font-semibold ">Output File</label>
+                <input type="file" name="defined_output_file_${levelNumber}_${definedFileCount}" class="tw-w-full tw-border tw-border-gray-300 tw-rounded-md tw-px-3 tw-py-2">
+            </div>
+            <button type="button" class="tw-bg-red-600 tw-text-white tw-py-1 tw-px-3 tw-rounded-md tw-ml-2" onclick="removeDefinedFile(${levelNumber}, ${definedFileCount})">Supprimer</button>
+        `;
+    
+        definedFilesContainer.appendChild(fileDiv);
+        console.log(`DefinedFile ${definedFileName} ajouté.`);
+    }
+    
+    function removeDefinedFile(levelNumber, fileNumber) {
+        const fileDiv = document.getElementById(`defined-file-${levelNumber}-${fileNumber}`);
+        if (fileDiv) {
+            fileDiv.remove();
+            const definedFileCountInput = document.getElementById(`defined_file_count_${levelNumber}`);
+            definedFileCountInput.value = parseInt(definedFileCountInput.value) - 1;
+            console.log(`DefinedFile output${levelNumber}_${fileNumber} supprimé.`);
+        }
+    }
+    
+
+    
+</script>
+
+{% endblock %}
+<label class="tw-block tw-font-semibold ">Input File</label>
+<label class="tw-block tw-font-semibold ">Output File</label>
+
+
+
+
+
