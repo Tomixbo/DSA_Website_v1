@@ -171,7 +171,7 @@
             return;
         }
     
-        console.log("Contest ID récupéré :", contestId);
+
     
         function fetchNotificationCount(contestId) {
             if (!contestId || isNaN(contestId)) {
@@ -180,7 +180,7 @@
             }
     
             const url = `${window.location.origin}/teams/notifications/?contest_id=${contestId}`;
-            console.log("URL de requête :", url);
+
     
             fetch(url)
                 .then(response => {
@@ -190,7 +190,7 @@
                     return response.json();
                 })
                 .then(data => {
-                    console.log("Données reçues :", data);
+
                     if (data.notifications && data.notifications.length > 0) {
                         notificationCount.style.display = "inline-block";
                         notificationCount.textContent = data.notifications.length;
