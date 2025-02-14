@@ -3,7 +3,18 @@
 {% block content %}
 
 <div class="shadow tw-px-10 tw-py-3 text-white tw-font-semibold tw-text-2xl " style="background-color: #051934;">
-    <h1>{{ contest.name }}</h1>
+    <div class="tw-flex tw-justify-between tw-items-center tw-mb-3 tw-pr-10">
+        <h1>{{ contest.name }}</h1>
+        <!-- Section 2: Buttons (Stack on Small Screens) -->
+        {% if user_team and user_team in contest.teams.all %}
+        <div class="tw-flex tw-flex-col sm:tw-flex-row tw-gap-3 tw-justify-center tw-items-center">
+            <a href="{% url 'team_members' contest.id user_team.id %}" 
+            class="tw-bg-yellow-500 tw-text-black tw-flex tw-items-center tw-justify-center tw-px-4 tw-py-2 tw-font-bold tw-shadow-sm tw-rounded-md tw-text-sm md:tw-text-base hover:tw-bg-yellow-600">
+                <i class="bi bi-people-fill tw-mr-2"></i> YOUR TEAM
+            </a>
+        </div>
+        {% endif %}
+    </div>
 </div>
 
 {% if messages %}

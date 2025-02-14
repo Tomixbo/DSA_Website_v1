@@ -19,7 +19,7 @@ def list_teams(request, contest_id):
     
     pending_requests = JoinRequest.objects.filter(user=request.user, team__in=teams_in_contest, status="pending")
     
-    pending_invitations = Invitation.objects.filter(user=request.user, status="pending")
+    pending_invitations = Invitation.objects.filter(user=request.user, status="pending", team__in=teams_in_contest)
 
 
     return render(request, 'teams/team_list.html', {
@@ -97,11 +97,12 @@ def team_members(request, contest_id, team_id):
     contest = get_object_or_404(Contest, id=contest_id)
     team = get_object_or_404(Team, id=team_id)
 
-    # Vérifier si l'utilisateur est membre de l'équipe
+    # Vérifier si l'utilisateur est membre et propriétaire de l'équipe
     is_member = request.user in team.members.all()
+    is_owner = request.user == team.owner  # 🔹 Vérification du propriétaire
 
-    # Filtrer les demandes en attente pour cette équipe
-    pending_requests = team.join_requests.filter(status='pending')
+    # Filtrer les demandes en attente uniquement si l'utilisateur est propriétaire
+    pending_requests = team.join_requests.filter(status='pending') if is_owner else None
 
     # Obtenir les utilisateurs qui sont déjà dans une équipe pour ce contest
     users_in_other_teams = CustomUser.objects.filter(
@@ -119,6 +120,7 @@ def team_members(request, contest_id, team_id):
         'contest': contest,  
         'team': team,
         'is_member': is_member,
+        'is_owner': is_owner,  # 🔹 Ajout de is_owner pour le template
         'pending_requests': pending_requests,
         'search_results': search_results,  
         'query': query,
@@ -127,12 +129,17 @@ def team_members(request, contest_id, team_id):
 
 
 
+
 @login_required
 def get_notifications(request):
-    # Vérifier si l'utilisateur est propriétaire d'une équipe
-    user_teams = Team.objects.filter(owner=request.user)
+    contest_id = request.GET.get("contest_id")  # Récupérer l'ID du contest depuis la requête GET
+    if not contest_id:
+        return JsonResponse({"error": "Missing contest_id parameter"}, status=400)
 
-    # Récupérer les demandes d'adhésion en attente pour les équipes qu'il possède
+    # Vérifier si l'utilisateur est propriétaire d'une équipe dans CE contest uniquement
+    user_teams = Team.objects.filter(owner=request.user, contests__id=contest_id)
+
+    # Récupérer les demandes d'adhésion en attente pour les équipes de ce contest
     join_requests = JoinRequest.objects.filter(team__in=user_teams, status='pending').order_by('-created_at')
 
     # Transformer les demandes en format JSON
@@ -150,6 +157,7 @@ def get_notifications(request):
 
 
 
+
 @login_required
 def accept_request(request, request_id):
     join_request = get_object_or_404(JoinRequest, id=request_id)
@@ -159,6 +167,8 @@ def accept_request(request, request_id):
         messages.error(request, "This request has already been processed.")
         return redirect("list_teams", contest_id=join_request.team.contests.first().id)
     
+    contest = join_request.team.contests.first()
+
     # Vérifier si la team a de la place
     if join_request.team.members.count() >= join_request.team.contests.first().team_members_max:
         messages.error(request, "This team is already full!")
@@ -177,11 +187,9 @@ def accept_request(request, request_id):
     # Retrieve contest_id for redirection
     contest_id = join_request.team.contests.first().id
 
-    # Delete all pending invitations for this user
-    Invitation.objects.filter(user=join_request.user, status="pending").delete()
-
-    # Delete all other pending join requests made by this user
-    JoinRequest.objects.filter(user=join_request.user, status="pending").delete()
+    # Supprimer les autres demandes et invitations **dans ce contest uniquement**
+    JoinRequest.objects.filter(user=join_request.user, status="pending", team__contests=contest).delete()
+    Invitation.objects.filter(user=join_request.user, status="pending", team__contests=contest).delete()
 
     messages.success(request, f"{join_request.user.username} has been added to the team {join_request.team.name}.")
 
@@ -256,6 +264,7 @@ def send_invitation(request, team_id, user_id):
 def accept_invite(request, invite_id):
     invite = get_object_or_404(Invitation, id=invite_id, user=request.user, status="pending")
     team = invite.team
+    contest = team.contests.first()  # Récupère le contest de l'équipe
 
     # Vérifier si la team a de la place
     if team.members.count() >= invite.team.contests.first().team_members_max:
@@ -274,11 +283,11 @@ def accept_invite(request, invite_id):
     # Get the contest_id associated with the team
     contest_id = invite.team.contests.first().id
 
-    # Delete all other pending invitations for this user
-    Invitation.objects.filter(user=request.user, status="pending").exclude(id=invite.id).delete()
+    # Supprimer toutes les autres invitations pour cet utilisateur **dans le même contest**
+    Invitation.objects.filter(user=request.user, status="pending", team__contests=contest).delete()
 
-    # Delete all join requests the user has previously made
-    JoinRequest.objects.filter(user=request.user, status="pending").delete()
+    # Supprimer toutes les demandes de rejoindre une équipe dans ce contest
+    JoinRequest.objects.filter(user=request.user, status="pending", team__contests=contest).delete()
 
     messages.success(request, f"You have joined the team '{team.name}'!")
     

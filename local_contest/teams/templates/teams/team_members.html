@@ -149,7 +149,7 @@
     </div>
 </div>
 {% endif %}
-
+<div id="contest-id" data-contest-id="{{ contest.id }}"></div>
 
 {% if is_member %}
 <script>
@@ -157,39 +157,68 @@
         const notificationBtn = document.getElementById("notification-btn");
         const notificationCount = document.getElementById("notification-count");
         const modal = document.getElementById("notificationModal");
+        const contestElement = document.getElementById("contest-id");
     
-        function fetchNotificationCount() {
-            fetch("{% url 'get_notifications' %}") 
-                .then(response => response.json())
+        if (!contestElement) {
+            console.error("L'élément #contest-id n'existe pas !");
+            return;
+        }
+    
+        const contestId = contestElement.dataset.contestId;
+    
+        if (!contestId || isNaN(contestId)) {
+            console.error("Contest ID invalide :", contestId);
+            return;
+        }
+    
+        console.log("Contest ID récupéré :", contestId);
+    
+        function fetchNotificationCount(contestId) {
+            if (!contestId || isNaN(contestId)) {
+                console.error("Contest ID invalide :", contestId);
+                return;
+            }
+    
+            const url = `${window.location.origin}/teams/notifications/?contest_id=${contestId}`;
+            console.log("URL de requête :", url);
+    
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
                 .then(data => {
-                    console.log(data);  // Debug: Vérifie si l'API renvoie bien des notifications
-                    if (data.notifications.length > 0) {
+                    console.log("Données reçues :", data);
+                    if (data.notifications && data.notifications.length > 0) {
                         notificationCount.style.display = "inline-block";
                         notificationCount.textContent = data.notifications.length;
                     } else {
                         notificationCount.style.display = "none";
                     }
                 })
-                .catch(error => console.error("Error fetching notifications:", error));
+                .catch(error => console.error("Erreur lors de la récupération des notifications :", error));
         }
-        fetchNotificationCount();
-
-        // Rafraîchir le nombre de notifications toutes les 10 secondes
-        setInterval(fetchNotificationCount, 10000);
     
-        // Charger les notifications dès l'ouverture de la modale
-        notificationBtn.addEventListener("click", fetchNotificationCount);
-
-        
+        // Appeler immédiatement la fonction avec contestId
+        fetchNotificationCount(contestId);
+    
+        // ✅ Passer contestId dans setInterval
+        setInterval(() => fetchNotificationCount(contestId), 10000);
+    
+        // ✅ Passer contestId dans l'événement "click"
+        notificationBtn.addEventListener("click", () => fetchNotificationCount(contestId));
     
         notificationBtn.addEventListener("click", function () {
-            
             modal.classList.remove("tw-hidden");
         });
     });
+    
     function closeModal() {
         document.getElementById("notificationModal").classList.add("tw-hidden");
     }
+    
 </script>
 {% endif %}
 {% endblock %}

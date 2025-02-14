@@ -283,27 +283,27 @@ def contest_inscription(request, contest_id):
     current_time = timezone.now()
     user = request.user
 
-    # ✅ Vérifier si l'utilisateur appartient à une équipe INSCRITE au contest
-    user_team = Team.objects.filter(members=user).first()
+    # Vérifier si l'utilisateur appartient à une équipe INSCRITE au contest
+    user_team = contest.teams.filter(members=user).first()
     team_already_in_contest = contest.teams.filter(members=user).exists()
 
-    # ✅ Récupérer toutes les teams et les demandes en attente
-    teams = Team.objects.all()
-    pending_requests = Team.objects.filter(join_requests__user=user, join_requests__status='pending')
+    # Récupérer toutes les teams et les demandes en attente
+    teams = contest.teams.all()
+    pending_requests = contest.teams.filter(join_requests__user=user, join_requests__status='pending')
 
-    # ✅ Initialisation des variables
+    # Initialisation des variables
     button_state = 'disabled'
     button_message = 'Over : See Leaderboard'
     redirect_url = None
     method = 'GET'
 
-    # ✅ Gérer l'affichage du bouton d'inscription
+    # Gérer l'affichage du bouton d'inscription
     if contest.is_finished():
         button_state = 'enabled'
         button_message = 'Over : See Leaderboard'
         redirect_url = 'contest_leaderboard'
     elif current_time < contest.start_date:
-        # ✅ Contest pas encore commencé
+        # Contest pas encore commencé
         if team_already_in_contest:
             button_state = 'disabled'
             button_message = 'Enrolled'
@@ -313,7 +313,7 @@ def contest_inscription(request, contest_id):
             redirect_url = 'list_teams'
             method = 'POST'
     elif contest.is_active():
-        # ✅ Contest en cours
+        # Contest en cours
         if team_already_in_contest:
             button_state = 'enabled'
             button_message = 'Join'
